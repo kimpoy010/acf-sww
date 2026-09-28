@@ -158,6 +158,20 @@ class CashTransactionService
             'qr_image_url' => $response['qrImageUrl'] ?? null,
         ]);
 
+        if (blank($response['paymentUrl'] ?? null) && blank($response['qrPayload'] ?? null) && blank($response['qrImageUrl'] ?? null)) {
+            // Paybucks accepted the request (no PaybucksException) but gave
+            // us nothing to show the player to actually pay with — either
+            // this channel/environment responds under different field
+            // names than the doc's paymentUrl/qrPayload/qrImageUrl, or it
+            // genuinely omitted them. Logging the raw body is the fastest
+            // way to tell which from the field names actually present.
+            Log::warning('paybucks.deposit_response_missing_payment_fields', [
+                'code' => $transaction->code,
+                'channel' => $channel,
+                'response' => $response,
+            ]);
+        }
+
         AuditLogger::log(
             action: 'cash.deposit_requested',
             description: __(':name requested a :amount :channel deposit.', ['name' => $player->displayName(), 'amount' => $amount, 'channel' => PaybucksChannel::label($channel)]),

@@ -20,19 +20,23 @@
                 <div class="bg-white rounded-xl p-4 inline-block mb-4">
                     <img src="{{ $cashTransaction->qr_image_url }}" alt="{{ __('Payment QR code') }}" class="w-48 h-48">
                 </div>
+                <p class="text-sm text-[#c9baaf] mb-1">{{ __('Scan with your :channel app to pay.', ['channel' => $channelLabel ?? __('GCash/Maya')]) }}</p>
             @elseif ($qrTarget)
                 <div class="bg-white rounded-xl p-4 inline-block mb-4">
                     {!! \App\Support\QrCodeGenerator::svg($qrTarget) !!}
                 </div>
-            @endif
-
-            @if ($cashTransaction->payment_url)
+                <p class="text-sm text-[#c9baaf] mb-1">{{ __('Scan with your :channel app to pay.', ['channel' => $channelLabel ?? __('GCash/Maya')]) }}</p>
+            @elseif ($cashTransaction->payment_url)
                 <p class="mb-4">
                     <a href="{{ $cashTransaction->payment_url }}" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-4 py-2 text-sm shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Open payment page') }}</a>
                 </p>
+                <p class="text-sm text-[#c9baaf] mb-1">{{ __('Tap the button above to pay.') }}</p>
+            @else
+                <div class="rounded-xl px-4 py-6 mb-4" style="background:rgba(120,53,15,0.2);border:1px solid rgba(217,119,6,0.4);">
+                    <p class="font-semibold mb-1">{{ __("We couldn't generate a way to pay for this request.") }}</p>
+                    <p class="text-sm text-[#c9baaf]">{{ __('Please cancel it below and try again. If this keeps happening, contact support.') }}</p>
+                </div>
             @endif
-
-            <p class="text-sm text-[#c9baaf] mb-1">{{ __('Scan with your :channel app, or tap the button above to pay.', ['channel' => $channelLabel ?? __('GCash/Maya')]) }}</p>
         @else
             <div class="rounded-xl px-4 py-6 mb-4 bg-[#0a0e16] border border-[#141a2a]">
                 <p class="text-[#c9baaf] font-semibold">{{ __('Sending your withdrawal to :channel…', ['channel' => $channelLabel ?? __('your account')]) }}</p>
