@@ -9,7 +9,7 @@
             <label class="block text-sm text-[#8a7a70] mb-1">{{ __('Channel') }}</label>
             <div class="grid grid-cols-2 gap-2">
                 @foreach ($PaybucksChannel::CHANNELS as $channel)
-                    <label class="deposit-channel-option flex items-center justify-center gap-2 rounded-lg border border-[#141a2a] bg-[#05070b] py-2 cursor-pointer text-sm font-semibold has-[:checked]:border-red-500 has-[:checked]:bg-red-950/40">
+                    <label class="deposit-channel-option flex items-center justify-center gap-2 rounded-lg border border-[#141a2a] bg-[#05070b] py-2 cursor-pointer text-sm font-semibold has-[:checked]:border-[#c9a04a] has-[:checked]:bg-[#c9a04a]/15">
                         <input type="radio" name="channel" value="{{ $channel }}" class="deposit-channel-input hidden" data-scope="deposit" data-requires-account="{{ $PaybucksChannel::depositRequiresAccountNumber($channel) ? '1' : '0' }}" {{ $loop->first ? 'checked' : '' }} required>
                         {{ $PaybucksChannel::label($channel) }}
                     </label>
