@@ -234,12 +234,13 @@ class PaybucksSmokeTest extends TestCase
         $this->assertEquals('https://cashier.peppermint-pay.com/GCash_DepositPage.html?token=abc', $tx->payment_url);
         $this->assertNull($tx->qr_image_url);
 
-        // No qr_image_url and no qr_payload, but the page falls back to
-        // drawing its own QR code of the payment_url (any URL is
-        // scannable), rather than showing the "couldn't generate a way
-        // to pay" error state.
+        // No qr_image_url and no qr_payload — the page must NOT draw a QR
+        // out of payment_url itself (a webpage link isn't a format
+        // GCash/Maya's scanner recognizes as a valid payment QR); it
+        // should show the "Open payment page" link instead.
         $show = $this->actingAs($player)->get(route('play.cash.show', $tx));
         $show->assertOk();
+        $show->assertSee('Open payment page');
         $show->assertDontSee("couldn&#039;t generate a way to pay", false);
     }
 

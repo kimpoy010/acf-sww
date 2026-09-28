@@ -3,7 +3,6 @@
 @php
     $typeLabel = $cashTransaction->type === 'deposit' ? __('Deposit') : __('Withdrawal');
     $channelLabel = $cashTransaction->channel ? \App\Services\Paybucks\PaybucksChannel::label($cashTransaction->channel) : null;
-    $qrTarget = $cashTransaction->qr_payload ?: $cashTransaction->payment_url;
 @endphp
 
 @section('title', __(':type QR', ['type' => $typeLabel]))
@@ -21,9 +20,13 @@
                     <img src="{{ $cashTransaction->qr_image_url }}" alt="{{ __('Payment QR code') }}" class="w-48 h-48">
                 </div>
                 <p class="text-sm text-[#c9baaf] mb-1">{{ __('Scan with your :channel app to pay.', ['channel' => $channelLabel ?? __('GCash/Maya')]) }}</p>
-            @elseif ($qrTarget)
+            @elseif ($cashTransaction->qr_payload)
+                {{-- Only ever a real QR Ph/InstaPay payload Paybucks itself
+                     gave us — never generated from payment_url, which is
+                     just a webpage link and isn't a format GCash/Maya's
+                     scanner recognizes as a valid payment QR. --}}
                 <div class="bg-white rounded-xl p-4 inline-block mb-4">
-                    {!! \App\Support\QrCodeGenerator::svg($qrTarget) !!}
+                    {!! \App\Support\QrCodeGenerator::svg($cashTransaction->qr_payload) !!}
                 </div>
                 <p class="text-sm text-[#c9baaf] mb-1">{{ __('Scan with your :channel app to pay.', ['channel' => $channelLabel ?? __('GCash/Maya')]) }}</p>
             @elseif ($cashTransaction->payment_url)
