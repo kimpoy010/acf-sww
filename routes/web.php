@@ -115,7 +115,7 @@ Route::middleware(['auth', 'role:player'])->prefix('play')->name('play.')->group
     });
 });
 
-Route::middleware(['auth', 'role:declarator|superadmin'])->prefix('declarator')->name('declarator.')->group(function () {
+Route::middleware(['auth', 'role:declarator|superadmin|webmaster'])->prefix('declarator')->name('declarator.')->group(function () {
     Route::get('/events', [DeclaratorEventController::class, 'index'])->name('events.index');
     Route::get('/events/{event}', [DeclaratorEventController::class, 'show'])->name('events.show');
     Route::get('/events/{event}/fights-panel', [DeclaratorEventController::class, 'fightsPanel'])->name('events.fights-panel');
@@ -147,7 +147,7 @@ Route::middleware(['auth', 'role:declarator|superadmin'])->prefix('declarator')-
 // between whoever's actually running the event and the superadmin who
 // otherwise schedules it, so these live outside both role-specific route
 // groups above.
-Route::middleware(['auth', 'role:declarator|superadmin'])->group(function () {
+Route::middleware(['auth', 'role:declarator|superadmin|webmaster'])->group(function () {
     Route::get('/superadmin/events/create', [SuperadminEventController::class, 'create'])->name('superadmin.events.create');
     Route::post('/superadmin/events', [SuperadminEventController::class, 'store'])->name('superadmin.events.store');
     Route::get('/superadmin/events/{event}/edit', [SuperadminEventController::class, 'edit'])->name('superadmin.events.edit');
@@ -217,7 +217,7 @@ Route::middleware(['auth', 'role:teller'])->prefix('teller')->name('teller.')->g
     });
 });
 
-Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
+Route::middleware(['auth', 'role:superadmin|webmaster'])->prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/games/{game}/edit', [GameController::class, 'edit'])->name('games.edit');
     Route::put('/games/{game}', [GameController::class, 'update'])->name('games.update');

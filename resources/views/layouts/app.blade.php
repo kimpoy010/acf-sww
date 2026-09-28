@@ -52,7 +52,7 @@
                                 @role('teller')
                                     <a href="{{ route('teller.dashboard') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Teller Dashboard') }}</a>
                                 @endrole
-                                @role('superadmin')
+                                @role('superadmin|webmaster')
                                     <a href="{{ route('superadmin.pin.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Approval PIN') }}</a>
                                     <a href="{{ route('superadmin.settings.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Payout settings') }}</a>
                                 @endrole

@@ -5,13 +5,14 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
 class RolesAndUsersSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['player', 'declarator', 'superadmin', 'agent', 'teller'] as $role) {
+        foreach (['player', 'declarator', 'superadmin', 'agent', 'teller', 'webmaster'] as $role) {
             Role::firstOrCreate(['name' => $role]);
         }
 
@@ -36,6 +37,34 @@ class RolesAndUsersSeeder extends Seeder
             $superadmin->update(['pin' => '1234']);
         }
         Wallet::firstOrCreate(['user_id' => $superadmin->id], ['main_balance' => 1_000_000]);
+
+        // Same access level as superadmin for now (see every `role:superadmin`
+        // middleware/check across the app, which also lists 'webmaster') —
+        // a real RBAC subsystem is meant to scope this down later. Its
+        // password is randomly generated rather than the demo accounts'
+        // fixed 'password' since this one is meant to actually be used;
+        // printed once, on the run that creates the account, since there's
+        // nowhere else this seeder could hand it back afterward.
+        $webmasterPassword = Str::password(20);
+        $webmaster = User::firstOrCreate(
+            ['email' => 'webmaster@example.com'],
+            [
+                'name' => 'Webmaster',
+                'username' => 'webmaster',
+                'password' => bcrypt($webmasterPassword),
+                'email_verified_at' => now(),
+                'referral_code' => 'WEBMASTER',
+            ]
+        );
+        if (! $webmaster->hasRole('webmaster')) {
+            $webmaster->assignRole('webmaster');
+        }
+        Wallet::firstOrCreate(['user_id' => $webmaster->id]);
+
+        if ($webmaster->wasRecentlyCreated) {
+            $this->command?->warn("Webmaster account created — username: webmaster  password: {$webmasterPassword}");
+            $this->command?->warn('Save that password now — it is only ever shown here, at creation.');
+        }
 
         $declarator = User::firstOrCreate(
             ['email' => 'declarator@example.com'],
