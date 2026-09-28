@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Agent\DashboardController as AgentDashboardController;
+use App\Http\Controllers\Agent\DownlineController as AgentDownlineController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -160,6 +161,8 @@ Route::middleware(['auth', 'role:declarator|superadmin|webmaster', 'permission:m
 Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
     Route::get('/', [AgentDashboardController::class, 'index'])->name('dashboard');
     Route::post('/transfer', [AgentDashboardController::class, 'transfer'])->name('transfer');
+
+    Route::get('/downline/{user}/transactions', [AgentDownlineController::class, 'transactions'])->name('downline.transactions');
 
     // Same GCash/Maya deposit & withdrawal flow as play.cash.* — see
     // Player\CashController's own doc comment on why it's the same
