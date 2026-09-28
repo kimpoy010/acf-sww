@@ -59,9 +59,9 @@
         <button type="button" class="wallet-tab gold-tab" data-tab="withdrawals">{{ __('Withdrawals') }}</button>
     </div>
 
-    <div class="flex flex-wrap items-end gap-2 mt-3 mb-2">
-        <div id="wallet-filter-event" hidden>
-            <label class="block text-[10px] text-[#8a7a70] mb-1">{{ __('Event') }}</label>
+    <div class="flex flex-nowrap items-end gap-2 mt-3 mb-2 overflow-x-auto">
+        <div id="wallet-filter-event" class="shrink-0" hidden>
+            <label class="block text-[10px] text-[#8a7a70] mb-1 whitespace-nowrap">{{ __('Event') }}</label>
             <select id="wallet-tx-filter-event" class="rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1.5 text-xs">
                 <option value="">{{ __('All Bets') }}</option>
                 @foreach ($playerEvents as $playerEvent)
@@ -69,26 +69,26 @@
                 @endforeach
             </select>
         </div>
-        <div id="wallet-filter-date-range" hidden>
-            <label class="block text-[10px] text-[#8a7a70] mb-1">{{ __('Date range') }}</label>
+        <div id="wallet-filter-date-range" class="shrink-0" hidden>
+            <label class="block text-[10px] text-[#8a7a70] mb-1 whitespace-nowrap">{{ __('Date range') }}</label>
             <div class="relative">
                 <input type="text" id="wallet-tx-filter-date-range" data-date-range
                        data-range-from="#wallet-tx-filter-date-from" data-range-to="#wallet-tx-filter-date-to"
                        placeholder="{{ __('Select dates') }}" autocomplete="off" readonly
-                       class="rounded-lg bg-[#05070b] border border-[#141a2a] pl-2 pr-6 py-1.5 text-xs cursor-pointer w-52">
+                       class="rounded-lg bg-[#05070b] border border-[#141a2a] pl-2 pr-6 py-1.5 text-xs cursor-pointer w-40">
                 <button type="button" data-date-range-clear hidden
                         class="absolute right-1 top-1/2 -translate-y-1/2 text-[#8a7a70] hover:text-white text-sm leading-none">&times;</button>
             </div>
             <input type="hidden" id="wallet-tx-filter-date-from">
             <input type="hidden" id="wallet-tx-filter-date-to">
         </div>
-        <div id="wallet-filter-amount" hidden>
-            <label class="block text-[10px] text-[#8a7a70] mb-1">{{ __('Amount') }}</label>
+        <div id="wallet-filter-amount" class="shrink-0" hidden>
+            <label class="block text-[10px] text-[#8a7a70] mb-1 whitespace-nowrap">{{ __('Amount') }}</label>
             <input type="text" inputmode="decimal" id="wallet-tx-filter-amount" placeholder="{{ __('Amount') }}"
-                   class="amount-input w-24 rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1.5 text-xs">
+                   class="amount-input w-20 rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1.5 text-xs">
         </div>
-        <button type="button" id="wallet-tx-filter-apply" class="gold-filter-btn">{{ __('Filter') }}</button>
-        <button type="button" id="wallet-tx-filter-clear" class="text-xs text-[#8a7a70] hover:text-[#c9a04a] transition px-2 py-1.5" hidden>{{ __('Clear') }}</button>
+        <button type="button" id="wallet-tx-filter-apply" class="gold-filter-btn shrink-0">{{ __('Filter') }}</button>
+        <button type="button" id="wallet-tx-filter-clear" class="text-xs text-[#8a7a70] hover:text-[#c9a04a] transition px-2 py-1.5 shrink-0 whitespace-nowrap" hidden>{{ __('Clear') }}</button>
     </div>
 
     <div id="wallet-tx-results">

@@ -52,7 +52,7 @@
                         @if ($event->displayBannerUrl())
                             <img src="{{ $event->displayBannerUrl() }}" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105">
                         @else
-                            <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 40%,#121a5a,#05081c);"></div>
+                            <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 40%, rgba(168,121,31,.22), #05070b 75%);"></div>
                         @endif
                         <span class="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] sm:text-[11px] font-bold uppercase text-white shadow-[0_0_10px_1px_rgba(239,68,68,0.6)]">
                             <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-white"></span>
@@ -86,7 +86,7 @@
                         @if ($item['event']->displayBannerUrl())
                             <img src="{{ $item['event']->displayBannerUrl() }}" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105">
                         @else
-                            <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 40%,#121a5a,#05081c);"></div>
+                            <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 40%, rgba(168,121,31,.22), #05070b 75%);"></div>
                         @endif
                         <span class="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] sm:text-[11px] font-bold uppercase text-white shadow-[0_0_10px_1px_rgba(239,68,68,0.6)]">
                             <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-white"></span>
