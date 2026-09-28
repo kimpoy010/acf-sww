@@ -25,10 +25,7 @@
                    class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
         </div>
         <div>
-            <div class="flex items-center justify-between mb-1">
-                <label class="block text-sm text-slate-400">{{ __('Password') }}</label>
-                <a href="{{ route('password.request') }}" class="text-xs text-red-400 hover:underline">{{ __('Forgot password?') }}</a>
-            </div>
+            <label class="block text-sm text-slate-400 mb-1">{{ __('Password') }}</label>
             <input type="password" name="password" required
                    class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
         </div>
@@ -37,6 +34,10 @@
         @endif
         <button type="submit" class="w-full rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold py-2">{{ __('Log in') }}</button>
     </form>
+
+    <p class="text-sm text-center mt-4">
+        <a href="{{ route('password.request') }}" class="text-red-400 hover:underline">{{ __('Forgot password?') }}</a>
+    </p>
 
     <p class="text-sm text-slate-400 mt-4 text-center">
         {{ __('No account?') }} <a href="{{ route('register') }}" class="text-red-400 hover:underline">{{ __('Register') }}</a>
