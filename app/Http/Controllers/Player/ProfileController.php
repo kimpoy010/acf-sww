@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Player;
 
 use App\Http\Controllers\Controller;
+use App\Models\VipTier;
 use Illuminate\Contracts\View\View;
 
 class ProfileController extends Controller
@@ -17,6 +18,15 @@ class ProfileController extends Controller
         $player = auth()->user();
         $player->profileCode(); // ensure it exists before rendering the QR
 
-        return view('player.profile.show', ['player' => $player]);
+        $lifetimeValidBets = (float) ($player->wallet->lifetime_valid_bets ?? 0);
+        $vipTier = VipTier::forValidBets($lifetimeValidBets);
+        $nextVipTier = $vipTier ? $vipTier->next() : VipTier::orderBy('min_valid_bets')->first();
+
+        return view('player.profile.show', [
+            'player' => $player,
+            'lifetimeValidBets' => $lifetimeValidBets,
+            'vipTier' => $vipTier,
+            'nextVipTier' => $nextVipTier,
+        ]);
     }
 }

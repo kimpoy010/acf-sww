@@ -19,6 +19,7 @@ class BettingService
     public function __construct(
         private WalletService $walletService,
         private CommissionService $commissionService,
+        private VipRebateService $vipRebateService,
     ) {}
 
     /**
@@ -577,10 +578,15 @@ class BettingService
         // based on the actual amount staked. Draw bets and void-round refunds
         // never generate commission. Counter-bet tickets have no player/agent
         // relationship at all, so they're excluded entirely.
-        Bet::inPool()->where('fight_id', $fight->id)
+        $settledBets = Bet::inPool()->where('fight_id', $fight->id)
             ->whereIn('side', ['meron', 'wala'])
             ->whereNotNull('user_id')
-            ->get()
-            ->each(fn (Bet $bet) => $this->commissionService->distributeCommission($bet, (float) $bet->amount));
+            ->get();
+
+        $settledBets->each(fn (Bet $bet) => $this->commissionService->distributeCommission($bet, (float) $bet->amount));
+
+        // Same eligibility as commission above: every meron/wala bet earns
+        // its VIP rebate on the full staked amount, win or lose.
+        $settledBets->each(fn (Bet $bet) => $this->vipRebateService->creditRebate($bet, (float) $bet->amount));
     }
 }

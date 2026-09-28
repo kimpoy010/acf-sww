@@ -34,6 +34,7 @@ use App\Http\Controllers\Superadmin\RoleController;
 use App\Http\Controllers\Superadmin\SettingsController;
 use App\Http\Controllers\Superadmin\StaffController;
 use App\Http\Controllers\Superadmin\TellerCashFlowReportController;
+use App\Http\Controllers\Superadmin\VipTierController;
 use App\Http\Controllers\Superadmin\WalletController;
 use App\Http\Controllers\Teller\RfidCardController;
 use App\Http\Controllers\Teller\ShiftController as TellerShiftController;
@@ -280,6 +281,13 @@ Route::middleware(['auth', 'role:superadmin|webmaster'])->prefix('superadmin')->
         Route::post('/odds-tiers/reorder', [OddsTierController::class, 'reorder'])->name('odds-tiers.reorder');
         Route::put('/odds-tiers/{oddsTier}', [OddsTierController::class, 'update'])->name('odds-tiers.update');
         Route::delete('/odds-tiers/{oddsTier}', [OddsTierController::class, 'destroy'])->name('odds-tiers.destroy');
+    });
+
+    Route::middleware('permission:manage-vip-tiers')->group(function () {
+        Route::get('/vip-tiers', [VipTierController::class, 'index'])->name('vip-tiers.index');
+        Route::post('/vip-tiers', [VipTierController::class, 'store'])->name('vip-tiers.store');
+        Route::put('/vip-tiers/{vipTier}', [VipTierController::class, 'update'])->name('vip-tiers.update');
+        Route::delete('/vip-tiers/{vipTier}', [VipTierController::class, 'destroy'])->name('vip-tiers.destroy');
     });
 
     Route::middleware('permission:manage-cockpit-presets')->group(function () {

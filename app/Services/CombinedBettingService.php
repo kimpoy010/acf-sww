@@ -36,6 +36,7 @@ class CombinedBettingService
     public function __construct(
         private WalletService $walletService,
         private CommissionService $commissionService,
+        private VipRebateService $vipRebateService,
     ) {}
 
     public function placeBet(User $user, Fight $fight, ?OddsTier $oddsTier, string $side, string $mode, float $amount): Bet
@@ -586,10 +587,12 @@ class CombinedBettingService
             $bet->update(['status' => 'settled', 'payout' => $payout]);
         }
 
-        Bet::where('fight_id', $fight->id)->whereNull('odds_tier_id')->whereIn('side', ['meron', 'wala'])
+        $settledPoolBets = Bet::where('fight_id', $fight->id)->whereNull('odds_tier_id')->whereIn('side', ['meron', 'wala'])
             ->whereNotNull('user_id')
-            ->get()
-            ->each(fn (Bet $poolBet) => $this->commissionService->distributeCommission($poolBet, (float) $poolBet->amount));
+            ->get();
+
+        $settledPoolBets->each(fn (Bet $poolBet) => $this->commissionService->distributeCommission($poolBet, (float) $poolBet->amount));
+        $settledPoolBets->each(fn (Bet $poolBet) => $this->vipRebateService->creditRebate($poolBet, (float) $poolBet->amount));
     }
 
     /**
@@ -668,11 +671,13 @@ class CombinedBettingService
         foreach ($meronCommissions as ['bet' => $bet, 'amount' => $amount]) {
             if ($bet->user_id) {
                 $this->commissionService->distributeCommission($bet, round($amount, 2));
+                $this->vipRebateService->creditRebate($bet, round($amount, 2));
             }
         }
         foreach ($walaCommissions as ['bet' => $bet, 'amount' => $amount]) {
             if ($bet->user_id) {
                 $this->commissionService->distributeCommission($bet, round($amount, 2));
+                $this->vipRebateService->creditRebate($bet, round($amount, 2));
             }
         }
     }

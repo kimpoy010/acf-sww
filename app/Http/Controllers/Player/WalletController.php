@@ -22,7 +22,7 @@ class WalletController extends Controller
      * (draw_payout/commission_transfer never land on a player's own
      * wallet, so offering them in the filter would just be dead options).
      */
-    private const FILTERABLE_TYPES = ['bet', 'payout', 'refund', 'deposit', 'withdrawal', 'reversal'];
+    private const FILTERABLE_TYPES = ['bet', 'payout', 'refund', 'deposit', 'withdrawal', 'reversal', 'vip_rebate'];
 
     /**
      * Which reference_types the Bets/Deposits/Withdrawals tabs each show.

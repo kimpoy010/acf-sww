@@ -10,6 +10,7 @@ namespace App\Support;
  * than a Blade partial: @include only passes data INTO the included view,
  * never back out, so @php-assigned variables there are invisible to the
  * including view — this used to live in _wallet-tx-maps.blade.php, whose
+ *
  * @include left referenceLabels/actionLabels/txIcons silently undefined in
  * every row (every icon fell back to the same generic "!" glyph).
  */
@@ -37,6 +38,7 @@ class WalletTransactionDisplay
                 'admin_withdraw' => __('Cash withdrawal'),
                 'reversal' => __('Payout reversal'),
                 'commission_transfer' => __('Commission transfer'),
+                'vip_rebate' => __('VIP rebate'),
             ],
 
             // Short verb phrase for the small "as of" line above each row,
@@ -52,6 +54,7 @@ class WalletTransactionDisplay
                 'admin_withdraw' => __('Withdrawal approved'),
                 'reversal' => __('Payout reversed'),
                 'commission_transfer' => __('Commission transferred'),
+                'vip_rebate' => __('Rebate credited'),
             ],
 
             // Icon + tint per reference_type, independent of credit/debit —
@@ -69,6 +72,7 @@ class WalletTransactionDisplay
                 'refund' => ['path' => 'M3 12a9 9 0 106-8.49M3 3v6h6', 'color' => '#5eead4'],
                 'reversal' => ['path' => 'M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z', 'color' => '#f59e0b'],
                 'commission_transfer' => ['path' => 'M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3', 'color' => '#93c5fd'],
+                'vip_rebate' => ['path' => 'M12 2l2.9 6.3 6.9.7-5.2 4.6 1.6 6.8L12 17l-6.2 3.4 1.6-6.8-5.2-4.6 6.9-.7z', 'color' => '#c9a04a'],
             ],
         ];
     }

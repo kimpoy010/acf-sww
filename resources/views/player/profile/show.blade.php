@@ -33,6 +33,37 @@
         <div class="rounded-xl p-3 mb-4 text-sm" style="background:rgba(120,20,20,0.25);border:1px solid rgba(220,38,38,0.5);">{{ session('error') }}</div>
     @endif
 
+    <div class="gold-panel p-4 mb-6">
+        <div class="flex items-center justify-between mb-1">
+            <h2 class="font-semibold">{{ __('VIP Status') }}</h2>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:linear-gradient(180deg,#f2d68e,#c9a04a 45%,#8a611a 100%);color:#241600">
+                {{ $vipTier?->name ?? __('Not yet VIP') }}
+            </span>
+        </div>
+        <p class="text-xs text-[#9c8f7b] mb-3">
+            {{ __('Lifetime valid bets: :amount', ['amount' => $currencySymbol.number_format($lifetimeValidBets, 2)]) }}
+            @if ($vipTier)
+                &middot; {{ __('Rebate: :percent% on every settled bet', ['percent' => rtrim(rtrim(number_format($vipTier->rebate_percent, 2), '0'), '.')]) }}
+            @endif
+        </p>
+        @if ($nextVipTier)
+            @php
+                $rangeStart = (float) ($vipTier->min_valid_bets ?? 0);
+                $rangeEnd = (float) $nextVipTier->min_valid_bets;
+                $progress = $rangeEnd > $rangeStart ? min(100, max(0, ($lifetimeValidBets - $rangeStart) / ($rangeEnd - $rangeStart) * 100)) : 0;
+                $remaining = max(0, $rangeEnd - $lifetimeValidBets);
+            @endphp
+            <div class="h-2 rounded-full bg-[#141a2a] overflow-hidden mb-2">
+                <div class="h-full rounded-full" style="width:{{ $progress }}%;background:linear-gradient(90deg,#8a611a,#c9a04a 60%,#f2d68e)"></div>
+            </div>
+            <p class="text-xs text-[#9c8f7b]">
+                {{ __(':amount more in valid bets to reach :tier (:percent% rebate)', ['amount' => $currencySymbol.number_format($remaining, 2), 'tier' => $nextVipTier->name, 'percent' => rtrim(rtrim(number_format($nextVipTier->rebate_percent, 2), '0'), '.')]) }}
+            </p>
+        @else
+            <p class="text-xs text-[#9c8f7b]">{{ __('You\'ve reached the highest VIP tier.') }}</p>
+        @endif
+    </div>
+
     <a href="{{ route('account.password.edit') }}" class="gold-btn-frame gold-btn-secondary mb-6">
         <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
         <span class="gold-btn-fill">{{ __('Change password') }}</span>
