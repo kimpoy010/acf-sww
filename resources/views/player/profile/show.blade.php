@@ -2,6 +2,10 @@
 
 @section('title', __('Profile'))
 
+@php
+    $routePrefix = 'play.payment-methods.';
+@endphp
+
 @section('content')
 <div class="max-w-sm mx-auto">
     <div class="flex items-center gap-3 mb-4">
@@ -14,7 +18,49 @@
         </div>
     </div>
 
-    <a href="{{ route('account.password.edit') }}" class="block w-full text-center rounded-xl bg-slate-900 border border-slate-800 hover:border-red-600 hover:text-red-400 transition font-semibold py-3 text-sm mb-4">{{ __('Change password') }}</a>
+    @if (session('success'))
+        <div class="rounded-xl p-3 mb-4 text-sm" style="background:rgba(6,78,59,0.25);border:1px solid rgba(16,185,129,0.4);">{{ session('success') }}</div>
+    @endif
+    @if (session('error'))
+        <div class="rounded-xl p-3 mb-4 text-sm" style="background:rgba(120,20,20,0.25);border:1px solid rgba(220,38,38,0.5);">{{ session('error') }}</div>
+    @endif
+
+    <a href="{{ route('account.password.edit') }}" class="block w-full text-center rounded-xl bg-slate-900 border border-slate-800 hover:border-red-600 hover:text-red-400 transition font-semibold py-3 text-sm mb-6">{{ __('Change password') }}</a>
+
+    <div class="rounded-xl bg-slate-900 border border-slate-800 p-4 mb-6">
+        <h2 class="font-semibold mb-1">{{ __('Withdrawal PIN') }}</h2>
+        <p class="text-xs text-slate-500 mb-3">
+            @if ($player->hasWalletPin())
+                {{ __('Required each time you withdraw. Enter a new one below to change it.') }}
+            @else
+                {{ __('Set a 4-digit PIN — required before you can withdraw from your wallet.') }}
+            @endif
+        </p>
+        <form method="POST" action="{{ route('play.wallet-pin.update') }}" class="space-y-3">
+            @csrf
+            <div>
+                <label class="block text-sm text-slate-500 mb-1">{{ __('New PIN') }}</label>
+                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" name="pin" required autocomplete="off"
+                       placeholder="••••"
+                       class="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+            <div>
+                <label class="block text-sm text-slate-500 mb-1">{{ __('Confirm PIN') }}</label>
+                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" name="pin_confirmation" required autocomplete="off"
+                       placeholder="••••"
+                       class="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+            <button class="w-full rounded-lg bg-red-600 hover:bg-red-500 transition font-extrabold py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">
+                {{ $player->hasWalletPin() ? __('Update PIN') : __('Set PIN') }}
+            </button>
+        </form>
+    </div>
+
+    <div class="mb-6">
+        <h2 class="font-semibold mb-1">{{ __('Payment Methods') }}</h2>
+        <p class="text-xs text-slate-500 mb-3">{{ __('Save your GCash and/or Maya account once — deposits will use it automatically, and withdrawals will only ever be sent here.') }}</p>
+        @include('player.partials.payment-method-forms')
+    </div>
 
     <form method="POST" action="{{ route('logout') }}">
         @csrf

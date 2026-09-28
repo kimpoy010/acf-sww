@@ -17,6 +17,7 @@ use App\Http\Controllers\Player\PaymentMethodController;
 use App\Http\Controllers\Player\PoolBetController;
 use App\Http\Controllers\Player\ProfileController as PlayerProfileController;
 use App\Http\Controllers\Player\WalletController as PlayerWalletController;
+use App\Http\Controllers\Player\WalletPinController;
 use App\Http\Controllers\Superadmin\AccountingController;
 use App\Http\Controllers\Superadmin\AgentController as SuperadminAgentController;
 use App\Http\Controllers\Superadmin\AuditLogController;
@@ -97,6 +98,7 @@ Route::middleware(['auth', 'role:player'])->prefix('play')->name('play.')->group
     Route::get('/wallet', [PlayerWalletController::class, 'index'])->name('wallet.index');
     Route::get('/transactions', [PlayerWalletController::class, 'transactions'])->name('transactions.index');
     Route::get('/profile', [PlayerProfileController::class, 'show'])->name('profile');
+    Route::post('/wallet-pin', [WalletPinController::class, 'update'])->name('wallet-pin.update')->middleware('throttle:10,1');
 
     Route::prefix('cash')->name('cash.')->group(function () {
         Route::get('/', [CashController::class, 'index'])->name('index');
