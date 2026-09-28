@@ -14,17 +14,21 @@
 @endphp
 
 @section('content')
-<p class="text-[10.5px] font-extrabold tracking-[0.16em] text-[#e0793a] mb-1">{{ __('POOL SABONG') }}</p>
-<div class="flex items-start justify-between gap-3 mb-6">
-    <h1 class="text-2xl font-extrabold tracking-tight">{{ __('Cash In / Cash Out') }}</h1>
-    <a href="{{ route($topRoutePrefix.'payment-methods.index') }}" class="text-xs text-[#8a7a70] hover:text-[#c9baaf] transition underline whitespace-nowrap mt-1.5">{{ __('Payment methods') }}</a>
+@include('player.partials.gold-theme-styles')
+
+<div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+        <p class="gold-eyebrow" style="text-align:left">{{ __('Pool Sabong') }}</p>
+        <h1 class="gold-serif" style="font-size:24px;font-weight:600;color:#f4efe4;margin-top:2px">{{ __('Cash In / Cash Out') }}</h1>
+    </div>
+    <a href="{{ route($topRoutePrefix.'payment-methods.index') }}" class="gold-chip-btn whitespace-nowrap mt-1">{{ __('Payment methods') }}</a>
 </div>
 
-<div class="relative rounded-2xl overflow-hidden p-6 mb-6 border border-red-900/25" style="background: radial-gradient(circle at 15% -10%, #141f7a, transparent 55%), linear-gradient(160deg, #0c111c, #05080e);">
-    <p class="text-[10.5px] font-extrabold tracking-[0.1em] text-[#c99a7a]">{{ __('WALLET BALANCE') }}</p>
-    <p class="text-4xl font-extrabold text-amber-400 mt-1.5" style="text-shadow: 0 0 24px rgba(251,191,36,0.25);">{{ $currencySymbol }}{{ number_format($wallet->main_balance ?? 0, 2) }}</p>
+<div class="gold-card mb-4">
+    <p class="gold-label">{{ __('Wallet Balance') }}</p>
+    <p class="gold-balance" style="margin-bottom:0">{{ $currencySymbol }}{{ number_format($wallet->main_balance ?? 0, 2) }}</p>
     @if (($wallet->pending_withdrawal ?? 0) >= 0.01)
-        <p class="text-xs text-amber-400 mt-1">{{ __(':amount held for a pending withdrawal', ['amount' => $currencySymbol.number_format($wallet->pending_withdrawal, 2)]) }}</p>
+        <p class="text-xs text-center mt-2" style="color:#c9a04a">{{ __(':amount held for a pending withdrawal', ['amount' => $currencySymbol.number_format($wallet->pending_withdrawal, 2)]) }}</p>
     @endif
 </div>
 
@@ -43,7 +47,7 @@
     </div>
 @endif
 
-<div class="rounded-xl bg-[#0a0e16] border border-[#141a2a] p-4">
+<div class="gold-panel p-4">
     <h2 class="font-semibold mb-1 px-1">{{ __('History') }}</h2>
     <div class="divide-y divide-[#141a2a]">
         @forelse ($history as $tx)
@@ -89,7 +93,7 @@
 
 <!-- Transaction detail modal -->
 <div id="cash-tx-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-    <div class="w-full sm:max-w-sm bg-[#0a0e16] border border-[#141a2a] rounded-t-2xl sm:rounded-2xl p-5 pb-6">
+    <div class="w-full sm:max-w-sm bg-[#0a0e16] border rounded-t-2xl sm:rounded-2xl p-5 pb-6" style="border-color:rgba(168,121,31,.22)">
         <div class="flex items-center justify-between mb-4">
             <p class="font-semibold text-[#f5efe9]">{{ __('Transaction details') }}</p>
             <button type="button" id="cash-tx-modal-close" class="text-[#8a7a70] hover:text-white transition text-xl leading-none">&times;</button>

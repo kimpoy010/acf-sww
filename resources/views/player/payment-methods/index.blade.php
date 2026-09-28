@@ -3,9 +3,11 @@
 @section('title', __('Payment Methods'))
 
 @section('content')
-<p class="text-[10.5px] font-extrabold tracking-[0.16em] text-[#e0793a] mb-1">{{ __('POOL SABONG') }}</p>
-<h1 class="text-2xl font-extrabold tracking-tight mb-2">{{ __('Payment Methods') }}</h1>
-<p class="text-sm text-[#8a7a70] mb-6">{{ __('Save your GCash and/or Maya account once — deposits will use it automatically, and withdrawals will only ever be sent here.') }}</p>
+@include('player.partials.gold-theme-styles')
+
+<p class="gold-eyebrow">{{ __('Pool Sabong') }}</p>
+<h1 class="gold-serif" style="font-size:24px;font-weight:600;color:#f4efe4;text-align:center;margin:2px 0 8px">{{ __('Payment Methods') }}</h1>
+<p class="text-sm text-[#8a7a70] mb-6 text-center">{{ __('Save your GCash and/or Maya account once — deposits will use it automatically, and withdrawals will only ever be sent here.') }}</p>
 
 @if (session('success'))
     <div class="rounded-xl p-4 mb-6 text-sm" style="background:rgba(6,78,59,0.25);border:1px solid rgba(16,185,129,0.4);">{{ session('success') }}</div>

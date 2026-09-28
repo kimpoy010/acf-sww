@@ -7,6 +7,8 @@
 @endphp
 
 @section('content')
+@include('player.partials.gold-theme-styles')
+
 <div class="max-w-sm mx-auto">
     <div class="flex items-center gap-3 mb-4">
         <span class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-lg font-bold uppercase shrink-0">
@@ -25,9 +27,12 @@
         <div class="rounded-xl p-3 mb-4 text-sm" style="background:rgba(120,20,20,0.25);border:1px solid rgba(220,38,38,0.5);">{{ session('error') }}</div>
     @endif
 
-    <a href="{{ route('account.password.edit') }}" class="block w-full text-center rounded-xl bg-slate-900 border border-slate-800 hover:border-red-600 hover:text-red-400 transition font-semibold py-3 text-sm mb-6">{{ __('Change password') }}</a>
+    <a href="{{ route('account.password.edit') }}" class="gold-btn-frame gold-btn-secondary is-active mb-6">
+        <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
+        <span class="gold-btn-fill">{{ __('Change password') }}</span>
+    </a>
 
-    <div class="rounded-xl bg-slate-900 border border-slate-800 p-4 mb-6">
+    <div class="gold-panel p-4 mb-6">
         <h2 class="font-semibold mb-1">{{ __('Withdrawal PIN') }}</h2>
         <p class="text-xs text-slate-500 mb-3">
             @if ($player->hasWalletPin())
@@ -50,8 +55,9 @@
                        placeholder="••••"
                        class="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-red-500">
             </div>
-            <button class="w-full rounded-lg bg-red-600 hover:bg-red-500 transition font-extrabold py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">
-                {{ $player->hasWalletPin() ? __('Update PIN') : __('Set PIN') }}
+            <button type="submit" class="gold-btn-frame gold-btn-primary is-active">
+                <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
+                <span class="gold-btn-fill">{{ $player->hasWalletPin() ? __('Update PIN') : __('Set PIN') }}</span>
             </button>
         </form>
     </div>
@@ -64,7 +70,10 @@
 
     <form method="POST" action="{{ route('logout') }}">
         @csrf
-        <button class="w-full rounded-xl bg-slate-900 border border-slate-800 hover:border-red-600 hover:text-red-400 transition font-semibold py-3 text-sm">{{ __('Logout') }}</button>
+        <button type="submit" class="gold-btn-frame gold-btn-secondary is-active">
+            <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
+            <span class="gold-btn-fill">{{ __('Logout') }}</span>
+        </button>
     </form>
 </div>
 @endsection

@@ -2,7 +2,7 @@
      Payment Methods page and the player Profile page. Expects $player,
      $routePrefix in scope. --}}
 <div class="grid md:grid-cols-2 gap-4">
-    <div class="rounded-xl bg-[#0a0e16] border border-[#141a2a] p-4">
+    <div class="gold-panel p-4">
         <h3 class="font-semibold mb-3">{{ __('GCash') }}</h3>
         <form method="POST" action="{{ route($routePrefix.'update') }}" class="space-y-3">
             @csrf
@@ -13,13 +13,14 @@
                        value="{{ old('account_number', $player->gcash_account_number) }}"
                        class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
             </div>
-            <button class="w-full rounded-lg bg-red-600 hover:bg-red-500 transition font-extrabold py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">
-                {{ $player->gcash_account_number ? __('Update') : __('Save') }}
+            <button type="submit" class="gold-btn-frame gold-btn-primary is-active">
+                <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
+                <span class="gold-btn-fill">{{ $player->gcash_account_number ? __('Update') : __('Save') }}</span>
             </button>
         </form>
     </div>
 
-    <div class="rounded-xl bg-[#0a0e16] border border-[#141a2a] p-4">
+    <div class="gold-panel p-4">
         <h3 class="font-semibold mb-3">{{ __('Maya') }}</h3>
         <form method="POST" action="{{ route($routePrefix.'update') }}" class="space-y-3">
             @csrf
@@ -36,8 +37,9 @@
                        value="{{ old('account_name', $player->maya_account_name) }}"
                        class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
             </div>
-            <button class="w-full rounded-lg bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.1] transition font-extrabold py-2">
-                {{ $player->maya_account_number ? __('Update') : __('Save') }}
+            <button type="submit" class="gold-btn-frame gold-btn-secondary is-active">
+                <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
+                <span class="gold-btn-fill">{{ $player->maya_account_number ? __('Update') : __('Save') }}</span>
             </button>
         </form>
     </div>

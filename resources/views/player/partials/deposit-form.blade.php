@@ -1,7 +1,7 @@
 {{-- The GCash/Maya deposit form — shared between the standalone Cash In/Out
      page and the Wallet page's Deposit tab (see wallet/index.blade.php).
      Expects $PaybucksChannel, $player, $routePrefix, $topRoutePrefix in scope. --}}
-<div id="cash-in" class="rounded-xl bg-[#0a0e16] border border-[#141a2a] p-4">
+<div id="cash-in" class="gold-panel p-4">
     <h2 class="font-semibold mb-3">{{ __('Cash in (deposit)') }}</h2>
     <form method="POST" action="{{ route($routePrefix.'deposit') }}" class="space-y-3">
         @csrf
@@ -30,6 +30,9 @@
                 <p class="text-xs text-[#8a7a70] mt-1">{!! __('Tip: save this in :link so it fills in automatically next time.', ['link' => '<a href="'.route($topRoutePrefix.'payment-methods.index').'" class="underline">'.__('Payment methods').'</a>']) !!}</p>
             @endunless
         </div>
-        <button class="w-full rounded-lg bg-red-600 hover:bg-red-500 transition font-extrabold py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Deposit') }}</button>
+        <button type="submit" class="gold-btn-frame gold-btn-primary is-active">
+            <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
+            <span class="gold-btn-fill">{{ __('Deposit') }}</span>
+        </button>
     </form>
 </div>
