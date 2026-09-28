@@ -22,17 +22,26 @@
         ['key' => 'profile', 'route' => route('play.profile'), 'icon' => 'profile', 'label' => __('Profile')],
     ];
 @endphp
-<nav class="fixed bottom-0 inset-x-0 z-40 bg-[#070b14]/95 backdrop-blur border-t border-[#0c121e]"
+<style>
+    .player-nav-gold{position:relative;overflow:hidden;background:linear-gradient(180deg,#f2d68e,#c9a04a 45%,#8a611a 100%);box-shadow:0 -8px 20px -10px rgba(0,0,0,.5);border-top:3px solid transparent;border-image:linear-gradient(90deg,#7a591c,#f0cf7e 25%,#fdf0c8 50%,#e8c15f 75%,#a8791f 100%) 1}
+    .player-nav-gold::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.5) 48%,rgba(255,255,255,.05) 58%,transparent 74%);pointer-events:none;z-index:0}
+    .player-nav-gold .player-nav-corner{position:absolute;top:2px;width:5px;height:5px;background:#fff3d6;box-shadow:0 0 4px 1px rgba(255,243,214,.9);z-index:2}
+    .player-nav-gold .player-nav-corner.l{left:8px}
+    .player-nav-gold .player-nav-corner.r{right:8px}
+    .player-nav-gold .player-nav-grid{position:relative;z-index:1}
+    .player-nav-item{color:#5c421a}
+    .player-nav-item.is-active{color:#1c1200}
+    .player-nav-item.is-active::after{content:"";position:absolute;left:16%;right:16%;bottom:0;height:3px;border-radius:2px 2px 0 0;background:#1c1200}
+</style>
+<nav class="player-nav-gold fixed bottom-0 inset-x-0 z-40"
      style="padding-bottom: env(safe-area-inset-bottom, 0px);">
-    <div class="grid grid-cols-4 max-w-lg mx-auto">
+    <span class="player-nav-corner l"></span><span class="player-nav-corner r"></span>
+    <div class="player-nav-grid grid grid-cols-4 max-w-lg mx-auto">
         @foreach ($tabs as $tab)
             <a href="{{ $tab['route'] }}"
-               class="relative flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition
-                   {{ $activeTab === $tab['key'] ? 'text-red-400' : 'text-[#8a7a70] hover:text-[#c9baaf]' }}"
+               class="player-nav-item relative flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-bold transition
+                   {{ $activeTab === $tab['key'] ? 'is-active' : 'hover:opacity-80' }}"
                @if ($activeTab === $tab['key']) aria-current="page" @endif>
-                @if ($activeTab === $tab['key'])
-                    <span class="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-red-500 shadow-[0_0_6px_1px_rgba(239,68,68,0.7)]"></span>
-                @endif
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     @switch($tab['icon'])
                         @case('home')

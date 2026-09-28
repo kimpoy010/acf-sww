@@ -14,10 +14,27 @@
     @endif
 
     <div class="grid grid-cols-2 gap-2.5 mt-5">
-        <a href="{{ route('play.cash.index') }}#cash-in" class="text-center rounded-lg bg-red-600 hover:bg-red-500 transition font-extrabold text-sm py-2.5 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Deposit') }}</a>
-        <a href="{{ route('play.cash.index') }}#cash-out" class="text-center rounded-lg bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.1] transition font-extrabold text-sm py-2.5">{{ __('Withdraw') }}</a>
+        <a href="{{ route('play.cash.index') }}#cash-in" class="gold-btn-frame gold-btn-primary">
+            <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
+            <span class="gold-btn-fill">{{ __('Deposit') }}</span>
+        </a>
+        <a href="{{ route('play.cash.index') }}#cash-out" class="gold-btn-frame gold-btn-secondary">
+            <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
+            <span class="gold-btn-fill">{{ __('Withdraw') }}</span>
+        </a>
     </div>
 </div>
+
+<style>
+    .gold-btn-frame{position:relative;display:block;padding:3px;border-radius:9px;background:linear-gradient(155deg,#fdf0c8 0%,#e8c15f 22%,#a8791f 48%,#f0cf7e 68%,#7a591c 100%);box-shadow:0 10px 22px -8px rgba(0,0,0,.65),0 0 14px -2px rgba(168,121,31,.5);text-decoration:none}
+    .gold-btn-corner{position:absolute;width:5px;height:5px;background:#fff3d6;box-shadow:0 0 4px 1px rgba(255,243,214,.9)}
+    .gold-btn-corner.tl{top:1px;left:1px} .gold-btn-corner.tr{top:1px;right:1px}
+    .gold-btn-corner.bl{bottom:1px;left:1px} .gold-btn-corner.br{bottom:1px;right:1px}
+    .gold-btn-fill{position:relative;display:block;overflow:hidden;border-radius:6px;padding:13px 0;text-align:center;font-weight:800;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase}
+    .gold-btn-fill::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.55) 48%,rgba(255,255,255,.05) 58%,transparent 72%);pointer-events:none}
+    .gold-btn-primary .gold-btn-fill{background:linear-gradient(180deg,#f2d68e,#c9a04a 45%,#8a611a 100%);color:#241600;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -8px 12px -6px rgba(50,32,0,.6);text-shadow:0 1px 0 rgba(255,255,255,.35)}
+    .gold-btn-secondary .gold-btn-fill{background:linear-gradient(180deg,#332d24,#161310 55%,#0a0806);color:#c9a04a;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -6px 10px -6px rgba(0,0,0,.8)}
+</style>
 
 <div class="rounded-xl border border-[#141a2a] bg-[#0a0e16] p-4">
     <h2 class="font-semibold mb-3 px-1">{{ __('Transaction history') }}</h2>
