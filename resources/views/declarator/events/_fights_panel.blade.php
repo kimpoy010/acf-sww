@@ -13,17 +13,17 @@
     $redeclareRouteName = $isCombined ? 'declarator.combined-fights.redeclare' : 'declarator.fights.redeclare';
 @endphp
 @if ($fights->isEmpty())
-    <p class="text-slate-500">{{ __('No fights in progress. Start the event, or use "Start next fight" above, to create one.') }}</p>
+    <p class="text-[#9c8f7b]">{{ __('No fights in progress. Start the event, or use "Start next fight" above, to create one.') }}</p>
 @else
     <div class="grid lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 space-y-6">
             @foreach ($fights as $row)
                 @php [$fight, $poolTotals, $payouts] = [$row['fight'], $row['poolTotals'], $row['payouts']]; @endphp
-                <div class="fight-card rounded-xl border border-slate-800 bg-slate-900 p-4"
+                <div class="fight-card gold-panel p-4"
                      data-fight-id="{{ $fight->id }}" data-status="{{ $fight->status }}"
                      data-bets-url="{{ route('declarator.fights.bets', $fight) }}">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="font-semibold">{{ __('Fight #:number', ['number' => $fight->fight_number]) }}</h2>
+                        <h2 class="font-semibold" style="color:#f4efe4">{{ __('Fight #:number', ['number' => $fight->fight_number]) }}</h2>
                         @php
                             $statusBadgeClass = match ($fight->status) {
                                 'open' => 'bg-emerald-600',
@@ -49,8 +49,8 @@
                              either fight. --}}
                         <form data-ajax method="POST" action="{{ route('declarator.fights.cockpit', $fight) }}" class="flex items-center gap-2 mb-2 text-xs">
                             @csrf
-                            <span class="text-slate-500">📹</span>
-                            <select name="cockpit_id" class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs">
+                            <span class="text-[#9c8f7b]">📹</span>
+                            <select name="cockpit_id" class="gold-input rounded px-2 py-1 text-xs">
                                 <option value="">{{ __('None') }}</option>
                                 @foreach ($cockpits as $cockpit)
                                     @php $heldByFightId = $busyCockpits[$cockpit->id] ?? null; @endphp
@@ -60,7 +60,7 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <button class="rounded-lg bg-slate-700 hover:bg-slate-600 transition text-xs px-3 py-1">{{ __('Update') }}</button>
+                            <button class="gold-btn-outline gold-btn-outline-sm">{{ __('Update') }}</button>
                         </form>
                     @endif
 
@@ -84,16 +84,16 @@
                     </div>
 
                     @if ($isCombined && ($row['oddsTierTotals'] ?? collect())->isNotEmpty())
-                        <div class="mb-4 rounded-lg border border-slate-800 overflow-hidden text-xs">
-                            <div class="grid grid-cols-3 bg-black/30 px-2 py-1 font-semibold text-slate-400">
+                        <div class="mb-4 rounded-lg gold-panel overflow-hidden text-xs">
+                            <div class="grid grid-cols-3 bg-black/30 px-2 py-1 font-semibold text-[#9c8f7b]">
                                 <span>{{ __('Meron') }}</span>
                                 <span>{{ __('Tier') }}</span>
                                 <span>{{ __('Wala') }}</span>
                             </div>
                             @foreach ($row['oddsTierTotals'] as $tierId => $totals)
-                                <div class="grid grid-cols-3 px-2 py-1 border-t border-slate-800">
+                                <div class="grid grid-cols-3 px-2 py-1 border-t border-[#141a2a]">
                                     <span class="text-red-400">{{ $theme['currency'] }}{{ number_format($totals['meron'], 2) }}</span>
-                                    <span class="text-slate-300">{{ $oddsTierLabels[$tierId] ?? $tierId }}</span>
+                                    <span class="text-[#c9baaf]">{{ $oddsTierLabels[$tierId] ?? $tierId }}</span>
                                     <span class="text-sky-400">{{ $theme['currency'] }}{{ number_format($totals['wala'], 2) }}</span>
                                 </div>
                             @endforeach
@@ -125,14 +125,14 @@
                                              the same camera feed. Doesn't apply to this fight's own cockpit
                                              (e.g. re-picking it after a mistake elsewhere). --}}
                                         @php $isBusy = $heldByFightId && $heldByFightId !== $fight->id; @endphp
-                                        <label class="flex items-center gap-1.5 text-xs bg-slate-800 border border-slate-700 rounded-full px-3 py-1.5
+                                        <label class="flex items-center gap-1.5 text-xs bg-[#0a0e16] border border-[#141a2a] rounded-full px-3 py-1.5
                                             {{ $isBusy ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-950/40' }}">
                                             <input type="radio" name="cockpit_id" value="{{ $cockpit->id }}" required class="accent-emerald-500"
                                                 {{ $defaultCockpitId === $cockpit->id ? 'checked' : '' }}
                                                 {{ $isBusy ? 'disabled' : '' }}>
                                             {{ $cockpit->name }}
                                             @if ($isBusy)
-                                                <span class="text-slate-500">({{ __('in use') }})</span>
+                                                <span class="text-[#9c8f7b]">({{ __('in use') }})</span>
                                             @endif
                                         </label>
                                     @endforeach
@@ -171,32 +171,32 @@
                         </form>
                         <form data-ajax data-confirm="{{ __('Cancel this fight and refund all bets?') }}" method="POST" action="{{ route($cancelRouteName, $fight) }}" class="fight-action" data-visible-when="pending,open,last_call,closed">
                             @csrf
-                            <button class="rounded-lg bg-slate-700 hover:bg-slate-600 transition font-semibold px-4 py-2 text-sm">{{ __('Cancel fight') }}</button>
+                            <button class="gold-btn-outline">{{ __('Cancel fight') }}</button>
                         </form>
                     </div>
 
                     <div class="mt-4 flex flex-wrap items-center gap-4 text-sm">
                         <div class="flex items-center gap-2">
-                            <span class="text-slate-500">{{ __('Draw betting:') }}</span>
+                            <span class="text-[#9c8f7b]">{{ __('Draw betting:') }}</span>
                             <form data-ajax method="POST" action="{{ route('declarator.fights.toggle-draw', $fight) }}">
                                 @csrf
-                                <button class="text-red-400 hover:underline">{{ $fight->draw_enabled ? __('Disable') : __('Enable') }}</button>
+                                <button class="hover:underline" style="color:#c9a04a">{{ $fight->draw_enabled ? __('Disable') : __('Enable') }}</button>
                             </form>
                         </div>
                         <form data-ajax method="POST" action="{{ route('declarator.fights.fight-number', $fight) }}" class="flex items-center gap-2">
                             @csrf
-                            <span class="text-slate-500">{{ __('Fight number:') }}</span>
+                            <span class="text-[#9c8f7b]">{{ __('Fight number:') }}</span>
                             <input type="number" name="fight_number" value="{{ $fight->fight_number }}" min="1"
-                                   class="w-20 rounded-lg bg-slate-800 border border-slate-700 px-2 py-1 text-sm">
-                            <button class="rounded-lg bg-slate-700 hover:bg-slate-600 transition text-xs px-3 py-1">{{ __('Update') }}</button>
+                                   class="w-20 gold-input rounded-lg px-2 py-1 text-sm">
+                            <button class="gold-btn-outline gold-btn-outline-sm">{{ __('Update') }}</button>
                         </form>
                     </div>
 
                     <div class="mt-4">
-                        <h3 class="text-sm font-semibold mb-2 text-slate-400">{{ __('Live bettors') }}</h3>
+                        <h3 class="text-sm font-semibold mb-2 text-[#9c8f7b]">{{ __('Live bettors') }}</h3>
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="text-left text-slate-500 border-b border-slate-800">
+                                <tr class="text-left text-[#9c8f7b] border-b border-[#141a2a]">
                                     <th class="py-1">{{ __('Player') }}</th>
                                     <th>{{ __('Side') }}</th>
                                     <th>{{ __('Amount') }}</th>
@@ -211,7 +211,7 @@
         </div>
 
         <div class="space-y-6">
-            <div class="rounded-xl border border-slate-800 bg-slate-900 p-4">
+            <div class="gold-panel p-4">
                 <h2 class="font-semibold mb-3">{{ __('Recent fights') }}</h2>
                 <div class="space-y-2 text-sm">
                     @forelse ($fightHistory as $past)
@@ -221,18 +221,18 @@
                             @if ($past->status === 'declared')
                                 <form data-ajax data-confirm="{{ __('Re-declare this fight? Existing payouts will be reversed.') }}" method="POST" action="{{ route($redeclareRouteName, $past) }}" class="redeclare-form">
                                     @csrf
-                                    <select name="winner" class="bg-slate-800 border border-slate-700 rounded px-1 py-0.5 text-xs">
+                                    <select name="winner" class="gold-input rounded px-1 py-0.5 text-xs">
                                         <option value="meron">{{ $event->label_meron }}</option>
                                         <option value="wala">{{ $event->label_wala }}</option>
                                         <option value="draw">{{ $event->label_draw }}</option>
                                         <option value="cancelled">{{ __('Cancel') }}</option>
                                     </select>
-                                    <button class="text-xs text-red-400 hover:underline ml-1">{{ __('Fix') }}</button>
+                                    <button class="text-xs hover:underline ml-1" style="color:#c9a04a">{{ __('Fix') }}</button>
                                 </form>
                             @endif
                         </div>
                     @empty
-                        <p class="text-slate-500">{{ __('No fights settled yet.') }}</p>
+                        <p class="text-[#9c8f7b]">{{ __('No fights settled yet.') }}</p>
                     @endforelse
                 </div>
             </div>

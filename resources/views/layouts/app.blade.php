@@ -6,13 +6,13 @@
     @php
         $cms = $cms ?? \App\Support\CmsSettings::current();
         $pageTitle = trim($__env->yieldContent('title'));
-        // The guest auth pages (login, register, forgot/reset password)
-        // and the agent role share the player app's black & gold look —
-        // agent.cash.*/agent.payment-methods.* already reuse the same
-        // player views (see Player\CashController's own doc comment), so
-        // agent.dashboard now matches rather than clashing with them.
-        // Everything else stays on the generic dark theme.
-        $isGoldTheme = (auth()->check() && auth()->user()->hasRole('player|agent'))
+        // The guest auth pages (login, register, forgot/reset password),
+        // the player/agent app, and the declarator/superadmin/webmaster
+        // back office all share the black & gold look now. Only the
+        // public kiosk terminal (no role — a bare token, see routes/web.php)
+        // and the retired teller.* pages (dead code, everything 404s) stay
+        // on the old generic dark theme.
+        $isGoldTheme = (auth()->check() && auth()->user()->hasRole('player|agent|declarator|superadmin|webmaster'))
             || request()->routeIs('login', 'register', 'password.request', 'password.reset');
     @endphp
     <title>{{ $pageTitle ? $pageTitle.' · '.$cms['site_name'] : $cms['site_name'] }}</title>

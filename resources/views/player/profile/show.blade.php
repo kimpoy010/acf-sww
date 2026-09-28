@@ -7,7 +7,6 @@
 @endphp
 
 @section('content')
-@include('player.partials.gold-theme-styles')
 
 <div class="gold-ornament"><span class="line"></span><span class="diamond"></span><span class="line r"></span></div>
 <p class="gold-eyebrow">{{ $cms['site_name'] }}</p>

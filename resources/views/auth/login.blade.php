@@ -3,7 +3,6 @@
 @section('title', __('Log in'))
 
 @section('content')
-@include('player.partials.gold-theme-styles')
 
 @if ($cms['logo_url'])
     <div class="max-w-sm mx-auto mt-8 flex justify-center">

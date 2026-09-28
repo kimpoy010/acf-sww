@@ -14,24 +14,24 @@
 @endphp
 <div class="flex items-center justify-between mb-6">
     <div>
-        <h1 class="text-2xl font-bold">{{ $event->name }}</h1>
-        <p class="text-sm text-slate-400">{{ $event->arena ?? __('Arena TBA') }} &middot; {{ __(ucfirst($event->status)) }}</p>
+        <h1 class="text-2xl font-bold" style="color:#f4efe4">{{ $event->name }}</h1>
+        <p class="text-sm text-[#9c8f7b]">{{ $event->arena ?? __('Arena TBA') }} &middot; {{ __(ucfirst($event->status)) }}</p>
     </div>
     <div class="flex gap-2">
-        <a href="{{ route('superadmin.events.edit', $event) }}" class="rounded-lg bg-slate-800 hover:bg-slate-700 transition font-semibold px-4 py-2 text-sm">{{ __('Edit event') }}</a>
+        <a href="{{ route('superadmin.events.edit', $event) }}" class="gold-btn-outline">{{ __('Edit event') }}</a>
         @if ($event->status === 'upcoming')
             <form method="POST" action="{{ route('declarator.events.start', $event) }}">
                 @csrf
-                <button class="rounded-lg bg-emerald-600 hover:bg-emerald-500 transition font-semibold px-4 py-2 text-sm">{{ __('Start event') }}</button>
+                <button class="gold-btn">{{ __('Start event') }}</button>
             </form>
         @elseif ($event->status === 'live')
             <form data-ajax method="POST" action="{{ route('declarator.events.fights.start-next', $event) }}">
                 @csrf
-                <button class="rounded-lg bg-sky-600 hover:bg-sky-500 transition font-semibold px-4 py-2 text-sm">{{ __('Start next fight') }}</button>
+                <button class="gold-btn">{{ __('Start next fight') }}</button>
             </form>
             <form method="POST" action="{{ route('declarator.events.end', $event) }}" onsubmit="return confirm('{{ __('End this event?') }}')">
                 @csrf
-                <button class="rounded-lg bg-slate-700 hover:bg-slate-600 transition font-semibold px-4 py-2 text-sm">{{ __('End event') }}</button>
+                <button class="gold-btn-outline">{{ __('End event') }}</button>
             </form>
         @endif
     </div>
@@ -47,7 +47,7 @@
          as the player page: a fight can go from no-cockpit to
          cockpit-assigned without a reload, and refreshPanel() below
          reveals/populates this once one becomes available. --}}
-    <div id="live-stream" class="aspect-video rounded-xl overflow-hidden border border-slate-800 bg-black mb-6" @if (! $mainStreamUrl) hidden @endif>
+    <div id="live-stream" class="aspect-video rounded-xl overflow-hidden gold-panel bg-black mb-6" @if (! $mainStreamUrl) hidden @endif>
         <iframe id="live-stream-iframe" src="{{ $mainStreamUrl }}" class="w-full h-full" frameborder="0"
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen
             referrerpolicy="strict-origin-when-cross-origin"></iframe>
@@ -154,13 +154,13 @@
 
                     const tbody = card.querySelector('.bettor-table');
                     tbody.innerHTML = data.bets.map(b => `
-                        <tr class="border-b border-slate-800/50">
+                        <tr class="border-b border-[#141a2a]">
                             <td class="py-1">${b.name}</td>
                             <td class="capitalize">${b.side}</td>
                             <td>${currency}${b.amount}</td>
-                            <td class="text-slate-500">${b.time}</td>
+                            <td class="text-[#9c8f7b]">${b.time}</td>
                         </tr>
-                    `).join('') || `<tr><td colspan="4" class="py-3 text-slate-500">${i18n.noBetsYet}</td></tr>`;
+                    `).join('') || `<tr><td colspan="4" class="py-3 text-[#9c8f7b]">${i18n.noBetsYet}</td></tr>`;
                 })
                 .catch(() => {});
         }
