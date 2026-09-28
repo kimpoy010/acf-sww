@@ -26,7 +26,7 @@
     @endif
 
     <div class="grid grid-cols-2 gap-2.5">
-        <button type="button" data-cash-tab="deposit" class="gold-btn-frame gold-btn-primary wallet-cash-tab-btn is-active">
+        <button type="button" data-cash-tab="deposit" class="gold-btn-frame gold-btn-primary wallet-cash-tab-btn">
             <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
             <span class="gold-btn-fill">{{ __('Deposit') }}</span>
         </button>
@@ -145,7 +145,14 @@
         const cashPanels = document.querySelectorAll('[data-cash-panel]');
         cashTabBtns.forEach((btn) => {
             btn.addEventListener('click', () => {
-                cashTabBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+                // The active tab is the shiny gold button, the inactive
+                // one goes dark — following whichever tab is selected,
+                // not fixed to Deposit/Withdraw.
+                cashTabBtns.forEach((b) => {
+                    const active = b === btn;
+                    b.classList.toggle('gold-btn-primary', active);
+                    b.classList.toggle('gold-btn-secondary', !active);
+                });
                 cashPanels.forEach((p) => p.classList.toggle('hidden', p.dataset.cashPanel !== btn.dataset.cashTab));
             });
         });
