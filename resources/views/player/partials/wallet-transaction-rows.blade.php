@@ -63,7 +63,7 @@
                 </span>
                 <span class="flex items-center justify-between mt-1 gap-3">
                     <span class="font-semibold truncate {{ $rowColorClass }}"{!! $rowColorStyle ? ' style="color: '.e($rowColorStyle).'"' : '' !!}>{{ $rowLabel }}</span>
-                    <span class="font-semibold whitespace-nowrap {{ $isCredit ? 'text-emerald-400' : 'text-red-400' }}">
+                    <span class="font-semibold whitespace-nowrap" style="color: {{ $isCredit ? '#7fd9ae' : '#e08b8b' }}">
                         {{ $isCredit ? '+' : '-' }}{{ $currencySymbol }}{{ number_format($tx->amount, 2) }}
                     </span>
                 </span>
