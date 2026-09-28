@@ -15,15 +15,31 @@
     .gold-balance{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;text-align:center;margin:0 0 18px;letter-spacing:.01em;
         background:linear-gradient(180deg,#c9a04a,#a8791f 60%,#5e4517);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-    .gold-btn-frame{position:relative;display:block;width:100%;overflow:hidden;padding:2px;border-radius:9px;background:linear-gradient(155deg,#fdf0c8 0%,#e8c15f 22%,#a8791f 48%,#f0cf7e 68%,#7a591c 100%);box-shadow:0 6px 14px -8px rgba(0,0,0,.6);text-decoration:none;cursor:pointer;border:none;margin:0;font:inherit;opacity:.55;transition:opacity .15s}
+    /* Primary CTA button — framed metallic-gold border with corner accents.
+       Sized for a real button (~40px tall), not the zoomed mockup artboard;
+       .inline switches it from a full-width block to shrink-to-content for
+       secondary/inline placements (Back links, etc). */
+    .gold-btn-frame{position:relative;display:block;width:100%;overflow:hidden;padding:1.5px;border-radius:8px;background:linear-gradient(155deg,#fdf0c8 0%,#e8c15f 22%,#a8791f 48%,#f0cf7e 68%,#7a591c 100%);box-shadow:0 4px 10px -6px rgba(0,0,0,.6);text-decoration:none;cursor:pointer;border:none;font:inherit;opacity:.55;transition:opacity .15s}
     .gold-btn-frame.is-active{opacity:1}
-    .gold-btn-corner{position:absolute;width:4px;height:4px;background:#fff3d6;box-shadow:0 0 2px 0 rgba(255,243,214,.8)}
+    .gold-btn-frame.inline{width:auto;display:inline-block}
+    .gold-btn-frame:disabled,.gold-btn-frame[disabled]{opacity:.3;cursor:not-allowed}
+    .gold-btn-corner{position:absolute;width:3px;height:3px;background:#fff3d6;box-shadow:0 0 2px 0 rgba(255,243,214,.8)}
     .gold-btn-corner.tl{top:1px;left:1px} .gold-btn-corner.tr{top:1px;right:1px}
     .gold-btn-corner.bl{bottom:1px;left:1px} .gold-btn-corner.br{bottom:1px;right:1px}
-    .gold-btn-fill{position:relative;display:block;overflow:hidden;border-radius:7px;padding:12px 0;text-align:center;font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
-    .gold-btn-fill::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.32) 50%,rgba(255,255,255,.03) 60%,transparent 70%);pointer-events:none}
-    .gold-btn-primary .gold-btn-fill{background:linear-gradient(180deg,#f2d68e,#c9a04a 45%,#8a611a 100%);color:#241600;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -6px 10px -6px rgba(50,32,0,.55);text-shadow:0 1px 0 rgba(255,255,255,.3)}
-    .gold-btn-secondary .gold-btn-fill{background:linear-gradient(180deg,#332d24,#161310 55%,#0a0806);color:#c9a04a;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -5px 8px -6px rgba(0,0,0,.75)}
+    .gold-btn-fill{position:relative;display:block;overflow:hidden;border-radius:6.5px;padding:9px 16px;text-align:center;font-weight:800;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+    .gold-btn-fill::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.28) 50%,rgba(255,255,255,.03) 60%,transparent 70%);pointer-events:none}
+    .gold-btn-primary .gold-btn-fill{background:linear-gradient(180deg,#f2d68e,#c9a04a 45%,#8a611a 100%);color:#241600;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -5px 8px -6px rgba(50,32,0,.5);text-shadow:0 1px 0 rgba(255,255,255,.3)}
+    .gold-btn-secondary .gold-btn-fill{background:linear-gradient(180deg,#2c271f,#141210 55%,#0a0806);color:#c9a04a;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -4px 6px -6px rgba(0,0,0,.75)}
+
+    /* Small inline utility buttons/links (Max, View request, Cancel, Back
+       to…) — a plain gold-outlined pill rather than the framed/corner-dot
+       treatment above, so minor actions don't compete with primary CTAs. */
+    .gold-chip-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;border-radius:7px;border:1px solid rgba(168,121,31,.4);background:rgba(168,121,31,.08);color:#c9a04a;font-weight:700;font-size:11px;letter-spacing:.04em;padding:7px 12px;text-decoration:none;cursor:pointer;transition:background .15s,border-color .15s}
+    .gold-chip-btn:hover{background:rgba(168,121,31,.16);border-color:rgba(168,121,31,.6)}
+
+    /* Gold hairline border for cards/panels, in place of the plain
+       near-black border those used before. */
+    .gold-panel{background:#0a0e16;border:1px solid rgba(168,121,31,.22);border-radius:.75rem}
 
     .gold-section-title{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#9c8f7b;margin:0 0 10px;padding:0 2px}
     .gold-tabs{display:flex;gap:18px;padding:0 4px 10px;margin-bottom:2px;border-bottom:1px solid rgba(255,255,255,.06);overflow-x:auto}

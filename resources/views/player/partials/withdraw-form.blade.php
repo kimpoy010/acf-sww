@@ -3,7 +3,7 @@
      Expects $PaybucksChannel, $player, $wallet, $routePrefix, $topRoutePrefix,
      $withdrawalFee, $currencySymbol in scope. --}}
 @php $maxWithdrawable = max(0, ($wallet->availableBalance() ?? 0) - $withdrawalFee); @endphp
-<div id="cash-out" class="rounded-xl bg-[#0a0e16] border border-[#141a2a] p-4">
+<div id="cash-out" class="gold-panel p-4">
     <h2 class="font-semibold mb-3">{{ __('Cash out (withdraw)') }}</h2>
     <p class="text-sm text-[#8a7a70] mb-1">{{ __('Available balance: :amount', ['amount' => $currencySymbol.number_format($wallet->availableBalance() ?? 0, 2)]) }}</p>
     @if ($withdrawalFee > 0)
@@ -18,7 +18,7 @@
                        value="{{ old('amount') }}" placeholder="{{ __('e.g. :amount', ['amount' => '500']) }}"
                        class="amount-input w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
                 <button type="button" id="withdraw-max-btn" data-max="{{ $maxWithdrawable }}"
-                        class="shrink-0 rounded-lg bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.1] transition text-sm font-semibold px-3">{{ __('Max') }}</button>
+                        class="gold-chip-btn shrink-0">{{ __('Max') }}</button>
             </div>
         </div>
         <div>
@@ -65,10 +65,11 @@
                 </div>
             @endif
         @endif
-        <button id="withdraw-submit" type="submit" class="w-full rounded-lg bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.1] transition font-extrabold py-2"
+        <button id="withdraw-submit" type="submit" class="gold-btn-frame gold-btn-secondary is-active"
                 data-no-balance="{{ $maxWithdrawable < 20 ? '1' : '0' }}"
                 {{ $maxWithdrawable < 20 || ($topRoutePrefix === 'play.' && ! $player->hasWalletPin()) || ! $player->hasSavedPaymentMethod($PaybucksChannel::CHANNELS[0]) ? 'disabled' : '' }}>
-            {{ __('Withdraw') }}
+            <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
+            <span class="gold-btn-fill">{{ __('Withdraw') }}</span>
         </button>
     </form>
 </div>
