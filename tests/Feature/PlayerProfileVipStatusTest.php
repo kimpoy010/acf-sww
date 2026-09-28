@@ -68,4 +68,17 @@ class PlayerProfileVipStatusTest extends TestCase
         $response->assertViewHas('nextVipTier', null);
         $response->assertSee(__('You\'ve reached the highest VIP tier.'));
     }
+
+    public function test_the_page_has_an_info_button_and_modal_listing_every_tier(): void
+    {
+        $player = $this->player();
+
+        $response = $this->actingAs($player)->get(route('play.profile'));
+
+        $response->assertOk();
+        $response->assertSee('id="vip-info-open"', false);
+        $response->assertSee('id="vip-info-modal"', false);
+        $response->assertSee(__('VIP Levels'));
+        $response->assertViewHas('allVipTiers', fn ($tiers) => $tiers->pluck('name')->all() === ['VIP', 'VIP 1']);
+    }
 }

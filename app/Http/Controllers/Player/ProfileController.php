@@ -21,12 +21,14 @@ class ProfileController extends Controller
         $lifetimeValidBets = (float) ($player->wallet->lifetime_valid_bets ?? 0);
         $vipTier = VipTier::forValidBets($lifetimeValidBets);
         $nextVipTier = $vipTier ? $vipTier->next() : VipTier::orderBy('min_valid_bets')->first();
+        $allVipTiers = VipTier::orderBy('min_valid_bets')->get();
 
         return view('player.profile.show', [
             'player' => $player,
             'lifetimeValidBets' => $lifetimeValidBets,
             'vipTier' => $vipTier,
             'nextVipTier' => $nextVipTier,
+            'allVipTiers' => $allVipTiers,
         ]);
     }
 }
