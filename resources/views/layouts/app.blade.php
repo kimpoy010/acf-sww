@@ -6,10 +6,12 @@
     @php
         $cms = $cms ?? \App\Support\CmsSettings::current();
         $pageTitle = trim($__env->yieldContent('title'));
-        // The login page shares the player app's black & gold look (it's
-        // everyone's entry point, not role-scoped) — everything else stays
-        // on the generic dark theme.
-        $isGoldTheme = (auth()->check() && auth()->user()->hasRole('player')) || request()->routeIs('login');
+        // The guest auth pages (login, register, forgot/reset password)
+        // share the player app's black & gold look — they're everyone's
+        // entry/recovery point, not role-scoped. Everything else stays on
+        // the generic dark theme.
+        $isGoldTheme = (auth()->check() && auth()->user()->hasRole('player'))
+            || request()->routeIs('login', 'register', 'password.request', 'password.reset');
     @endphp
     <title>{{ $pageTitle ? $pageTitle.' · '.$cms['site_name'] : $cms['site_name'] }}</title>
     @if ($cms['logo_url'])
@@ -22,13 +24,13 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 @php
-    // The background is a full-page "wallpaper" behind the login page and
-    // every player screen except the live betting pages, whose own dense
-    // visuals (odds, countdown, bet buttons) need the full contrast of the
-    // plain dark background to stay readable — see the CMS edit page's own
-    // copy.
+    // The background is a full-page "wallpaper" behind the guest auth pages
+    // and every player screen except the live betting pages, whose own
+    // dense visuals (odds, countdown, bet buttons) need the full contrast
+    // of the plain dark background to stay readable — see the CMS edit
+    // page's own copy.
     $showCmsBackground = $cms['background_url'] && (
-        request()->routeIs('login')
+        request()->routeIs('login', 'register', 'password.request', 'password.reset')
         || (auth()->check() && auth()->user()->hasRole('player') && ! request()->routeIs('play.pool-fight', 'play.combined-fight'))
     );
 @endphp
