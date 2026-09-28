@@ -45,6 +45,7 @@ class CashController extends Controller
             'player' => auth()->user(),
             'routePrefix' => $this->routePrefix(),
             'topRoutePrefix' => $this->topRoutePrefix(),
+            'withdrawalFee' => CashTransactionService::withdrawalFee(),
         ]);
     }
 

@@ -44,6 +44,9 @@
             <div class="rounded-xl px-4 py-6 mb-4 bg-[#0a0e16] border border-[#141a2a]">
                 <p class="text-[#c9baaf] font-semibold">{{ __('Sending your withdrawal to :channel…', ['channel' => $channelLabel ?? __('your account')]) }}</p>
                 <p class="text-sm text-[#8a7a70] mt-1">{{ __('This page updates automatically once it settles.') }}</p>
+                @if (($cashTransaction->platform_fee ?? 0) > 0)
+                    <p class="text-xs text-[#8a7a70] mt-2">{{ __(':fee fee + :amount withdrawn = :total deducted from your wallet.', ['fee' => $currencySymbol.number_format($cashTransaction->platform_fee, 2), 'amount' => $currencySymbol.number_format($cashTransaction->amount, 2), 'total' => $currencySymbol.number_format($cashTransaction->amount + $cashTransaction->platform_fee, 2)]) }}</p>
+                @endif
             </div>
         @endif
 

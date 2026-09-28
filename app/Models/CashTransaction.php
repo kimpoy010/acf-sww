@@ -28,6 +28,7 @@ class CashTransaction extends Model
         'account_name',
         'provider_transaction_id',
         'fee',
+        'platform_fee',
         'provider_error_code',
         'provider_error_msg',
         'qr_payload',
@@ -46,7 +47,8 @@ class CashTransaction extends Model
      * stay outside the tamper-evident set — routing/provider metadata,
      * not the money-movement fact itself, which is covered separately by
      * its own WalletTransaction chain entry once a deposit/withdrawal
-     * actually settles.
+     * actually settles. Same reasoning applies to platform_fee, added
+     * later still.
      */
     public function hashChainFields(): array
     {
@@ -68,6 +70,7 @@ class CashTransaction extends Model
         return [
             'amount' => 'decimal:2',
             'fee' => 'decimal:2',
+            'platform_fee' => 'decimal:2',
             'expires_at' => 'datetime',
             'completed_at' => 'datetime',
         ];

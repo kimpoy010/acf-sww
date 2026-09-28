@@ -206,6 +206,59 @@ class PaybucksSmokeTest extends TestCase
         $this->assertEquals(100, $player->wallet->fresh()->main_balance);
     }
 
+    public function test_a_platform_withdrawal_fee_is_reserved_and_charged_on_top_of_the_amount(): void
+    {
+        Role::firstOrCreate(['name' => 'player']);
+        config(['services.paybucks.api_key' => 'test-key']);
+        \App\Models\Setting::set('withdrawal_fee', '10');
+
+        Http::fake([
+            '*/payments/withdrawals' => Http::response([
+                'success' => true,
+                'statusCode' => 201,
+                'data' => ['transactionId' => 'ext-fee', 'merchantOrderNo' => 'whatever', 'amount' => 400],
+            ], 201),
+            '*/payments/orders/*' => Http::response([
+                'success' => true,
+                'statusCode' => 200,
+                'data' => ['status' => 'SUCCESS', 'merchantOrderNo' => 'whatever', 'kind' => 'WITHDRAW', 'amount' => 400],
+            ], 200),
+        ]);
+
+        $player = User::factory()->create();
+        $player->assignRole('player');
+        $player->wallet()->create(['main_balance' => 1000]);
+
+        $this->actingAs($player)->post(route('play.payment-methods.update'), [
+            'channel' => 'gcash',
+            'account_number' => '09171234567',
+        ]);
+
+        // Requesting the full 1000 would exceed available balance once the
+        // 10 fee is accounted for.
+        $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 1000])
+            ->assertRedirect(route('play.cash.index'));
+        $this->assertDatabaseCount('cash_transactions', 0);
+
+        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 400]);
+        $resp->assertRedirect();
+
+        $tx = \App\Models\CashTransaction::where('user_id', $player->id)->latest()->first();
+        $this->assertEquals(400, (float) $tx->amount);
+        $this->assertEquals(10, (float) $tx->platform_fee);
+        // 400 requested + 10 fee reserved, out of 1000 — 590 still available.
+        $this->assertEquals(590, $player->wallet->fresh()->availableBalance());
+
+        $show = $this->actingAs($player)->get(route('play.cash.show', $tx));
+        $show->assertOk();
+
+        $tx->refresh();
+        $this->assertEquals('completed', $tx->status);
+        // 1000 - 400 - 10 fee = 590 actually charged to main_balance.
+        $this->assertEquals(590, $player->wallet->fresh()->main_balance);
+        $this->assertEquals(0, $player->wallet->fresh()->pending_withdrawal);
+    }
+
     /**
      * Regression for the exact incident reported: a real deposit response
      * had paymentUrl set but qrImageUrl/qrPayload both null, wrapped in

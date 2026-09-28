@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Events\CashTransactionUpdated;
 use App\Models\CashTransaction;
+use App\Models\Setting;
 use App\Models\TellerShift;
 use App\Models\User;
 use App\Services\Paybucks\PaybucksChannel;
@@ -20,6 +21,18 @@ class CashTransactionService
     public const EXPIRES_IN_MINUTES = 15;
 
     public function __construct(private WalletService $walletService) {}
+
+    /**
+     * The house's own flat withdrawal fee (see Superadmin\SettingsController's
+     * "Payout settings" page) — added on top of a GCash/Maya withdrawal's
+     * requested amount, never subtracted from it. Public/static so the
+     * Cash page can show it up front, before a player ever submits a
+     * withdrawal request.
+     */
+    public static function withdrawalFee(): float
+    {
+        return (float) Setting::get('withdrawal_fee', '0');
+    }
 
     /**
      * Start a deposit ("cash in") request. Nothing is credited yet — that
@@ -184,10 +197,14 @@ class CashTransactionService
 
     /**
      * Start a GCash/Maya withdrawal via Paybucks, for whatever amount the
-     * player asks for (up to their full available balance) — the
+     * player asks for (up to their full available balance minus the
+     * platform's own withdrawal fee — see Setting 'withdrawal_fee') — the
      * reservation happens up front; main_balance itself is only debited
      * once reconcilePaybucksOrder() confirms Paybucks actually paid it
-     * out.
+     * out. The platform fee is added on top of the requested amount (the
+     * player still receives exactly what they asked for) and snapshotted
+     * onto the row so a later change to the setting never changes what an
+     * already-created withdrawal is recorded as having charged.
      */
     public function createPaybucksWithdrawal(User $player, string $channel, float $amount, string $accountNumber, ?string $accountName): CashTransaction
     {
@@ -211,12 +228,18 @@ class CashTransactionService
             throw new \InvalidArgumentException(__('Withdrawal amount must be positive.'));
         }
 
-        if ($amount > $wallet->availableBalance()) {
-            throw new \InvalidArgumentException(__('That exceeds your available balance of :amount.', ['amount' => number_format($wallet->availableBalance(), 2)]));
+        $platformFee = self::withdrawalFee();
+        $totalDeduction = $amount + $platformFee;
+
+        if ($totalDeduction > $wallet->availableBalance()) {
+            throw new \InvalidArgumentException(__('That exceeds your available balance of :amount (a :fee fee applies on top of what you withdraw).', [
+                'amount' => number_format($wallet->availableBalance(), 2),
+                'fee' => number_format($platformFee, 2),
+            ]));
         }
 
-        $transaction = DB::transaction(function () use ($player, $wallet, $amount, $channel, $accountNumber, $accountName) {
-            $this->walletService->reserveWithdrawal($wallet, $amount);
+        $transaction = DB::transaction(function () use ($player, $wallet, $amount, $platformFee, $totalDeduction, $channel, $accountNumber, $accountName) {
+            $this->walletService->reserveWithdrawal($wallet, $totalDeduction);
 
             return CashTransaction::create([
                 'user_id' => $player->id,
@@ -226,6 +249,7 @@ class CashTransactionService
                 'channel' => $channel,
                 'service_type' => PaybucksChannel::withdrawServiceType($channel),
                 'amount' => $amount,
+                'platform_fee' => $platformFee,
                 'account_number' => $accountNumber,
                 'account_name' => $accountName,
                 'code' => $this->generateCode(),
@@ -246,8 +270,8 @@ class CashTransactionService
                 'callbackUrl' => route('api.paybucks.callback.withdrawal'),
             ], fn ($value) => $value !== null));
         } catch (PaybucksException $e) {
-            DB::transaction(function () use ($transaction, $wallet, $amount, $e) {
-                $this->walletService->releaseWithdrawalReservation($wallet, $amount);
+            DB::transaction(function () use ($transaction, $wallet, $totalDeduction, $e) {
+                $this->walletService->releaseWithdrawalReservation($wallet, $totalDeduction);
                 $transaction->update(['status' => 'failed', 'provider_error_msg' => $e->getMessage()]);
             });
             Log::warning('paybucks.withdrawal_start_failed', ['code' => $transaction->code, 'error' => $e->getMessage()]);
@@ -321,7 +345,7 @@ class CashTransactionService
                 } else {
                     $this->walletService->completeWithdrawal(
                         $locked->user->wallet,
-                        (float) $locked->amount,
+                        (float) $locked->amount + (float) $locked->platform_fee,
                         $locked->id,
                         __(':channel withdrawal via Paybucks', ['channel' => PaybucksChannel::label($locked->channel)])
                     );
@@ -340,7 +364,7 @@ class CashTransactionService
                 // debit main_balance on a confirmed SUCCESS); a deposit
                 // simply never happened.
                 if ($locked->type === 'withdrawal') {
-                    $this->walletService->releaseWithdrawalReservation($locked->user->wallet, (float) $locked->amount);
+                    $this->walletService->releaseWithdrawalReservation($locked->user->wallet, (float) $locked->amount + (float) $locked->platform_fee);
                 }
 
                 $locked->update([
