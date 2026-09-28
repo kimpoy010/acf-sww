@@ -35,12 +35,12 @@ class CmsSettingsController extends Controller
     {
         $data = $request->validate([
             'site_name' => 'required|string|max:100',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
-            // 10240 KB (10 MB) — matches the infra ceiling above this:
-            // nginx's client_max_body_size 10m (deploy/nginx/app.conf) and
-            // PHP-FPM's upload_max_filesize (deploy/php-fpm/www-app.conf).
+            // 10240 KB (10 MB) on both — matches the infra ceiling above
+            // this: nginx's client_max_body_size 10m (deploy/nginx/app.conf)
+            // and PHP-FPM's upload_max_filesize (deploy/php-fpm/www-app.conf).
             // Animated gifs in particular routinely land well past the old
-            // 4 MB cap.
+            // 4 MB (background) / 2 MB (logo) caps.
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:10240',
             'background' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:10240',
         ]);
 

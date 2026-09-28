@@ -116,6 +116,41 @@ class CmsSettingsTest extends TestCase
         $this->assertNull(Setting::get('site_background_url'));
     }
 
+    /**
+     * The webmaster hit this exact wall next after the background cap was
+     * raised — the logo had its own, separate 2 MB cap left over from
+     * before.
+     */
+    public function test_the_logo_accepts_a_file_over_the_old_two_megabyte_cap(): void
+    {
+        Storage::fake('public');
+        $webmaster = $this->user('webmaster');
+
+        $resp = $this->actingAs($webmaster)->put(route('webmaster.cms.update'), [
+            'site_name' => 'My Sabong',
+            'logo' => UploadedFile::fake()->create('logo.png', 4096, 'image/png'),
+        ]);
+
+        $resp->assertRedirect(route('webmaster.cms.edit'));
+        $resp->assertSessionDoesntHaveErrors('logo');
+        $this->assertNotNull(Setting::get('site_logo_url'));
+    }
+
+    public function test_the_logo_still_rejects_a_file_over_ten_megabytes(): void
+    {
+        Storage::fake('public');
+        $webmaster = $this->user('webmaster');
+
+        $resp = $this->actingAs($webmaster)->from(route('webmaster.cms.edit'))->followingRedirects()->put(route('webmaster.cms.update'), [
+            'site_name' => 'My Sabong',
+            'logo' => UploadedFile::fake()->create('logo.png', 10241, 'image/png'),
+        ]);
+
+        $resp->assertOk();
+        $resp->assertSee('The logo field must not be greater than 10240 kilobytes.');
+        $this->assertNull(Setting::get('site_logo_url'));
+    }
+
     public function test_the_success_message_is_shown_after_saving(): void
     {
         Storage::fake('public');

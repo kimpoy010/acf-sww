@@ -6,15 +6,19 @@
     @php
         $cms = $cms ?? \App\Support\CmsSettings::current();
         $pageTitle = trim($__env->yieldContent('title'));
+        // The login page shares the player app's black & gold look (it's
+        // everyone's entry point, not role-scoped) — everything else stays
+        // on the generic dark theme.
+        $isGoldTheme = (auth()->check() && auth()->user()->hasRole('player')) || request()->routeIs('login');
     @endphp
     <title>{{ $pageTitle ? $pageTitle.' · '.$cms['site_name'] : $cms['site_name'] }}</title>
     @if ($cms['logo_url'])
         <link rel="icon" href="{{ $cms['logo_url'] }}">
     @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @role('player')
+    @if ($isGoldTheme)
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
-    @endrole
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 @php
@@ -28,7 +32,7 @@
         || (auth()->check() && auth()->user()->hasRole('player') && ! request()->routeIs('play.pool-fight', 'play.combined-fight'))
     );
 @endphp
-<body class="h-full antialiased @role('player') bg-[#05070b] text-[#f5efe9] @else bg-slate-950 text-slate-100 @endrole"
+<body class="h-full antialiased {{ $isGoldTheme ? 'bg-[#05070b] text-[#f5efe9]' : 'bg-slate-950 text-slate-100' }}"
       @if ($showCmsBackground) style="background-image: linear-gradient(rgba(5,7,11,0.82), rgba(5,7,11,0.82)), url('{{ $cms['background_url'] }}'); background-size: cover; background-position: center; background-attachment: fixed;" @endif>
     {{-- A player gets no top nav at all — logo/logout all moved to the
          Profile tab (see partials.player-bottom-tabs and
