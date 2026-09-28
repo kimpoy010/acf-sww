@@ -43,9 +43,9 @@
                 </label>
             </div>
         @endif
-        <input type="file" name="background" accept="image/png,image/jpeg,image/webp"
+        <input type="file" name="background" accept="image/png,image/jpeg,image/webp,image/gif"
                class="w-full text-sm text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-slate-200 hover:file:bg-slate-700">
-        <p class="text-sm text-slate-400 mt-2">{{ __('Shown full-page behind every player screen except the live betting page. PNG/JPG/WEBP, up to 4 MB.') }}</p>
+        <p class="text-sm text-slate-400 mt-2">{{ __('Shown full-page behind every player screen except the live betting page. PNG/JPG/WEBP/GIF (animated GIFs play), up to 4 MB.') }}</p>
     </div>
 
     <div class="rounded-xl border border-slate-800 bg-slate-900 p-4">
