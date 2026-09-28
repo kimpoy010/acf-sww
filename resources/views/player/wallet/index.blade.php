@@ -6,7 +6,7 @@
 <p class="text-[10.5px] font-extrabold tracking-[0.16em] text-[#e0793a] mb-1">{{ __('POOL SABONG') }}</p>
 <h1 class="text-2xl font-extrabold tracking-tight mb-6">{{ __('My Wallet') }}</h1>
 
-<div class="relative rounded-2xl overflow-hidden p-6 mb-4 border border-red-900/25" style="background: radial-gradient(circle at 15% -10%, #7a1f14, transparent 55%), linear-gradient(160deg, #1c110c, #0e0805);">
+<div class="relative rounded-2xl overflow-hidden p-6 mb-4 border border-red-900/25" style="background: radial-gradient(circle at 15% -10%, #141f7a, transparent 55%), linear-gradient(160deg, #0c111c, #05080e);">
     <p class="text-[10.5px] font-extrabold tracking-[0.1em] text-[#c99a7a]">{{ __('WALLET BALANCE') }}</p>
     <p class="text-4xl font-extrabold text-amber-400 mt-1.5" style="text-shadow: 0 0 24px rgba(251,191,36,0.25);">{{ $currencySymbol }}<span data-wallet-balance="main">{{ number_format($wallet->main_balance ?? 0, 2) }}</span></p>
     @if (($wallet->pending_withdrawal ?? 0) >= 0.01)
@@ -19,10 +19,10 @@
     </div>
 </div>
 
-<div class="rounded-xl border border-[#2a1a14] bg-[#160e0a] p-4">
+<div class="rounded-xl border border-[#141a2a] bg-[#0a0e16] p-4">
     <h2 class="font-semibold mb-3 px-1">{{ __('Transaction history') }}</h2>
 
-    <div class="flex gap-1.5 bg-[#0b0705] border border-[#2a1a14] rounded-[11px] p-1 mb-3" id="wallet-tabs">
+    <div class="flex gap-1.5 bg-[#05070b] border border-[#141a2a] rounded-[11px] p-1 mb-3" id="wallet-tabs">
         <button type="button" class="wallet-tab flex-1 rounded-lg py-2 text-[11px] font-bold text-center transition" data-tab="all">{{ __('All Transactions') }}</button>
         <button type="button" class="wallet-tab flex-1 rounded-lg py-2 text-[11px] font-bold text-center transition" data-tab="bets">{{ __('Bets') }}</button>
         <button type="button" class="wallet-tab flex-1 rounded-lg py-2 text-[11px] font-bold text-center transition" data-tab="deposits">{{ __('Deposits') }}</button>
@@ -32,7 +32,7 @@
     <div class="flex flex-wrap items-end gap-2 mb-3">
         <div id="wallet-filter-type" hidden>
             <label class="block text-[10px] text-[#8a7a70] mb-1">{{ __('Type') }}</label>
-            <select id="wallet-tx-filter-type" class="rounded-lg bg-[#0b0705] border border-[#2a1a14] px-2 py-1.5 text-xs">
+            <select id="wallet-tx-filter-type" class="rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1.5 text-xs">
                 <option value="">{{ __('All types') }}</option>
                 <option value="bet">{{ __('Bet placed') }}</option>
                 <option value="payout">{{ __('Bet payout') }}</option>
@@ -44,7 +44,7 @@
         </div>
         <div id="wallet-filter-event" hidden>
             <label class="block text-[10px] text-[#8a7a70] mb-1">{{ __('Event') }}</label>
-            <select id="wallet-tx-filter-event" class="rounded-lg bg-[#0b0705] border border-[#2a1a14] px-2 py-1.5 text-xs">
+            <select id="wallet-tx-filter-event" class="rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1.5 text-xs">
                 <option value="">{{ __('All Bets') }}</option>
                 @foreach ($playerEvents as $playerEvent)
                     <option value="{{ $playerEvent->id }}">{{ $playerEvent->name }}</option>
@@ -57,7 +57,7 @@
                 <input type="text" id="wallet-tx-filter-date-range" data-date-range
                        data-range-from="#wallet-tx-filter-date-from" data-range-to="#wallet-tx-filter-date-to"
                        placeholder="{{ __('Select dates') }}" autocomplete="off" readonly
-                       class="rounded-lg bg-[#0b0705] border border-[#2a1a14] pl-2 pr-6 py-1.5 text-xs cursor-pointer w-52">
+                       class="rounded-lg bg-[#05070b] border border-[#141a2a] pl-2 pr-6 py-1.5 text-xs cursor-pointer w-52">
                 <button type="button" data-date-range-clear hidden
                         class="absolute right-1 top-1/2 -translate-y-1/2 text-[#8a7a70] hover:text-white text-sm leading-none">&times;</button>
             </div>
@@ -67,7 +67,7 @@
         <div id="wallet-filter-amount" hidden>
             <label class="block text-[10px] text-[#8a7a70] mb-1">{{ __('Amount') }}</label>
             <input type="text" inputmode="decimal" id="wallet-tx-filter-amount" placeholder="{{ __('Amount') }}"
-                   class="amount-input w-24 rounded-lg bg-[#0b0705] border border-[#2a1a14] px-2 py-1.5 text-xs">
+                   class="amount-input w-24 rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1.5 text-xs">
         </div>
         <button type="button" id="wallet-tx-filter-apply" class="rounded-lg bg-red-600 hover:bg-red-500 transition text-xs font-bold px-3 py-1.5">{{ __('Filter') }}</button>
         <button type="button" id="wallet-tx-filter-clear" class="text-xs text-[#8a7a70] hover:text-white transition px-2 py-1.5" hidden>{{ __('Clear') }}</button>
@@ -80,7 +80,7 @@
 
 <!-- Transaction detail modal -->
 <div id="wallet-tx-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-    <div class="w-full sm:max-w-sm bg-[#160e0a] border border-[#2a1a14] rounded-t-2xl sm:rounded-2xl p-5 pb-6">
+    <div class="w-full sm:max-w-sm bg-[#0a0e16] border border-[#141a2a] rounded-t-2xl sm:rounded-2xl p-5 pb-6">
         <div class="flex items-center justify-between mb-4">
             <p class="font-semibold text-[#f5efe9]">{{ __('Transaction details') }}</p>
             <button type="button" id="wallet-tx-modal-close" class="text-[#8a7a70] hover:text-white transition text-xl leading-none">&times;</button>

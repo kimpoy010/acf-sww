@@ -47,12 +47,12 @@
     @else
         <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
             @foreach ($liveEvents as $event)
-                <div class="group relative block overflow-hidden rounded-xl bg-[#160e0a] transition live-tile-neon">
+                <div class="group relative block overflow-hidden rounded-xl bg-[#0a0e16] transition live-tile-neon">
                     <div class="relative aspect-video bg-black">
                         @if ($event->displayBannerUrl())
                             <img src="{{ $event->displayBannerUrl() }}" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105">
                         @else
-                            <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 40%,#5a1a12,#1c0805);"></div>
+                            <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 40%,#121a5a,#05081c);"></div>
                         @endif
                         <span class="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] sm:text-[11px] font-bold uppercase text-white shadow-[0_0_10px_1px_rgba(239,68,68,0.6)]">
                             <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-white"></span>
@@ -81,12 +81,12 @@
         </h2>
         <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
             @foreach ($ongoingFights as $item)
-                <a href="{{ route('play.pool-fight', $item['fight']) }}" class="group relative block overflow-hidden rounded-xl bg-[#160e0a] transition live-tile-neon">
+                <a href="{{ route('play.pool-fight', $item['fight']) }}" class="group relative block overflow-hidden rounded-xl bg-[#0a0e16] transition live-tile-neon">
                     <div class="relative aspect-video bg-black">
                         @if ($item['event']->displayBannerUrl())
                             <img src="{{ $item['event']->displayBannerUrl() }}" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105">
                         @else
-                            <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 40%,#5a1a12,#1c0805);"></div>
+                            <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 40%,#121a5a,#05081c);"></div>
                         @endif
                         <span class="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] sm:text-[11px] font-bold uppercase text-white shadow-[0_0_10px_1px_rgba(239,68,68,0.6)]">
                             <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-white"></span>
@@ -105,7 +105,7 @@
 
 <div>
     <h2 class="flex items-center gap-2 text-[11.5px] font-extrabold uppercase tracking-[0.1em] text-[#8a7a70] mb-3">
-        <span class="h-[7px] w-[7px] rounded-full bg-[#4a3a30]"></span>
+        <span class="h-[7px] w-[7px] rounded-full bg-[#303a4a]"></span>
         {{ __('Upcoming') }}
     </h2>
     @if ($upcomingEvents->isEmpty())
@@ -113,12 +113,12 @@
     @else
         <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
             @foreach ($upcomingEvents as $event)
-                <div class="overflow-hidden rounded-xl bg-[#160e0a] border border-[#2a1a14]">
-                    <div class="relative aspect-video bg-[#1c130e]">
+                <div class="overflow-hidden rounded-xl bg-[#0a0e16] border border-[#141a2a]">
+                    <div class="relative aspect-video bg-[#0e131c]">
                         @if ($event->displayBannerUrl())
                             <img src="{{ $event->displayBannerUrl() }}" alt="" class="absolute inset-0 h-full w-full object-cover grayscale">
                         @endif
-                        <span class="absolute top-2 left-2 rounded-full bg-[#2a1a14] px-2 py-0.5 text-[10px] sm:text-[11px] font-bold uppercase text-[#c9baaf]">
+                        <span class="absolute top-2 left-2 rounded-full bg-[#141a2a] px-2 py-0.5 text-[10px] sm:text-[11px] font-bold uppercase text-[#c9baaf]">
                             {{ __('Upcoming') }}
                         </span>
                     </div>

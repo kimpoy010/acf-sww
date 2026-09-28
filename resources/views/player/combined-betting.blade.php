@@ -27,7 +27,7 @@
 <div class="w-full sm:max-w-lg sm:mx-auto space-y-3">
 
     <!-- Top bar -->
-    <div class="flex items-center justify-between bg-[#160e0a] rounded-t-xl px-4 py-3 border border-[#2a1a14]">
+    <div class="flex items-center justify-between bg-[#0a0e16] rounded-t-xl px-4 py-3 border border-[#141a2a]">
         <div class="flex items-center gap-2">
             <span class="text-emerald-400 font-bold text-sm">{{ __('Fight #') }} <span id="fight-number">{{ $fight->fight_number }}</span></span>
             <span id="fight-status-badge" class="text-[11px] px-2.5 py-0.5 rounded-full font-bold uppercase {{ $statusBadgeClass($fight->status) }}">
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Totalizer / Odds toggle -->
-    <div class="flex items-center justify-center gap-3 bg-[#160e0a] border border-[#2a1a14] rounded-xl px-4 py-3">
+    <div class="flex items-center justify-center gap-3 bg-[#0a0e16] border border-[#141a2a] rounded-xl px-4 py-3">
         <button type="button" id="mode-label-pool" class="text-sm font-extrabold uppercase tracking-wide text-white">{{ __('Totalizer') }}</button>
         <button type="button" id="mode-toggle" class="relative w-14 h-7 rounded-full bg-slate-700 transition-colors" aria-pressed="false">
             <span id="mode-toggle-thumb" class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform"></span>
@@ -70,7 +70,7 @@
     </div>
 
     <!-- Odds panel -->
-    <div id="panel-odds" class="hidden bg-[#160e0a] border border-[#2a1a14] rounded-xl overflow-hidden">
+    <div id="panel-odds" class="hidden bg-[#0a0e16] border border-[#141a2a] rounded-xl overflow-hidden">
         <div class="grid grid-cols-3 text-center text-[10px] font-bold uppercase">
             <span class="bg-red-900/40 text-red-300 py-2">{{ $event->sideLabel('meron') }}</span>
             <span class="bg-black/30 text-slate-400 py-2">{{ __('Odds') }}</span>
@@ -145,7 +145,7 @@
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
     const currency = @json($currency);
     const statusCopy = @json(collect($statusCopyMap)->map(fn ($c) => [$c['label'], $c['desc']]));
-    const swalDark = { background: '#160e0a', color: '#f5efe9' };
+    const swalDark = { background: '#0a0e16', color: '#f5efe9' };
 
     let mode = 'pool'; // 'pool' | 'odds'
     let isBettable = @json($isBettable);
@@ -181,13 +181,13 @@
     function promptAmount(title, color, onConfirm) {
         if (!isBettable) return;
         const chips = [10, 20, 50, 100, 500, 1000];
-        const chipsHtml = chips.map(a => `<button type="button" class="amt-chip" data-amount="${a}" style="padding:6px 0;border-radius:8px;border:1px solid #3a241b;background:#0b0705;color:#c9baaf;font-size:12px;">${a}</button>`).join('');
+        const chipsHtml = chips.map(a => `<button type="button" class="amt-chip" data-amount="${a}" style="padding:6px 0;border-radius:8px;border:1px solid #1b243a;background:#05070b;color:#c9baaf;font-size:12px;">${a}</button>`).join('');
 
         Swal.fire({
             title,
             html:
                 `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">${chipsHtml}</div>` +
-                `<input id="swal-amount" type="number" min="1" placeholder="{{ __('Amount') }}" style="width:100%;box-sizing:border-box;background:#0b0705;border:1px solid #2a1a14;border-radius:9px;padding:9px 12px;color:#f5efe9;font-size:14px;">`,
+                `<input id="swal-amount" type="number" min="1" placeholder="{{ __('Amount') }}" style="width:100%;box-sizing:border-box;background:#05070b;border:1px solid #141a2a;border-radius:9px;padding:9px 12px;color:#f5efe9;font-size:14px;">`,
             showCancelButton: true,
             confirmButtonText: '{{ __('Confirm bet') }}',
             cancelButtonText: '{{ __('Cancel') }}',

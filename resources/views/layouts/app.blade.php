@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full antialiased @role('player') bg-[#0b0705] text-[#f5efe9] @else bg-slate-950 text-slate-100 @endrole">
+<body class="h-full antialiased @role('player') bg-[#05070b] text-[#f5efe9] @else bg-slate-950 text-slate-100 @endrole">
     {{-- A player gets no top nav at all — logo/locale-switcher/logout all
          moved to the Profile tab (see partials.player-bottom-tabs and
          player/profile/show.blade.php) so the bottom tab bar is the only

@@ -2,7 +2,7 @@
     ['referenceLabels' => $referenceLabels, 'actionLabels' => $actionLabels, 'txIcons' => $txIcons] = \App\Support\WalletTransactionDisplay::maps();
 @endphp
 
-<div class="divide-y divide-[#2a1a14]">
+<div class="divide-y divide-[#141a2a]">
     @forelse ($transactions ?? [] as $tx)
         @php
             $title = $tx->description ?: ($referenceLabels[$tx->reference_type] ?? ucfirst($tx->reference_type ?? $tx->type));

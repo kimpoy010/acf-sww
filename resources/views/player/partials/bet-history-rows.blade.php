@@ -11,7 +11,7 @@
             };
             $historyStatus = $bet->historyStatusLabel();
         @endphp
-        <div class="rounded-xl p-3" style="background:#0b0705;border:1px solid #2a1a14;">
+        <div class="rounded-xl p-3" style="background:#05070b;border:1px solid #141a2a;">
             <div class="flex items-center justify-between gap-2">
                 <span class="inline-block text-[10px] font-extrabold tracking-wide px-2 py-0.5 rounded-md uppercase" style="background:{{ $sideBadge['bg'] }};color:{{ $sideBadge['text'] }};">
                     {{ $bet->fight->event->sideLabel($bet->side) }}

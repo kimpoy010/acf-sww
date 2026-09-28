@@ -329,7 +329,7 @@
     </div>
 
     <!-- Top bar -->
-    <div class="flex items-center justify-between bg-[#160e0a] rounded-t-xl px-4 py-3 border border-[#2a1a14]">
+    <div class="flex items-center justify-between bg-[#0a0e16] rounded-t-xl px-4 py-3 border border-[#141a2a]">
         <div class="flex items-center gap-2">
             <span class="text-emerald-400 font-bold text-sm">{{ __('Fight #') }} <span id="fight-number">{{ $fight->fight_number }}</span></span>
             <span id="fight-status-badge" class="text-[11px] px-2.5 py-0.5 rounded-full font-bold uppercase {{ $statusBadgeClass($fight->status) }}">
@@ -340,15 +340,15 @@
     </div>
 
     <!-- Bet slip -->
-    <div id="bet-panel" class="bg-[#160e0a] border border-[#2a1a14] rounded-xl p-4">
+    <div id="bet-panel" class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-4">
         <div class="grid grid-cols-7 gap-1 mb-3">
             @foreach ([[10, '10'], [20, '20'], [50, '50'], [100, '100'], [1000, '1k'], [5000, '5k'], [10000, '10k']] as [$amount, $label])
-                <button type="button" class="chip-btn rounded-full bg-[#160e0a] border border-[#3a241b] hover:border-red-500/60 text-[#c9baaf] text-xs sm:text-sm font-extrabold py-2 text-center transition" data-amount="{{ $amount }}">{{ $label }}</button>
+                <button type="button" class="chip-btn rounded-full bg-[#0a0e16] border border-[#1b243a] hover:border-red-500/60 text-[#c9baaf] text-xs sm:text-sm font-extrabold py-2 text-center transition" data-amount="{{ $amount }}">{{ $label }}</button>
             @endforeach
         </div>
         <div class="relative">
             <input type="text" inputmode="numeric" id="bet-amount" data-decimals="0" placeholder="{{ __('Amount') }}"
-                   class="amount-input w-full rounded-lg bg-[#0b0705] border border-[#2a1a14] pl-3 pr-9 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                   class="amount-input w-full rounded-lg bg-[#05070b] border border-[#141a2a] pl-3 pr-9 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
             <button type="button" id="clear-bet-amount" class="absolute inset-y-0 right-0 px-3 text-[#8a7a70] hover:text-[#c9baaf] transition" aria-label="{{ __('Clear amount') }}">
                 &times;
             </button>
@@ -362,7 +362,7 @@
          no game/region theme entry of its own — its color never changes
          per game the way Meron/Wala's does). --}}
     <div class="grid grid-cols-3 gap-1.5">
-        <div class="relative rounded-2xl overflow-hidden flex flex-col side-neon-card" style="--side-glow-rgb:{{ $meronRgb }};border:1px solid rgba({{ $meronRgb }},0.35);background:radial-gradient(circle at 50% 30%, rgba({{ $meronRgb }},0.22), #160e0a 70%);">
+        <div class="relative rounded-2xl overflow-hidden flex flex-col side-neon-card" style="--side-glow-rgb:{{ $meronRgb }};border:1px solid rgba({{ $meronRgb }},0.35);background:radial-gradient(circle at 50% 30%, rgba({{ $meronRgb }},0.22), #0a0e16 70%);">
             <p class="relative text-center pt-2 text-xs font-extrabold tracking-wide truncate px-1" style="color:rgb({{ $meronRgb }});text-shadow:0 2px 6px rgba(0,0,0,0.7);">{{ strtoupper($event->label_meron) }}</p>
             <div class="relative flex-1 px-1.5 pb-3 pt-1 flex flex-col items-center justify-end gap-0.5">
                 <p class="text-yellow-400 text-sm font-extrabold" id="meron-pool">{{ number_format($meronPool * $event->multiplier, 2) }}</p>
@@ -379,7 +379,7 @@
         </div>
 
         @if ($fight->draw_enabled)
-            <div class="relative rounded-2xl overflow-hidden flex flex-col side-neon-card" style="--side-glow-rgb:20,184,166;border:1px solid rgba(20,184,166,0.4);background:radial-gradient(circle at 50% 30%, rgba(20,184,166,0.20), #160e0a 70%);">
+            <div class="relative rounded-2xl overflow-hidden flex flex-col side-neon-card" style="--side-glow-rgb:20,184,166;border:1px solid rgba(20,184,166,0.4);background:radial-gradient(circle at 50% 30%, rgba(20,184,166,0.20), #0a0e16 70%);">
                 <p class="relative text-center pt-2 text-xs font-extrabold tracking-wide truncate px-1" style="color:#5eead4;text-shadow:0 2px 6px rgba(0,0,0,0.7);">{{ strtoupper($event->label_draw) }}</p>
                 <div class="relative flex-1 px-1.5 pb-3 pt-1 flex flex-col items-center justify-end gap-0.5">
                     <p class="text-yellow-400 text-sm font-extrabold" id="draw-pool">{{ number_format($drawPool * $event->multiplier, 2) }}</p>
@@ -392,7 +392,7 @@
             </div>
         @endif
 
-        <div class="relative rounded-2xl overflow-hidden flex flex-col side-neon-card" style="--side-glow-rgb:{{ $walaRgb }};border:1px solid rgba({{ $walaRgb }},0.35);background:radial-gradient(circle at 50% 30%, rgba({{ $walaRgb }},0.22), #160e0a 70%);">
+        <div class="relative rounded-2xl overflow-hidden flex flex-col side-neon-card" style="--side-glow-rgb:{{ $walaRgb }};border:1px solid rgba({{ $walaRgb }},0.35);background:radial-gradient(circle at 50% 30%, rgba({{ $walaRgb }},0.22), #0a0e16 70%);">
             <p class="relative text-center pt-2 text-xs font-extrabold tracking-wide truncate px-1" style="color:rgb({{ $walaRgb }});text-shadow:0 2px 6px rgba(0,0,0,0.7);">{{ strtoupper($event->label_wala) }}</p>
             <div class="relative flex-1 px-1.5 pb-3 pt-1 flex flex-col items-center justify-end gap-0.5">
                 <p class="text-yellow-400 text-sm font-extrabold" id="wala-pool">{{ number_format($walaPool * $event->multiplier, 2) }}</p>
@@ -421,7 +421,7 @@
     </div>
 
     <!-- Reglahan -->
-    <div class="bg-[#160e0a] border border-[#2a1a14] rounded-xl p-3">
+    <div class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-3">
         <p class="font-bold text-sm mb-3" style="color:#e0793a;">{{ __('REGLAHAN') }}</p>
 
         <div class="flex flex-wrap justify-center gap-x-3 gap-y-1.5 mb-3">
@@ -447,10 +447,10 @@
             <div class="grid gap-1" style="grid-auto-flow: column; grid-template-rows: repeat({{ $reglahan['maxRows'] }}, minmax(0, 1fr)); width: max-content;">
                 @forelse ($reglahan['columns'] as $column)
                     @foreach ($column as $cell)
-                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-[#3a241b] flex items-center justify-center text-xs font-bold
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-[#1b243a] flex items-center justify-center text-xs font-bold
                             {{ $cell
                                 ? ($cell->winner === 'meron' ? $theme['meron']['reglahan'] : ($cell->winner === 'wala' ? $theme['wala']['reglahan'] : ($cell->winner === 'draw' ? 'bg-[#cbd5e1] text-[#1e293b]' : 'bg-[#52525b] text-[#e2e8f0]')))
-                                : 'bg-[#0b0705] text-[#4a3a30] border-dashed' }}">
+                                : 'bg-[#05070b] text-[#303a4a] border-dashed' }}">
                             {{ $cell?->fight_number }}
                         </div>
                     @endforeach
@@ -459,7 +459,7 @@
                          board (matches how the board will look once results
                          start coming in) instead of one lone empty square. --}}
                     @for ($p = 0; $p < 9 * $reglahan['maxRows']; $p++)
-                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-dashed border-[#2a1a14] bg-[#0b0705]"></div>
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-dashed border-[#141a2a] bg-[#05070b]"></div>
                     @endfor
                 @endforelse
             </div>
@@ -467,11 +467,11 @@
     </div>
 
     <!-- My bets this fight -->
-    <div class="bg-[#160e0a] border border-[#2a1a14] rounded-xl p-4">
+    <div class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-4">
         <h2 class="font-semibold text-sm mb-3 text-[#c9baaf]">{{ __('My bets — this fight') }}</h2>
         <div id="my-bets" class="space-y-2 text-sm">
             @forelse ($myBets as $bet)
-                <div class="flex justify-between border-b border-[#2a1a14] pb-1">
+                <div class="flex justify-between border-b border-[#141a2a] pb-1">
                     <span>{{ $event->sideLabel($bet->side) }}</span>
                     <span>{{ $theme['currency'] }}{{ number_format($bet->amount, 2) }}</span>
                 </div>
@@ -487,17 +487,17 @@
          tabs, filter and pagination links (delegated below) all go through
          play.bet-history via AJAX instead of a full page reload, same
          pattern as the superadmin wallets page's live search. -->
-    <div class="bg-[#160e0a] border border-[#2a1a14] rounded-xl p-4">
+    <div class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-4">
         <div class="flex items-center justify-between gap-3 mb-3">
             <h2 class="font-semibold text-sm text-[#c9baaf]">{{ __('Betting history') }}</h2>
-            <select id="bet-history-filter" class="rounded-lg bg-[#0b0705] border border-[#2a1a14] px-2 py-1 text-xs">
+            <select id="bet-history-filter" class="rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1 text-xs">
                 <option value="">{{ __('All events') }}</option>
                 @foreach ($myBetHistoryEvents as $historyEvent)
                     <option value="{{ $historyEvent->id }}">{{ $historyEvent->name }}</option>
                 @endforeach
             </select>
         </div>
-        <div class="flex gap-1.5 bg-[#0b0705] border border-[#2a1a14] rounded-[11px] p-1 mb-3">
+        <div class="flex gap-1.5 bg-[#05070b] border border-[#141a2a] rounded-[11px] p-1 mb-3">
             <button type="button" id="bet-history-tab-open" class="bet-history-tab flex-1 rounded-lg py-2 text-xs font-bold text-center transition bg-red-600 text-white shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]" data-status="open">{{ __('Open bets') }}</button>
             <button type="button" id="bet-history-tab-settled" class="bet-history-tab flex-1 rounded-lg py-2 text-xs font-bold text-center transition text-[#8a7a70]" data-status="settled">{{ __('Settled bets') }}</button>
         </div>
@@ -1047,7 +1047,7 @@
         return Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
     }
 
-    const swalDark = { background: '#160e0a', color: '#f5efe9' };
+    const swalDark = { background: '#0a0e16', color: '#f5efe9' };
 
     // Two ways into a bet, both funnelling into placeBet() at the end:
     // 1. Amount already set (chip tapped or typed) → tapping "Bet X" goes
@@ -1079,7 +1079,7 @@
             confirmButtonText: i18n.confirmBet,
             cancelButtonText: i18n.cancel,
             confirmButtonColor: meta.color,
-            cancelButtonColor: '#3a241b',
+            cancelButtonColor: '#1b243a',
             ...swalDark,
         }).then((result) => {
             if (result.isConfirmed) placeBet(side, amount);
@@ -1091,7 +1091,7 @@
         const presets = [10, 20, 50, 100, 1000, 5000, 10000];
         const chipLabel = (p) => p >= 1000 ? (p / 1000) + 'k' : String(p);
         const chipsHtml = presets.map((p) =>
-            `<button type="button" class="swal-amount-chip" data-amount="${p}" style="border-radius:999px;padding:8px 0;font-size:12px;font-weight:800;background:#0b0705;color:#c9baaf;border:1px solid #3a241b;cursor:pointer;">${chipLabel(p)}</button>`
+            `<button type="button" class="swal-amount-chip" data-amount="${p}" style="border-radius:999px;padding:8px 0;font-size:12px;font-weight:800;background:#05070b;color:#c9baaf;border:1px solid #1b243a;cursor:pointer;">${chipLabel(p)}</button>`
         ).join('');
 
         Swal.fire({
@@ -1099,12 +1099,12 @@
             html:
                 `<p style="font-size:13px;color:#8a7a70;margin:0 0 12px;">${i18n.chooseAmountText.replace(':side', meta.label.toUpperCase())}</p>` +
                 `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">${chipsHtml}</div>` +
-                `<input id="swal-amount-input" class="amount-input" type="text" inputmode="numeric" data-decimals="0" placeholder="${i18n.amountPlaceholder}" style="width:100%;box-sizing:border-box;background:#0b0705;border:1px solid #2a1a14;border-radius:9px;padding:9px 12px;color:#f5efe9;font-size:14px;">`,
+                `<input id="swal-amount-input" class="amount-input" type="text" inputmode="numeric" data-decimals="0" placeholder="${i18n.amountPlaceholder}" style="width:100%;box-sizing:border-box;background:#05070b;border:1px solid #141a2a;border-radius:9px;padding:9px 12px;color:#f5efe9;font-size:14px;">`,
             showCancelButton: true,
             confirmButtonText: i18n.confirmBet,
             cancelButtonText: i18n.cancel,
             confirmButtonColor: meta.color,
-            cancelButtonColor: '#3a241b',
+            cancelButtonColor: '#1b243a',
             ...swalDark,
             didOpen: () => {
                 const input = document.getElementById('swal-amount-input');
@@ -1113,8 +1113,8 @@
                         input.value = chip.dataset.amount;
                         window.applyAccountingFormat(input);
                         document.querySelectorAll('.swal-amount-chip').forEach((c) => {
-                            c.style.background = '#0b0705';
-                            c.style.borderColor = '#3a241b';
+                            c.style.background = '#05070b';
+                            c.style.borderColor = '#1b243a';
                             c.style.color = '#c9baaf';
                         });
                         chip.style.background = meta.color;

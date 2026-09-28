@@ -33,7 +33,7 @@
     </div>
 
     <div id="cancelled-block" class="{{ in_array($cashTransaction->status, ['cancelled', 'expired']) ? '' : 'hidden' }}">
-        <div class="rounded-xl px-4 py-6 mb-4 bg-[#160e0a] border border-[#2a1a14]">
+        <div class="rounded-xl px-4 py-6 mb-4 bg-[#0a0e16] border border-[#141a2a]">
             <p class="text-[#c9baaf] font-semibold text-lg">{{ __('This request was :status.', ['status' => __($cashTransaction->status === 'expired' ? 'expired' : 'cancelled')]) }}</p>
         </div>
         <a href="{{ route('play.cash.index') }}" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-6 py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Back to Cash In / Out') }}</a>

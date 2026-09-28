@@ -37,8 +37,10 @@ class PlayerBottomTabsTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('href="'.route('play.wallet.index').'"', false);
-        $response->assertSee('href="'.route('play.cash.index').'"', false);
         $response->assertSee('href="'.route('play.profile').'"', false);
+        // Cash dropped out of the bottom nav — no teller exists to
+        // approve a self-service request anymore.
+        $response->assertDontSee('href="'.route('play.cash.index').'"', false);
     }
 
     public function test_a_non_player_does_not_see_the_bottom_tab_bar(): void
