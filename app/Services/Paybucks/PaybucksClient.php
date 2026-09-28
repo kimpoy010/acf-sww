@@ -79,6 +79,21 @@ class PaybucksClient
             );
         }
 
-        return $response->json() ?? [];
+        $body = $response->json() ?? [];
+
+        // Every endpoint wraps its actual payload in {success, statusCode,
+        // data: {...}} rather than returning it flat, despite the doc's
+        // examples showing flat fields — confirmed from a real deposit
+        // response (paymentUrl/qrImageUrl/etc. were all under `data`, not
+        // top-level, which is why they read as missing before this).
+        // success:false is a business-level failure the HTTP status alone
+        // doesn't catch (Paybucks can return e.g. 200/201 either way).
+        if (array_key_exists('success', $body) && $body['success'] === false) {
+            throw new PaybucksException(
+                "Paybucks {$method} {$path} reported failure: ".($body['message'] ?? $response->body())
+            );
+        }
+
+        return $body['data'] ?? $body;
     }
 }

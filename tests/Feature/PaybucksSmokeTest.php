@@ -17,21 +17,34 @@ class PaybucksSmokeTest extends TestCase
         Role::firstOrCreate(['name' => 'player']);
         config(['services.paybucks.api_key' => 'test-key']);
 
+        // Real shape confirmed from a live deposit (see
+        // paybucks.deposit_response_missing_payment_fields in the logs
+        // that caught this): every endpoint wraps its actual payload in
+        // {success, statusCode, data: {...}}, not flat fields as the
+        // vendor doc's examples show.
         Http::fake([
             '*/payments/deposits' => Http::response([
-                'transactionId' => 'ext-123',
-                'merchantOrderNo' => 'whatever',
-                'amount' => 500,
-                'paymentUrl' => 'https://pay.example/x',
-                'qrPayload' => 'qr-payload-data',
-                'qrImageUrl' => 'https://pay.example/qr.png',
-                'transTime' => now()->toISOString(),
-            ], 200),
+                'success' => true,
+                'statusCode' => 201,
+                'data' => [
+                    'transactionId' => 'ext-123',
+                    'merchantOrderNo' => 'whatever',
+                    'amount' => 500,
+                    'paymentUrl' => 'https://pay.example/x',
+                    'qrPayload' => 'qr-payload-data',
+                    'qrImageUrl' => 'https://pay.example/qr.png',
+                    'transTime' => now()->toISOString(),
+                ],
+            ], 201),
             '*/payments/orders/*' => Http::response([
-                'status' => 'SUCCESS',
-                'merchantOrderNo' => 'whatever',
-                'kind' => 'DEPOSIT',
-                'amount' => 500,
+                'success' => true,
+                'statusCode' => 200,
+                'data' => [
+                    'status' => 'SUCCESS',
+                    'merchantOrderNo' => 'whatever',
+                    'kind' => 'DEPOSIT',
+                    'amount' => 500,
+                ],
             ], 200),
         ]);
 
@@ -75,16 +88,24 @@ class PaybucksSmokeTest extends TestCase
 
         Http::fake([
             '*/payments/deposits' => Http::response([
-                'transactionId' => 'ext-999',
-                'merchantOrderNo' => 'whatever',
-                'amount' => 300,
-                'paymentUrl' => 'https://pay.example/y',
-            ], 200),
+                'success' => true,
+                'statusCode' => 201,
+                'data' => [
+                    'transactionId' => 'ext-999',
+                    'merchantOrderNo' => 'whatever',
+                    'amount' => 300,
+                    'paymentUrl' => 'https://pay.example/y',
+                ],
+            ], 201),
             '*/payments/orders/*' => Http::response([
-                'status' => 'PENDING',
-                'merchantOrderNo' => 'whatever',
-                'kind' => 'DEPOSIT',
-                'amount' => 300,
+                'success' => true,
+                'statusCode' => 200,
+                'data' => [
+                    'status' => 'PENDING',
+                    'merchantOrderNo' => 'whatever',
+                    'kind' => 'DEPOSIT',
+                    'amount' => 300,
+                ],
             ], 200),
         ]);
 
@@ -128,11 +149,15 @@ class PaybucksSmokeTest extends TestCase
 
         Http::fake([
             '*/payments/withdrawals' => Http::response([
-                'transactionId' => 'ext-w1',
-                'merchantOrderNo' => 'whatever',
-                'amount' => 1000,
-                'fee' => 5,
-            ], 200),
+                'success' => true,
+                'statusCode' => 201,
+                'data' => [
+                    'transactionId' => 'ext-w1',
+                    'merchantOrderNo' => 'whatever',
+                    'amount' => 1000,
+                    'fee' => 5,
+                ],
+            ], 201),
         ]);
 
         $player = User::factory()->create();
@@ -153,6 +178,96 @@ class PaybucksSmokeTest extends TestCase
         $this->assertNotNull($tx);
         $this->assertEquals('09171234567', $tx->account_number);
         $this->assertEquals('pending', $tx->status);
+    }
+
+    /**
+     * Regression for the exact incident reported: a real deposit response
+     * had paymentUrl set but qrImageUrl/qrPayload both null, wrapped in
+     * {success, statusCode, data} — PaybucksClient previously returned
+     * the raw envelope, so CashTransactionService read paymentUrl at the
+     * top level (where it never was) and stored null for all three,
+     * leaving the show page with nothing to render.
+     */
+    public function test_deposit_response_with_only_a_payment_url_still_works(): void
+    {
+        Role::firstOrCreate(['name' => 'player']);
+        config(['services.paybucks.api_key' => 'test-key']);
+
+        Http::fake([
+            '*/payments/deposits' => Http::response([
+                'success' => true,
+                'statusCode' => 201,
+                'data' => [
+                    'transactionId' => 'cmul9k8zq003t01oth2d5u2b8',
+                    'merchantOrderNo' => 'whatever',
+                    'amount' => 100,
+                    'paymentUrl' => 'https://cashier.peppermint-pay.com/GCash_DepositPage.html?token=abc',
+                    'qrImageUrl' => null,
+                    'qrPayload' => null,
+                    'transTime' => now()->toISOString(),
+                ],
+            ], 201),
+            '*/payments/orders/*' => Http::response([
+                'success' => true,
+                'statusCode' => 200,
+                'data' => [
+                    'status' => 'PENDING',
+                    'merchantOrderNo' => 'whatever',
+                    'kind' => 'DEPOSIT',
+                    'amount' => 100,
+                ],
+            ], 200),
+        ]);
+
+        $player = User::factory()->create();
+        $player->assignRole('player');
+        $player->wallet()->create(['main_balance' => 0]);
+
+        $resp = $this->actingAs($player)->post(route('play.cash.deposit'), [
+            'channel' => 'gcash',
+            'amount' => 100,
+            'account_number' => '09171234567',
+        ]);
+        $resp->assertRedirect();
+
+        $tx = \App\Models\CashTransaction::where('user_id', $player->id)->latest()->first();
+        $this->assertEquals('https://cashier.peppermint-pay.com/GCash_DepositPage.html?token=abc', $tx->payment_url);
+        $this->assertNull($tx->qr_image_url);
+
+        // No qr_image_url and no qr_payload, but the page falls back to
+        // drawing its own QR code of the payment_url (any URL is
+        // scannable), rather than showing the "couldn't generate a way
+        // to pay" error state.
+        $show = $this->actingAs($player)->get(route('play.cash.show', $tx));
+        $show->assertOk();
+        $show->assertDontSee("couldn&#039;t generate a way to pay", false);
+    }
+
+    public function test_a_business_level_failure_response_is_treated_as_an_error(): void
+    {
+        Role::firstOrCreate(['name' => 'player']);
+        config(['services.paybucks.api_key' => 'test-key']);
+
+        Http::fake([
+            '*/payments/deposits' => Http::response([
+                'success' => false,
+                'statusCode' => 400,
+                'message' => 'Channel temporarily unavailable',
+            ], 200),
+        ]);
+
+        $player = User::factory()->create();
+        $player->assignRole('player');
+        $player->wallet()->create(['main_balance' => 0]);
+
+        $resp = $this->actingAs($player)->post(route('play.cash.deposit'), [
+            'channel' => 'gcash',
+            'amount' => 100,
+            'account_number' => '09171234567',
+        ]);
+
+        $resp->assertRedirect(route('play.cash.index'));
+        $this->assertDatabaseHas('cash_transactions', ['user_id' => $player->id, 'status' => 'failed']);
     }
 
     public function test_maya_payment_method_requires_an_account_name(): void
