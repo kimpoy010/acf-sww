@@ -26,11 +26,6 @@
         <p class="text-sm font-mono tracking-widest text-emerald-400">{{ $player->player_code }}</p>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-4">
-        <h2 class="font-semibold mb-3">{{ __('Language') }}</h2>
-        @include('partials.locale-switcher-radio')
-    </div>
-
     <a href="{{ route('account.password.edit') }}" class="block w-full text-center rounded-xl bg-slate-900 border border-slate-800 hover:border-red-600 hover:text-red-400 transition font-semibold py-3 text-sm mb-4">{{ __('Change password') }}</a>
 
     <form method="POST" action="{{ route('logout') }}">

@@ -14,8 +14,8 @@ use Tests\TestCase;
 /**
  * Regression for a security-review finding: the bet-limit-exceeded
  * message hardcoded a literal "$" and bypassed __() entirely, so a
- * Mexico-region player saw "$" instead of "Mex$" and the string couldn't
- * be translated to Spanish. See PoolBetController::store().
+ * Mexico-region player saw "$" instead of "Mex$". See
+ * PoolBetController::store().
  */
 class PoolBetLimitCurrencyTest extends TestCase
 {
@@ -57,10 +57,7 @@ class PoolBetLimitCurrencyTest extends TestCase
         ]);
 
         $response->assertStatus(422);
-        // Mexico defaults to the Spanish locale (see SetLocale) — this is
-        // also proof the message now goes through __() at all, unlike the
-        // hardcoded English string it replaced.
-        $response->assertJsonFragment(['message' => 'La apuesta supera el límite máximo de Mex$500.']);
+        $response->assertJsonFragment(['message' => 'Bet exceeds the maximum limit of Mex$500.']);
     }
 
     public function test_philippines_region_bet_limit_message_shows_the_peso_sign(): void

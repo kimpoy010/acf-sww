@@ -27,8 +27,8 @@
 @endphp
 <body class="h-full antialiased @role('player') bg-[#05070b] text-[#f5efe9] @else bg-slate-950 text-slate-100 @endrole"
       @if ($showCmsBackground) style="background-image: linear-gradient(rgba(5,7,11,0.82), rgba(5,7,11,0.82)), url('{{ $cms['background_url'] }}'); background-size: cover; background-position: center; background-attachment: fixed;" @endif>
-    {{-- A player gets no top nav at all — logo/locale-switcher/logout all
-         moved to the Profile tab (see partials.player-bottom-tabs and
+    {{-- A player gets no top nav at all — logo/logout all moved to the
+         Profile tab (see partials.player-bottom-tabs and
          player/profile/show.blade.php) so the bottom tab bar is the only
          chrome on screen, leaving more room for the actual app content on
          a phone. Every other role keeps this bar as-is. --}}
@@ -46,17 +46,12 @@
                     @endunless
                 </a>
 
-                @guest
-                    @include('partials.locale-switcher')
-                @endguest
-
                 @auth
                     <div class="flex items-center gap-1.5 sm:gap-4 text-sm min-w-0">
-                        @include('partials.locale-switcher')
                         @role('agent')
-                            {{-- Hidden below sm: with the locale switcher + avatar also competing
-                                 for the same row, two currency figures don't fit next to them on a
-                                 phone — and the agent dashboard shows both balances prominently on
+                            {{-- Hidden below sm: with the avatar also competing for the same
+                                 row, two currency figures don't fit next to it on a phone —
+                                 and the agent dashboard shows both balances prominently on
                                  the page itself, so nothing is lost by hiding them here. --}}
                             <span class="hidden sm:inline text-emerald-400 font-semibold text-sm whitespace-nowrap" title="{{ __('Main balance') }}">{{ $currencySymbol ?? '₱' }}<span data-wallet-balance="main">{{ number_format(auth()->user()->wallet->main_balance ?? 0, 2) }}</span></span>
                             <span class="hidden sm:inline text-amber-400 font-semibold text-sm whitespace-nowrap" title="{{ __('Commission balance') }}">💰{{ $currencySymbol ?? '₱' }}<span data-wallet-balance="commission">{{ number_format(auth()->user()->wallet->commission_balance ?? 0, 2) }}</span></span>

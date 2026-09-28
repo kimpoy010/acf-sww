@@ -44,7 +44,7 @@ class PlayerProfileQrTest extends TestCase
         $this->assertSame($code, $player->fresh()->player_code);
     }
 
-    public function test_the_profile_page_has_a_logout_button_and_language_switcher(): void
+    public function test_the_profile_page_has_a_logout_button(): void
     {
         $player = $this->player();
 
@@ -52,8 +52,6 @@ class PlayerProfileQrTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('action="'.route('logout').'"', false);
-        $response->assertSee('href="'.route('locale.switch', 'en').'"', false);
-        $response->assertSee('href="'.route('locale.switch', 'es').'"', false);
     }
 
     /**

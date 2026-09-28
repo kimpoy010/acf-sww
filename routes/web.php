@@ -51,16 +51,6 @@ Route::get('/', function () {
     return redirect()->route(auth()->check() ? auth()->user()->homeRouteName() : 'login');
 });
 
-// No auth required — the language switcher has to work on the no-login
-// kiosk screen too, not just for logged-in roles.
-Route::get('/locale/{locale}', function (string $locale) {
-    if (in_array($locale, ['en', 'es'], true)) {
-        session(['locale' => $locale]);
-    }
-
-    return back();
-})->where('locale', 'en|es')->name('locale.switch');
-
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('throttle:60,1');
     Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1');

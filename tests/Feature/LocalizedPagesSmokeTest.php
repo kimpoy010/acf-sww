@@ -15,15 +15,13 @@ use App\Services\BettingService;
 use App\Services\CashTransactionService;
 use App\Services\TellerShiftService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /**
- * Renders every page-producing GET route in both locales to catch blade
- * compile errors the i18n sweep could have introduced (a bad @json(...)
- * call, a stray brace, a translation placeholder mismatch) that unit-level
- * feature tests wouldn't otherwise exercise.
+ * Renders every page-producing GET route to catch blade compile errors
+ * (a bad @json(...) call, a stray brace, a translation placeholder
+ * mismatch) that unit-level feature tests wouldn't otherwise exercise.
  */
 class LocalizedPagesSmokeTest extends TestCase
 {
@@ -91,17 +89,8 @@ class LocalizedPagesSmokeTest extends TestCase
         $this->ticket = app(BettingService::class)->placeCounterBet($this->teller, $this->shift, $this->fight, 'meron', 100);
     }
 
-    /** @return array<int, array{0: string}> */
-    public static function localeProvider(): array
+    public function test_player_pages_render(): void
     {
-        return [['en'], ['es']];
-    }
-
-    #[DataProvider('localeProvider')]
-    public function test_player_pages_render(string $locale): void
-    {
-        $this->get(route('locale.switch', $locale));
-
         foreach ([
             route('play.index'),
             route('play.pool-fight', $this->fight),
@@ -118,11 +107,8 @@ class LocalizedPagesSmokeTest extends TestCase
             ->assertRedirect(route('play.pool-fight', $this->fight));
     }
 
-    #[DataProvider('localeProvider')]
-    public function test_declarator_pages_render(string $locale): void
+    public function test_declarator_pages_render(): void
     {
-        $this->get(route('locale.switch', $locale));
-
         foreach ([
             route('declarator.events.index'),
             route('declarator.events.show', $this->event),
@@ -142,11 +128,8 @@ class LocalizedPagesSmokeTest extends TestCase
      * only to attribute the cash transaction/ticket fixtures other tests
      * here use (e.g. test_player_pages_render's $this->cashTransaction).
      */
-    #[DataProvider('localeProvider')]
-    public function test_teller_pages_all_404_and_a_teller_session_is_signed_out(string $locale): void
+    public function test_teller_pages_all_404_and_a_teller_session_is_signed_out(): void
     {
-        $this->get(route('locale.switch', $locale));
-
         foreach ([
             route('teller.dashboard'),
             route('teller.rfid.index'),
@@ -162,11 +145,8 @@ class LocalizedPagesSmokeTest extends TestCase
         $this->assertGuest();
     }
 
-    #[DataProvider('localeProvider')]
-    public function test_superadmin_pages_render(string $locale): void
+    public function test_superadmin_pages_render(): void
     {
-        $this->get(route('locale.switch', $locale));
-
         foreach ([
             route('superadmin.dashboard'),
             route('superadmin.agents.index'),
@@ -182,19 +162,13 @@ class LocalizedPagesSmokeTest extends TestCase
         }
     }
 
-    #[DataProvider('localeProvider')]
-    public function test_agent_dashboard_renders(string $locale): void
+    public function test_agent_dashboard_renders(): void
     {
-        $this->get(route('locale.switch', $locale));
-
         $this->actingAs($this->agent)->get(route('agent.dashboard'))->assertSuccessful();
     }
 
-    #[DataProvider('localeProvider')]
-    public function test_kiosk_and_guest_pages_render(string $locale): void
+    public function test_kiosk_and_guest_pages_render(): void
     {
-        $this->get(route('locale.switch', $locale));
-
         $this->get(route('kiosk.show', $this->terminal))->assertSuccessful();
         $this->get(route('login'))->assertSuccessful();
         $this->get(route('register'))->assertSuccessful();
