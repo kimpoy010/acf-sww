@@ -100,8 +100,8 @@
          iframe just renders blank rather than erroring in a way JS can
          detect, so there's no automatic fallback beyond that link. --}}
     <div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-6">
-        <div class="w-full h-full sm:max-w-lg sm:h-[85vh] bg-[#0a0e16] border rounded-xl flex flex-col overflow-hidden" style="border-color:rgba(168,121,31,.22)">
-            <div class="flex items-center justify-between px-4 py-3 border-b shrink-0" style="border-color:rgba(168,121,31,.22)">
+        <div class="w-full h-full sm:max-w-lg sm:h-[85vh] bg-[#0b0b0d] border rounded-xl flex flex-col overflow-hidden" style="border-color:rgba(168,121,31,.5)">
+            <div class="flex items-center justify-between px-4 py-3 border-b shrink-0" style="border-color:rgba(168,121,31,.5)">
                 <p class="font-semibold text-sm text-[#f5efe9]">{{ __('Complete your payment') }}</p>
                 <div class="flex items-center gap-3">
                     <a href="{{ $cashTransaction->payment_url }}" target="_blank" rel="noopener" class="text-xs text-[#8a7a70] hover:text-[#c9baaf] transition whitespace-nowrap">{{ __('Open in new tab ↗') }}</a>

@@ -9,7 +9,7 @@
 <p class="gold-eyebrow">{{ __('Pool Sabong') }}</p>
 <h1 class="gold-serif gold-h1">{{ __('Transactions') }}</h1>
 
-<div class="rounded-xl border border-[#141a2a] bg-[#0a0e16] p-4">
+<div class="gold-panel p-4">
     <p class="gold-section-title">{{ __('All Transactions') }}</p>
 
     <div class="flex flex-wrap items-end gap-2 mb-2">
@@ -49,7 +49,7 @@
 
 <!-- Transaction detail modal -->
 <div id="tx-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-    <div class="w-full sm:max-w-sm bg-[#0a0e16] border border-[#141a2a] rounded-t-2xl sm:rounded-2xl p-5 pb-6">
+    <div class="w-full sm:max-w-sm bg-[#0b0b0d] border rounded-t-2xl sm:rounded-2xl p-5 pb-6" style="border-color:rgba(168,121,31,.5)">
         <div class="flex items-center justify-between mb-4">
             <p class="font-semibold text-[#f5efe9]">{{ __('Transaction details') }}</p>
             <button type="button" id="tx-modal-close" class="text-[#8a7a70] hover:text-white transition text-xl leading-none">&times;</button>
