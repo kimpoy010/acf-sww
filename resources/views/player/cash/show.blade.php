@@ -31,7 +31,7 @@
                 <p class="text-sm text-[#c9baaf] mb-1">{{ __('Scan with your :channel app to pay.', ['channel' => $channelLabel ?? __('GCash/Maya')]) }}</p>
             @elseif ($cashTransaction->payment_url)
                 <p class="mb-4">
-                    <a href="{{ $cashTransaction->payment_url }}" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-4 py-2 text-sm shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Open payment page') }}</a>
+                    <button type="button" id="open-payment-modal" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-4 py-2 text-sm shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Open payment page') }}</button>
                 </p>
                 <p class="text-sm text-[#c9baaf] mb-1">{{ __('Tap the button above to pay.') }}</p>
             @else
@@ -77,6 +77,27 @@
         <a href="{{ route($routePrefix.'index') }}" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-6 py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Back to Cash In / Out') }}</a>
     </div>
 </div>
+
+@if ($cashTransaction->payment_url)
+    {{-- Keeps the player on this page (so the live status update/poll
+         above keeps running) instead of navigating away to pay. Some
+         payment pages refuse to be framed at all (X-Frame-Options/CSP) —
+         the "Open in new tab" escape hatch covers that; a fully blocked
+         iframe just renders blank rather than erroring in a way JS can
+         detect, so there's no automatic fallback beyond that link. --}}
+    <div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-6">
+        <div class="w-full h-full sm:max-w-lg sm:h-[85vh] bg-[#0a0e16] border border-[#141a2a] rounded-xl flex flex-col overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-[#141a2a] shrink-0">
+                <p class="font-semibold text-sm text-[#f5efe9]">{{ __('Complete your payment') }}</p>
+                <div class="flex items-center gap-3">
+                    <a href="{{ $cashTransaction->payment_url }}" target="_blank" rel="noopener" class="text-xs text-[#8a7a70] hover:text-[#c9baaf] transition whitespace-nowrap">{{ __('Open in new tab ↗') }}</a>
+                    <button type="button" id="close-payment-modal" class="text-[#8a7a70] hover:text-white transition text-xl leading-none">&times;</button>
+                </div>
+            </div>
+            <iframe id="payment-modal-iframe" src="about:blank" data-src="{{ $cashTransaction->payment_url }}" class="flex-1 w-full bg-white" title="{{ __('Payment page') }}"></iframe>
+        </div>
+    </div>
+@endif
 
 @push('scripts')
 <script>
@@ -126,6 +147,33 @@
     });
 
     setInterval(poll, 5000);
+})();
+
+(function () {
+    const openBtn = document.getElementById('open-payment-modal');
+    const modal = document.getElementById('payment-modal');
+    if (!openBtn || !modal) return;
+
+    const closeBtn = document.getElementById('close-payment-modal');
+    const iframe = document.getElementById('payment-modal-iframe');
+
+    const open = () => {
+        // Lazy-loaded so the payment page only starts loading once the
+        // player actually asks to see it, not the moment this page renders.
+        if (iframe.src === 'about:blank') iframe.src = iframe.dataset.src;
+        modal.classList.remove('hidden');
+    };
+
+    const close = () => modal.classList.add('hidden');
+
+    openBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) close();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') close();
+    });
 })();
 </script>
 @endpush
