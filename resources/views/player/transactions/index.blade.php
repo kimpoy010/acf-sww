@@ -12,9 +12,9 @@
 <div class="gold-panel p-4">
     <p class="gold-section-title">{{ __('All Transactions') }}</p>
 
-    <div class="flex flex-wrap items-end gap-2 mb-2">
-        <div>
-            <label class="block text-[10px] text-[#8a7a70] mb-1">{{ __('Type') }}</label>
+    <div class="flex flex-nowrap items-end gap-2 mb-2 overflow-x-auto">
+        <div class="shrink-0">
+            <label class="block text-[10px] text-[#8a7a70] mb-1 whitespace-nowrap">{{ __('Type') }}</label>
             <select id="tx-filter-type" class="rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1.5 text-xs">
                 <option value="">{{ __('All types') }}</option>
                 <option value="bet">{{ __('Bet placed') }}</option>
@@ -25,21 +25,21 @@
                 <option value="reversal">{{ __('Payout reversal') }}</option>
             </select>
         </div>
-        <div>
-            <label class="block text-[10px] text-[#8a7a70] mb-1">{{ __('Date range') }}</label>
+        <div class="shrink-0">
+            <label class="block text-[10px] text-[#8a7a70] mb-1 whitespace-nowrap">{{ __('Date range') }}</label>
             <div class="relative">
                 <input type="text" id="tx-filter-date-range" data-date-range
                        data-range-from="#tx-filter-date-from" data-range-to="#tx-filter-date-to"
                        placeholder="{{ __('Select dates') }}" autocomplete="off" readonly
-                       class="rounded-lg bg-[#05070b] border border-[#141a2a] pl-2 pr-6 py-1.5 text-xs cursor-pointer w-52">
+                       class="rounded-lg bg-[#05070b] border border-[#141a2a] pl-2 pr-6 py-1.5 text-xs cursor-pointer w-40">
                 <button type="button" data-date-range-clear hidden
                         class="absolute right-1 top-1/2 -translate-y-1/2 text-[#8a7a70] hover:text-white text-sm leading-none">&times;</button>
             </div>
             <input type="hidden" id="tx-filter-date-from">
             <input type="hidden" id="tx-filter-date-to">
         </div>
-        <button type="button" id="tx-filter-apply" class="gold-filter-btn">{{ __('Filter') }}</button>
-        <button type="button" id="tx-filter-clear" class="text-xs text-[#8a7a70] hover:text-[#c9a04a] transition px-2 py-1.5" hidden>{{ __('Clear') }}</button>
+        <button type="button" id="tx-filter-apply" class="gold-filter-btn shrink-0">{{ __('Filter') }}</button>
+        <button type="button" id="tx-filter-clear" class="text-xs text-[#8a7a70] hover:text-[#c9a04a] transition px-2 py-1.5 shrink-0 whitespace-nowrap" hidden>{{ __('Clear') }}</button>
     </div>
 
     <div id="tx-results">
