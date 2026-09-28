@@ -65,10 +65,17 @@ differently.
 ## Matching tag IDs with card registration
 
 The sketch sends the scanned tag as a **plain decimal string**
-(`String(wg.getCode())`). This must exactly match whatever gets typed into
-**Teller → RFID Cards → Tag ID** when linking that physical card to a
-player. During setup, tap a card and read the decimal value off the
-Serial Monitor to know what to register.
+(`String(wg.getCode())`). This must exactly match a player's
+`rfid_uid` column for a tap to resolve to their account.
+
+> **Known gap:** the page that used to do this linking
+> (Teller → RFID Cards → Tag ID) is unreachable now that teller
+> accounts are retired — every `/teller/*` route 404s. There is
+> currently no other UI in the app to link a new card to a player, so
+> new cards can't be onboarded until that's rebuilt elsewhere. Existing
+> cards linked before the retirement are unaffected. During setup, tap
+> a card and read the decimal value off the Serial Monitor so it's
+> ready to register once linking is available again.
 
 ## Running unattended
 
