@@ -7,10 +7,12 @@
         $cms = $cms ?? \App\Support\CmsSettings::current();
         $pageTitle = trim($__env->yieldContent('title'));
         // The guest auth pages (login, register, forgot/reset password)
-        // share the player app's black & gold look — they're everyone's
-        // entry/recovery point, not role-scoped. Everything else stays on
-        // the generic dark theme.
-        $isGoldTheme = (auth()->check() && auth()->user()->hasRole('player'))
+        // and the agent role share the player app's black & gold look —
+        // agent.cash.*/agent.payment-methods.* already reuse the same
+        // player views (see Player\CashController's own doc comment), so
+        // agent.dashboard now matches rather than clashing with them.
+        // Everything else stays on the generic dark theme.
+        $isGoldTheme = (auth()->check() && auth()->user()->hasRole('player|agent'))
             || request()->routeIs('login', 'register', 'password.request', 'password.reset');
     @endphp
     <title>{{ $pageTitle ? $pageTitle.' · '.$cms['site_name'] : $cms['site_name'] }}</title>
@@ -46,9 +48,9 @@
          auth/login.blade.php and its siblings) that the nav would
          otherwise duplicate. --}}
     @unless ((auth()->check() && auth()->user()->hasRole('player')) || request()->routeIs('login', 'register', 'password.request', 'password.reset'))
-        <nav id="site-nav" class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
+        <nav id="site-nav" class="{{ $isGoldTheme ? 'bg-[#0b0b0d]/90' : 'border-slate-800 bg-slate-900/80' }} backdrop-blur sticky top-0 z-40 border-b" @if ($isGoldTheme) style="border-color:rgba(168,121,31,.35)" @endif>
             <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
-                <a href="{{ route(auth()->check() ? auth()->user()->homeRouteName() : 'login') }}" class="flex items-center gap-2 font-bold text-base sm:text-lg tracking-tight text-red-400 whitespace-nowrap shrink-0">
+                <a href="{{ route(auth()->check() ? auth()->user()->homeRouteName() : 'login') }}" class="flex items-center gap-2 font-bold text-base sm:text-lg tracking-tight {{ $isGoldTheme ? 'text-[#c9a04a]' : 'text-red-400' }} whitespace-nowrap shrink-0">
                     @if ($cms['logo_url'])
                         <img src="{{ $cms['logo_url'] }}" alt="{{ $cms['site_name'] }}" class="w-7 h-7 rounded object-cover">
                     @else
@@ -81,9 +83,9 @@
                                 </svg>
                             </button>
 
-                            <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-56 rounded-lg border border-slate-800 bg-slate-900 shadow-lg py-1 z-50">
+                            <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-56 rounded-lg border {{ $isGoldTheme ? 'bg-[#0b0b0d]' : 'border-slate-800 bg-slate-900' }} shadow-lg py-1 z-50" @if ($isGoldTheme) style="border-color:rgba(168,121,31,.35)" @endif>
                                 @role('agent')
-                                    <a href="{{ route('agent.dashboard') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('My Dashboard') }}</a>
+                                    <a href="{{ route('agent.dashboard') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-white/5 hover:text-[#c9a04a] transition">{{ __('My Dashboard') }}</a>
                                 @endrole
                                 @can('manage-settings')
                                     <a href="{{ route('superadmin.settings.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Payout settings') }}</a>
@@ -91,10 +93,10 @@
                                 @role('webmaster')
                                     <a href="{{ route('webmaster.cms.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Site Branding') }}</a>
                                 @endrole
-                                <a href="{{ route('account.password.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Change password') }}</a>
+                                <a href="{{ route('account.password.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 {{ $isGoldTheme ? 'hover:bg-white/5 hover:text-[#c9a04a]' : 'hover:bg-slate-800 hover:text-white' }} transition">{{ __('Change password') }}</a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button class="w-full text-left px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-red-400 transition">{{ __('Logout') }}</button>
+                                    <button class="w-full text-left px-4 py-2 whitespace-nowrap text-slate-300 {{ $isGoldTheme ? 'hover:bg-white/5' : 'hover:bg-slate-800' }} hover:text-red-400 transition">{{ __('Logout') }}</button>
                                 </form>
                             </div>
                         </div>
