@@ -78,6 +78,20 @@
 @push('scripts')
 <script>
 (function () {
+    const initialStatus = @json($cashTransaction->status);
+    if (initialStatus !== 'pending') {
+        // Already resolved (completed/cancelled/expired/failed) — nothing
+        // to watch. Wiring up onEchoReconnect() unconditionally here was
+        // the bug: it fires on every fresh socket connection, INCLUDING
+        // the very first one on this exact page load (see its own doc
+        // comment in bootstrap.js), so poll() would immediately see this
+        // same already-resolved status, reload() to "pick it up", and the
+        // reload's own fresh connection would trigger the same thing again
+        // — an infinite reload loop on any already-settled transaction's
+        // page (not just right after cancelling one).
+        return;
+    }
+
     const code = @json($cashTransaction->code);
     const statusUrl = @json(route($routePrefix.'status', $cashTransaction));
 
@@ -85,7 +99,7 @@
         document.getElementById('pending-block').classList.toggle('hidden', status !== 'pending');
         document.getElementById('completed-block').classList.toggle('hidden', status !== 'completed');
         document.getElementById('cancelled-block').classList.toggle('hidden', !['cancelled', 'expired', 'failed'].includes(status));
-        if (status !== 'pending') location.reload();
+        if (status !== initialStatus) location.reload();
     }
 
     function poll() {
@@ -108,9 +122,7 @@
         window.onEchoReconnect(poll);
     });
 
-    if (@json($cashTransaction->status) === 'pending') {
-        setInterval(poll, 5000);
-    }
+    setInterval(poll, 5000);
 })();
 </script>
 @endpush
