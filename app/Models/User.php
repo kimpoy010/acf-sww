@@ -2,18 +2,21 @@
 
 namespace App\Models;
 
+use App\Services\Paybucks\PaybucksChannel;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
 
     protected $fillable = [
@@ -85,8 +88,25 @@ class User extends Authenticatable
             return false;
         }
 
-        return ! \App\Services\Paybucks\PaybucksChannel::withdrawalRequiresAccountName($channel)
+        return ! PaybucksChannel::withdrawalRequiresAccountName($channel)
             || filled($this->savedAccountName($channel));
+    }
+
+    /**
+     * Whether this player has set the wallet withdrawal PIN
+     * CashController::storeWithdrawal() requires before a withdrawal goes
+     * through. Reuses the `pin` column the (now-removed) superadmin
+     * approval PIN used — see the add_pin_to_users_table migration; that
+     * feature is gone and nothing else writes to this column today.
+     */
+    public function hasWalletPin(): bool
+    {
+        return filled($this->pin);
+    }
+
+    public function checkWalletPin(string $pin): bool
+    {
+        return $this->hasWalletPin() && Hash::check($pin, $this->pin);
     }
 
     public function bets(): HasMany

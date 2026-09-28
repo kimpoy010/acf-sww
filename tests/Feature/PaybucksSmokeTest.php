@@ -2,15 +2,29 @@
 
 namespace Tests\Feature;
 
+use App\Models\CashTransaction;
+use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class PaybucksSmokeTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * Withdrawals require a wallet PIN (see WalletPinController and
+     * CashController::storeWithdrawal()) — set directly rather than via
+     * the PIN-setting endpoint since these tests are about the withdrawal
+     * flow itself, not PIN management.
+     */
+    private function setWalletPin(User $player, string $pin = '1234'): void
+    {
+        $player->update(['pin' => Hash::make($pin)]);
+    }
 
     public function test_deposit_flow_end_to_end(): void
     {
@@ -59,7 +73,7 @@ class PaybucksSmokeTest extends TestCase
         ]);
 
         $resp->assertRedirect();
-        $tx = \App\Models\CashTransaction::where('user_id', $player->id)->latest()->first();
+        $tx = CashTransaction::where('user_id', $player->id)->latest()->first();
         $this->assertNotNull($tx);
         $this->assertEquals('paybucks', $tx->provider);
         $this->assertEquals('pending', $tx->status);
@@ -119,7 +133,7 @@ class PaybucksSmokeTest extends TestCase
         ]);
 
         $resp->assertRedirect();
-        $tx = \App\Models\CashTransaction::where('user_id', $agent->id)->latest()->first();
+        $tx = CashTransaction::where('user_id', $agent->id)->latest()->first();
         $this->assertNotNull($tx);
 
         $show = $this->actingAs($agent)->get(route('agent.cash.show', $tx));
@@ -134,12 +148,92 @@ class PaybucksSmokeTest extends TestCase
         $player = User::factory()->create();
         $player->assignRole('player');
         $player->wallet()->create(['main_balance' => 1000]);
+        $this->setWalletPin($player);
 
-        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 500]);
+        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 500, 'pin' => '1234']);
 
         $resp->assertRedirect(route('play.payment-methods.index'));
         $this->assertDatabaseCount('cash_transactions', 0);
         $this->assertEquals(1000, $player->wallet->fresh()->main_balance);
+    }
+
+    public function test_withdrawal_is_refused_without_a_wallet_pin_set(): void
+    {
+        Role::firstOrCreate(['name' => 'player']);
+        config(['services.paybucks.api_key' => 'test-key']);
+
+        $player = User::factory()->create();
+        $player->assignRole('player');
+        $player->wallet()->create(['main_balance' => 1000]);
+
+        $this->actingAs($player)->post(route('play.payment-methods.update'), [
+            'channel' => 'gcash',
+            'account_number' => '09171234567',
+        ]);
+
+        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 500]);
+
+        $resp->assertRedirect(route('play.profile'));
+        $this->assertDatabaseCount('cash_transactions', 0);
+        $this->assertEquals(1000, $player->wallet->fresh()->main_balance);
+    }
+
+    public function test_withdrawal_is_refused_with_an_incorrect_pin(): void
+    {
+        Role::firstOrCreate(['name' => 'player']);
+        config(['services.paybucks.api_key' => 'test-key']);
+
+        $player = User::factory()->create();
+        $player->assignRole('player');
+        $player->wallet()->create(['main_balance' => 1000]);
+        $this->setWalletPin($player, '1234');
+
+        $this->actingAs($player)->post(route('play.payment-methods.update'), [
+            'channel' => 'gcash',
+            'account_number' => '09171234567',
+        ]);
+
+        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 500, 'pin' => '9999']);
+
+        $resp->assertRedirect(route('play.cash.index'));
+        $this->assertDatabaseCount('cash_transactions', 0);
+        $this->assertEquals(1000, $player->wallet->fresh()->main_balance);
+    }
+
+    /**
+     * An agent shares CashController::storeWithdrawal() (see the doc
+     * comment on the agent.cash.* routes) but has no Profile page to set
+     * a wallet PIN on — the requirement is player-only, so an agent
+     * withdrawal must still work with no PIN set at all.
+     */
+    public function test_an_agent_withdrawal_needs_no_wallet_pin(): void
+    {
+        Role::firstOrCreate(['name' => 'agent']);
+        config(['services.paybucks.api_key' => 'test-key']);
+
+        Http::fake([
+            '*/payments/withdrawals' => Http::response([
+                'success' => true,
+                'statusCode' => 201,
+                'data' => ['transactionId' => 'ext-agent-w1', 'merchantOrderNo' => 'whatever', 'amount' => 300],
+            ], 201),
+        ]);
+
+        $agent = User::factory()->create();
+        $agent->assignRole('agent');
+        $agent->wallet()->create(['main_balance' => 1000]);
+
+        $this->actingAs($agent)->post(route('agent.payment-methods.update'), [
+            'channel' => 'gcash',
+            'account_number' => '09171234567',
+        ]);
+
+        $resp = $this->actingAs($agent)->post(route('agent.cash.withdraw'), ['channel' => 'gcash', 'amount' => 300]);
+
+        $resp->assertRedirect();
+        $tx = CashTransaction::where('user_id', $agent->id)->latest()->first();
+        $this->assertNotNull($tx);
+        $this->assertEquals('pending', $tx->status);
     }
 
     public function test_saving_a_payment_method_then_unlocks_a_withdrawal_to_it(): void
@@ -163,6 +257,7 @@ class PaybucksSmokeTest extends TestCase
         $player = User::factory()->create();
         $player->assignRole('player');
         $player->wallet()->create(['main_balance' => 1000]);
+        $this->setWalletPin($player);
 
         $save = $this->actingAs($player)->post(route('play.payment-methods.update'), [
             'channel' => 'gcash',
@@ -171,10 +266,10 @@ class PaybucksSmokeTest extends TestCase
         $save->assertRedirect(route('play.payment-methods.index'));
         $this->assertEquals('09171234567', $player->fresh()->gcash_account_number);
 
-        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 400]);
+        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 400, 'pin' => '1234']);
         $resp->assertRedirect();
 
-        $tx = \App\Models\CashTransaction::where('user_id', $player->id)->latest()->first();
+        $tx = CashTransaction::where('user_id', $player->id)->latest()->first();
         $this->assertNotNull($tx);
         $this->assertEquals('09171234567', $tx->account_number);
         $this->assertEquals('pending', $tx->status);
@@ -193,13 +288,14 @@ class PaybucksSmokeTest extends TestCase
         $player = User::factory()->create();
         $player->assignRole('player');
         $player->wallet()->create(['main_balance' => 100]);
+        $this->setWalletPin($player);
 
         $this->actingAs($player)->post(route('play.payment-methods.update'), [
             'channel' => 'gcash',
             'account_number' => '09171234567',
         ]);
 
-        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 500]);
+        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 500, 'pin' => '1234']);
 
         $resp->assertRedirect(route('play.cash.index'));
         $this->assertDatabaseCount('cash_transactions', 0);
@@ -210,7 +306,7 @@ class PaybucksSmokeTest extends TestCase
     {
         Role::firstOrCreate(['name' => 'player']);
         config(['services.paybucks.api_key' => 'test-key']);
-        \App\Models\Setting::set('withdrawal_fee', '10');
+        Setting::set('withdrawal_fee', '10');
 
         Http::fake([
             '*/payments/withdrawals' => Http::response([
@@ -228,6 +324,7 @@ class PaybucksSmokeTest extends TestCase
         $player = User::factory()->create();
         $player->assignRole('player');
         $player->wallet()->create(['main_balance' => 1000]);
+        $this->setWalletPin($player);
 
         $this->actingAs($player)->post(route('play.payment-methods.update'), [
             'channel' => 'gcash',
@@ -236,14 +333,14 @@ class PaybucksSmokeTest extends TestCase
 
         // Requesting the full 1000 would exceed available balance once the
         // 10 fee is accounted for.
-        $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 1000])
+        $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 1000, 'pin' => '1234'])
             ->assertRedirect(route('play.cash.index'));
         $this->assertDatabaseCount('cash_transactions', 0);
 
-        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 400]);
+        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 400, 'pin' => '1234']);
         $resp->assertRedirect();
 
-        $tx = \App\Models\CashTransaction::where('user_id', $player->id)->latest()->first();
+        $tx = CashTransaction::where('user_id', $player->id)->latest()->first();
         $this->assertEquals(400, (float) $tx->amount);
         $this->assertEquals(10, (float) $tx->platform_fee);
         // 400 requested + 10 fee reserved, out of 1000 — 590 still available.
@@ -309,7 +406,7 @@ class PaybucksSmokeTest extends TestCase
         ]);
         $resp->assertRedirect();
 
-        $tx = \App\Models\CashTransaction::where('user_id', $player->id)->latest()->first();
+        $tx = CashTransaction::where('user_id', $player->id)->latest()->first();
         $this->assertEquals('https://cashier.peppermint-pay.com/GCash_DepositPage.html?token=abc', $tx->payment_url);
         $this->assertNull($tx->qr_image_url);
 
@@ -320,7 +417,7 @@ class PaybucksSmokeTest extends TestCase
         $show = $this->actingAs($player)->get(route('play.cash.show', $tx));
         $show->assertOk();
         $show->assertSee('Open payment page');
-        $show->assertDontSee("couldn&#039;t generate a way to pay", false);
+        $show->assertDontSee('couldn&#039;t generate a way to pay', false);
     }
 
     public function test_the_payment_modal_opens_automatically_right_after_depositing(): void
@@ -362,7 +459,7 @@ class PaybucksSmokeTest extends TestCase
         $show->assertSee('open();', false);
 
         // A plain reload of the same page must not keep reopening it.
-        $tx = \App\Models\CashTransaction::where('user_id', $player->id)->latest()->first();
+        $tx = CashTransaction::where('user_id', $player->id)->latest()->first();
         $reload = $this->actingAs($player)->get(route('play.cash.show', $tx));
         $reload->assertOk();
         $reload->assertDontSee('open();', false);

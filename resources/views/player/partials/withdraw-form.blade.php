@@ -47,9 +47,27 @@
                 @endif
             </div>
         @endforeach
+        {{-- The wallet PIN is a player-only requirement (see
+             CashController::storeWithdrawal() and WalletPinController) —
+             agents share this same form/route under agent.cash.* but have
+             no Profile page to set one on, so it's skipped there. --}}
+        @if ($topRoutePrefix === 'play.')
+            @if ($player->hasWalletPin())
+                <div>
+                    <label class="block text-sm text-[#8a7a70] mb-1">{{ __('Withdrawal PIN') }}</label>
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" name="pin" required autocomplete="off"
+                           placeholder="••••"
+                           class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+            @else
+                <div class="rounded-lg px-3 py-2 text-sm" style="background:rgba(120,53,15,0.2);border:1px solid rgba(217,119,6,0.4);">
+                    {!! __('Set a withdrawal PIN in :link first — required before any withdrawal.', ['link' => '<a href="'.route('play.profile').'" class="underline font-semibold">'.__('your Profile').'</a>']) !!}
+                </div>
+            @endif
+        @endif
         <button id="withdraw-submit" type="submit" class="w-full rounded-lg bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.1] transition font-extrabold py-2"
                 data-no-balance="{{ $maxWithdrawable < 20 ? '1' : '0' }}"
-                {{ $maxWithdrawable < 20 || ! $player->hasSavedPaymentMethod($PaybucksChannel::CHANNELS[0]) ? 'disabled' : '' }}>
+                {{ $maxWithdrawable < 20 || ($topRoutePrefix === 'play.' && ! $player->hasWalletPin()) || ! $player->hasSavedPaymentMethod($PaybucksChannel::CHANNELS[0]) ? 'disabled' : '' }}>
             {{ __('Withdraw') }}
         </button>
     </form>

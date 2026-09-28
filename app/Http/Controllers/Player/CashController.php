@@ -79,12 +79,30 @@ class CashController extends Controller
 
     public function storeWithdrawal(Request $request): RedirectResponse
     {
+        $player = auth()->user();
+
+        // The wallet PIN is a player-only requirement — players set one on
+        // their Profile page (see WalletPinController); agents share this
+        // same action under agent.cash.* but have no such page, so they're
+        // exempt rather than permanently locked out of withdrawing.
+        $pinRequired = $this->topRoutePrefix() === 'play.';
+
+        // Mandatory, not just checked when present — set it once before
+        // any withdrawal can go through at all.
+        if ($pinRequired && ! $player->hasWalletPin()) {
+            return redirect()->route('play.profile')
+                ->with('error', __('Set a withdrawal PIN first before you can withdraw.'));
+        }
+
         $data = $request->validate([
             'channel' => ['required', Rule::in(PaybucksChannel::CHANNELS)],
             'amount' => 'required|numeric|min:20',
+            'pin' => [$pinRequired ? 'required' : 'nullable', 'digits:4'],
         ]);
 
-        $player = auth()->user();
+        if ($pinRequired && ! $player->checkWalletPin($data['pin'])) {
+            return redirect()->route($this->routePrefix().'index')->with('error', __('Incorrect withdrawal PIN.'));
+        }
 
         // Withdrawals are never sent wherever this request happens to
         // type in — only to the account the player registered ahead of
