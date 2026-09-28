@@ -3,7 +3,6 @@
 @section('title', __('Live Events'))
 
 @section('content')
-@include('player.partials.gold-theme-styles')
 <style>
     /* Static gold glow on the live/ongoing tiles — this is the event
        listing's own decorative border, distinct from the Meron/Wala side

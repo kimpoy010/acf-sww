@@ -3,7 +3,6 @@
 @section('title', __('Reset password'))
 
 @section('content')
-@include('player.partials.gold-theme-styles')
 
 <div class="max-w-sm mx-auto mt-12">
     <div class="gold-ornament"><span class="line"></span><span class="diamond"></span><span class="line r"></span></div>

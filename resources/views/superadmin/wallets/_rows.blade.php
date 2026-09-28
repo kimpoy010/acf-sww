@@ -1,10 +1,10 @@
-<div class="rounded-xl border border-slate-800 bg-slate-900 divide-y divide-slate-800">
+<div class="gold-panel divide-y divide-[#141a2a]">
     @forelse ($users as $user)
         <div class="flex items-center justify-between px-4 py-3 gap-4">
             <div>
                 <p class="font-semibold">{{ $user->displayName() }}</p>
-                <p class="text-xs text-slate-500">{{ $user->email }}</p>
-                <a href="{{ route('superadmin.wallets.transactions', $user) }}" class="text-xs text-red-400 hover:underline">{{ __('View transactions') }}</a>
+                <p class="text-xs text-[#9c8f7b]">{{ $user->email }}</p>
+                <a href="{{ route('superadmin.wallets.transactions', $user) }}" class="text-xs hover:underline" style="color:#c9a04a">{{ __('View transactions') }}</a>
             </div>
             <span class="font-semibold text-emerald-400">{{ $currencySymbol }}{{ number_format($user->wallet->main_balance ?? 0, 2) }}</span>
             <div class="flex gap-2">
@@ -15,7 +15,7 @@
             </div>
         </div>
     @empty
-        <p class="px-4 py-6 text-sm text-slate-500">{{ __('No matching player accounts.') }}</p>
+        <p class="px-4 py-6 text-sm text-[#9c8f7b]">{{ __('No matching player accounts.') }}</p>
     @endforelse
 </div>
 

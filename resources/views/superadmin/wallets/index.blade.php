@@ -3,13 +3,13 @@
 @section('title', __('Player wallets'))
 
 @section('content')
-<h1 class="text-2xl font-bold mb-6">{{ __('Player Wallets') }}</h1>
+<h1 class="text-2xl font-bold mb-6" style="color:#f4efe4">{{ __('Player Wallets') }}</h1>
 
 <div class="relative mb-4 max-w-sm ml-auto">
     <input type="text" id="wallet-search" value="{{ $q }}" placeholder="{{ __('Search by name, username or email…') }}"
            autocomplete="off"
-           class="w-full rounded-lg bg-slate-800 border border-slate-700 pl-3 pr-9 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
-    <span id="wallet-search-spinner" class="hidden absolute inset-y-0 right-3 flex items-center text-slate-500 text-xs">…</span>
+           class="w-full gold-input pl-3 pr-9 py-2">
+    <span id="wallet-search-spinner" class="hidden absolute inset-y-0 right-3 flex items-center text-[#9c8f7b] text-xs">…</span>
 </div>
 
 {{-- Repopulated in place as the player types (see the script below) and
@@ -26,32 +26,32 @@
      pagination fetch. Submits as a normal form POST, same as before this
      was a modal; only the inline-input-in-every-row UI changed. --}}
 <div id="wallet-credit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-    <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-xl p-5">
+    <div class="w-full max-w-sm gold-panel p-5">
         <div class="flex items-center justify-between mb-4">
             <p class="font-semibold">{{ __('Credit') }} <span id="wallet-credit-modal-name" class="text-emerald-400"></span></p>
-            <button type="button" class="wallet-modal-cancel text-slate-500 hover:text-white transition text-xl leading-none" data-modal="wallet-credit-modal">&times;</button>
+            <button type="button" class="wallet-modal-cancel text-[#9c8f7b] hover:text-[#f4efe4] transition text-xl leading-none" data-modal="wallet-credit-modal">&times;</button>
         </div>
         <form method="POST" id="wallet-credit-modal-form">
             @csrf
-            <label class="block text-xs text-slate-500 mb-1">{{ __('Amount') }}</label>
+            <label class="block text-xs text-[#9c8f7b] mb-1">{{ __('Amount') }}</label>
             <input type="text" inputmode="decimal" name="amount" required autofocus
-                   class="amount-input w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 mb-4">
+                   class="amount-input w-full gold-input px-3 py-2 mb-4">
             <button class="w-full rounded-lg bg-emerald-600 hover:bg-emerald-500 transition font-semibold px-4 py-2">{{ __('Credit') }}</button>
         </form>
     </div>
 </div>
 
 <div id="wallet-debit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-    <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-xl p-5">
+    <div class="w-full max-w-sm gold-panel p-5">
         <div class="flex items-center justify-between mb-4">
             <p class="font-semibold">{{ __('Debit') }} <span id="wallet-debit-modal-name" class="text-red-400"></span></p>
-            <button type="button" class="wallet-modal-cancel text-slate-500 hover:text-white transition text-xl leading-none" data-modal="wallet-debit-modal">&times;</button>
+            <button type="button" class="wallet-modal-cancel text-[#9c8f7b] hover:text-[#f4efe4] transition text-xl leading-none" data-modal="wallet-debit-modal">&times;</button>
         </div>
         <form method="POST" id="wallet-debit-modal-form">
             @csrf
-            <label class="block text-xs text-slate-500 mb-1">{{ __('Amount') }}</label>
+            <label class="block text-xs text-[#9c8f7b] mb-1">{{ __('Amount') }}</label>
             <input type="text" inputmode="decimal" name="amount" required autofocus
-                   class="amount-input w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 mb-4">
+                   class="amount-input w-full gold-input px-3 py-2 mb-4">
             <button class="w-full rounded-lg bg-red-700 hover:bg-red-600 transition font-semibold px-4 py-2">{{ __('Debit') }}</button>
         </form>
     </div>

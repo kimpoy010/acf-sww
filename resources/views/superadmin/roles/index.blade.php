@@ -4,7 +4,7 @@
 
 @section('content')
 <h1 class="text-2xl font-bold mb-2">{{ __('Roles & Permissions') }}</h1>
-<p class="text-sm text-slate-400 mb-6 max-w-2xl">
+<p class="text-sm text-[#9c8f7b] mb-6 max-w-2xl">
     {{ __('Which admin sections each role can reach. Unchecking a box takes effect immediately for everyone with that role.') }}
 </p>
 
@@ -24,9 +24,9 @@
     <table class="min-w-full border-separate" style="border-spacing: 0;">
         <thead>
             <tr>
-                <th class="sticky left-0 bg-slate-950 text-left text-xs font-semibold text-slate-400 uppercase px-3 py-2 whitespace-nowrap">{{ __('Role') }}</th>
+                <th class="sticky left-0 bg-[#05070b] text-left text-xs font-semibold text-[#9c8f7b] uppercase px-3 py-2 whitespace-nowrap">{{ __('Role') }}</th>
                 @foreach ($labels as $name => $label)
-                    <th class="text-center text-xs font-semibold text-slate-400 px-3 py-2 whitespace-nowrap" title="{{ $name }}">{{ __($label) }}</th>
+                    <th class="text-center text-xs font-semibold text-[#9c8f7b] px-3 py-2 whitespace-nowrap" title="{{ $name }}">{{ __($label) }}</th>
                 @endforeach
                 <th class="px-3 py-2"></th>
             </tr>
@@ -34,8 +34,8 @@
         <tbody>
             @foreach ($roles as $role)
                 @php $rolePermissions = $role->permissions->pluck('name')->all(); @endphp
-                <tr class="border-t border-slate-800">
-                    <td class="sticky left-0 bg-slate-950 px-3 py-2.5 font-semibold capitalize whitespace-nowrap">{{ $role->name }}</td>
+                <tr class="border-t border-[#141a2a]">
+                    <td class="sticky left-0 bg-[#05070b] px-3 py-2.5 font-semibold capitalize whitespace-nowrap">{{ $role->name }}</td>
                     @foreach ($labels as $name => $label)
                         <td class="text-center px-3 py-2.5">
                             <input type="checkbox" form="role-form-{{ $role->id }}" name="permissions[]" value="{{ $name }}"
@@ -44,7 +44,7 @@
                         </td>
                     @endforeach
                     <td class="px-3 py-2.5 text-right whitespace-nowrap">
-                        <button form="role-form-{{ $role->id }}" data-role-name="{{ $role->name }}" data-original-permissions="{{ implode(',', $rolePermissions) }}" class="save-role-btn rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-3 py-1.5 text-xs">{{ __('Save') }}</button>
+                        <button form="role-form-{{ $role->id }}" data-role-name="{{ $role->name }}" data-original-permissions="{{ implode(',', $rolePermissions) }}" class="save-role-btn gold-btn gold-btn-sm">{{ __('Save') }}</button>
                     </td>
                 </tr>
             @endforeach

@@ -14,7 +14,6 @@
 @endphp
 
 @section('content')
-@include('player.partials.gold-theme-styles')
 
 <div class="flex items-start justify-between gap-3 mb-4">
     <div>

@@ -3,7 +3,6 @@
 @section('title', __('Payment Methods'))
 
 @section('content')
-@include('player.partials.gold-theme-styles')
 
 <p class="gold-eyebrow">{{ $cms['site_name'] }}</p>
 <h1 class="gold-serif" style="font-size:24px;font-weight:600;color:#f4efe4;text-align:center;margin:2px 0 8px">{{ __('Payment Methods') }}</h1>

@@ -8,7 +8,6 @@
 @section('title', __(':type QR', ['type' => $typeLabel]))
 
 @section('content')
-@include('player.partials.gold-theme-styles')
 
 <div class="max-w-md mx-auto text-center">
     <p class="gold-eyebrow">{{ $cms['site_name'] }}</p>
