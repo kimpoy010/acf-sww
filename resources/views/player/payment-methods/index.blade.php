@@ -5,7 +5,7 @@
 @section('content')
 @include('player.partials.gold-theme-styles')
 
-<p class="gold-eyebrow">{{ __('Pool Sabong') }}</p>
+<p class="gold-eyebrow">{{ $cms['site_name'] }}</p>
 <h1 class="gold-serif" style="font-size:24px;font-weight:600;color:#f4efe4;text-align:center;margin:2px 0 8px">{{ __('Payment Methods') }}</h1>
 <p class="text-sm text-[#8a7a70] mb-6 text-center">{{ __('Save your GCash and/or Maya account once — deposits will use it automatically, and withdrawals will only ever be sent here.') }}</p>
 

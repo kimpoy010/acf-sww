@@ -11,7 +11,7 @@
 @include('player.partials.gold-theme-styles')
 
 <div class="max-w-md mx-auto text-center">
-    <p class="gold-eyebrow">{{ __('Pool Sabong') }}</p>
+    <p class="gold-eyebrow">{{ $cms['site_name'] }}</p>
     <h1 class="gold-serif" style="font-size:20px;font-weight:600;color:#f4efe4;margin-bottom:4px">{{ __(':type request', ['type' => $typeLabel]) }}{{ $channelLabel ? ' · '.$channelLabel : '' }}</h1>
     <p class="gold-balance" style="font-size:30px;margin-bottom:18px">{{ $currencySymbol }}{{ number_format($cashTransaction->amount, 2) }}</p>
 
