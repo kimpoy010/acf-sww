@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -51,9 +52,9 @@ class CmsSettingsTest extends TestCase
 
         $resp->assertRedirect(route('webmaster.cms.edit'));
 
-        $this->assertEquals('My Sabong', \App\Models\Setting::get('site_name'));
-        $this->assertNotNull(\App\Models\Setting::get('site_logo_url'));
-        $this->assertNotNull(\App\Models\Setting::get('site_background_url'));
+        $this->assertEquals('My Sabong', Setting::get('site_name'));
+        $this->assertNotNull(Setting::get('site_logo_url'));
+        $this->assertNotNull(Setting::get('site_background_url'));
 
         // Reflected on the login page (as a guest — the 'guest' middleware
         // would otherwise redirect a still-logged-in webmaster away from it).
@@ -62,6 +63,21 @@ class CmsSettingsTest extends TestCase
         $login->assertOk();
         $login->assertSee('My Sabong');
         $login->assertSee('<title>Log in · My Sabong</title>', false);
+    }
+
+    public function test_the_background_accepts_an_animated_gif(): void
+    {
+        Storage::fake('public');
+        $webmaster = $this->user('webmaster');
+
+        $resp = $this->actingAs($webmaster)->put(route('webmaster.cms.update'), [
+            'site_name' => 'My Sabong',
+            'background' => UploadedFile::fake()->image('background.gif', 800, 600),
+        ]);
+
+        $resp->assertRedirect(route('webmaster.cms.edit'));
+        $resp->assertSessionDoesntHaveErrors('background');
+        $this->assertNotNull(Setting::get('site_background_url'));
     }
 
     public function test_removing_the_logo_clears_it_and_falls_back_to_the_default_mark(): void
@@ -73,14 +89,14 @@ class CmsSettingsTest extends TestCase
             'site_name' => 'My Sabong',
             'logo' => UploadedFile::fake()->image('logo.png', 64, 64),
         ]);
-        $this->assertNotNull(\App\Models\Setting::get('site_logo_url'));
+        $this->assertNotNull(Setting::get('site_logo_url'));
 
         $this->actingAs($webmaster)->put(route('webmaster.cms.update'), [
             'site_name' => 'My Sabong',
             'remove_logo' => '1',
         ]);
 
-        $this->assertNull(\App\Models\Setting::get('site_logo_url'));
+        $this->assertNull(Setting::get('site_logo_url'));
     }
 
     public function test_background_shows_on_player_pages_but_not_the_live_betting_page(): void
@@ -92,7 +108,7 @@ class CmsSettingsTest extends TestCase
             'background' => UploadedFile::fake()->image('bg.jpg', 800, 600),
         ]);
 
-        $backgroundUrl = \App\Models\Setting::get('site_background_url');
+        $backgroundUrl = Setting::get('site_background_url');
 
         $player = $this->user('player');
         $profile = $this->actingAs($player)->get(route('play.profile'));

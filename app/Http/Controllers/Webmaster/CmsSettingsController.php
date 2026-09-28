@@ -36,7 +36,7 @@ class CmsSettingsController extends Controller
         $data = $request->validate([
             'site_name' => 'required|string|max:100',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
-            'background' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'background' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:4096',
         ]);
 
         Setting::set('site_name', $data['site_name']);
