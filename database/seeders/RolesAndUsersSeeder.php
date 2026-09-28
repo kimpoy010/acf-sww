@@ -38,10 +38,13 @@ class RolesAndUsersSeeder extends Seeder
         }
         Wallet::firstOrCreate(['user_id' => $superadmin->id], ['main_balance' => 1_000_000]);
 
-        // Same access level as superadmin for now (see every `role:superadmin`
-        // middleware/check across the app, which also lists 'webmaster') —
-        // a real RBAC subsystem is meant to scope this down later. Its
-        // password is randomly generated rather than the demo accounts'
+        // Same access level as superadmin for now — the webmaster role is
+        // granted every admin permission by the 2026_09_28_000002 RBAC
+        // migration, same as superadmin. Scope it down from the
+        // superadmin > Roles & Permissions screen (Superadmin\RoleController)
+        // whenever that's wanted, rather than editing that migration or
+        // this seeder. Its password is randomly generated rather than the
+        // demo accounts'
         // fixed 'password' since this one is meant to actually be used;
         // printed once, on the run that creates the account, since there's
         // nowhere else this seeder could hand it back afterward.

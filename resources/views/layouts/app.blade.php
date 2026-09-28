@@ -52,10 +52,12 @@
                                 @role('teller')
                                     <a href="{{ route('teller.dashboard') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Teller Dashboard') }}</a>
                                 @endrole
-                                @role('superadmin|webmaster')
+                                @can('manage-approval-pin')
                                     <a href="{{ route('superadmin.pin.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Approval PIN') }}</a>
+                                @endcan
+                                @can('manage-settings')
                                     <a href="{{ route('superadmin.settings.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Payout settings') }}</a>
-                                @endrole
+                                @endcan
                                 <a href="{{ route('account.password.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Change password') }}</a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf

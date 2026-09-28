@@ -28,6 +28,7 @@ use App\Http\Controllers\Superadmin\IncomeReportController;
 use App\Http\Controllers\Superadmin\OddsTierController;
 use App\Http\Controllers\Superadmin\PinController;
 use App\Http\Controllers\Superadmin\RfidTerminalController;
+use App\Http\Controllers\Superadmin\RoleController;
 use App\Http\Controllers\Superadmin\SettingsController;
 use App\Http\Controllers\Superadmin\StaffController;
 use App\Http\Controllers\Superadmin\TellerCashFlowReportController;
@@ -147,7 +148,7 @@ Route::middleware(['auth', 'role:declarator|superadmin|webmaster'])->prefix('dec
 // between whoever's actually running the event and the superadmin who
 // otherwise schedules it, so these live outside both role-specific route
 // groups above.
-Route::middleware(['auth', 'role:declarator|superadmin|webmaster'])->group(function () {
+Route::middleware(['auth', 'role:declarator|superadmin|webmaster', 'permission:manage-events'])->group(function () {
     Route::get('/superadmin/events/create', [SuperadminEventController::class, 'create'])->name('superadmin.events.create');
     Route::post('/superadmin/events', [SuperadminEventController::class, 'store'])->name('superadmin.events.store');
     Route::get('/superadmin/events/{event}/edit', [SuperadminEventController::class, 'edit'])->name('superadmin.events.edit');
@@ -217,62 +218,92 @@ Route::middleware(['auth', 'role:teller'])->prefix('teller')->name('teller.')->g
     });
 });
 
+// The outer role:superadmin|webmaster gate says who's an admin-type
+// account at all; the `permission:...` middleware on each inner group
+// below is the actual RBAC layer — see Superadmin\RoleController and its
+// Roles & Permissions screen for editing which roles get which. A
+// role's permissions can be trimmed (e.g. webmaster, later) without
+// ever touching this file again.
 Route::middleware(['auth', 'role:superadmin|webmaster'])->prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/games/{game}/edit', [GameController::class, 'edit'])->name('games.edit');
-    Route::put('/games/{game}', [GameController::class, 'update'])->name('games.update');
-    Route::get('/cockpits', [CockpitController::class, 'index'])->name('cockpits.index');
-    Route::post('/cockpits', [CockpitController::class, 'store'])->name('cockpits.store');
-    Route::put('/cockpits/{cockpit}', [CockpitController::class, 'update'])->name('cockpits.update');
-    Route::delete('/cockpits/{cockpit}', [CockpitController::class, 'destroy'])->name('cockpits.destroy');
 
-    Route::get('/odds-tiers', [OddsTierController::class, 'index'])->name('odds-tiers.index');
-    Route::post('/odds-tiers', [OddsTierController::class, 'store'])->name('odds-tiers.store');
-    Route::post('/odds-tiers/reorder', [OddsTierController::class, 'reorder'])->name('odds-tiers.reorder');
-    Route::put('/odds-tiers/{oddsTier}', [OddsTierController::class, 'update'])->name('odds-tiers.update');
-    Route::delete('/odds-tiers/{oddsTier}', [OddsTierController::class, 'destroy'])->name('odds-tiers.destroy');
+    Route::middleware('permission:manage-games')->group(function () {
+        Route::get('/games/{game}/edit', [GameController::class, 'edit'])->name('games.edit');
+        Route::put('/games/{game}', [GameController::class, 'update'])->name('games.update');
+    });
 
-    Route::get('/cockpit-presets', [CockpitPresetController::class, 'index'])->name('cockpit-presets.index');
-    Route::post('/cockpit-presets', [CockpitPresetController::class, 'store'])->name('cockpit-presets.store');
-    Route::put('/cockpit-presets/{cockpitPreset}', [CockpitPresetController::class, 'update'])->name('cockpit-presets.update');
-    Route::delete('/cockpit-presets/{cockpitPreset}', [CockpitPresetController::class, 'destroy'])->name('cockpit-presets.destroy');
+    Route::middleware('permission:manage-cockpits')->group(function () {
+        Route::get('/cockpits', [CockpitController::class, 'index'])->name('cockpits.index');
+        Route::post('/cockpits', [CockpitController::class, 'store'])->name('cockpits.store');
+        Route::put('/cockpits/{cockpit}', [CockpitController::class, 'update'])->name('cockpits.update');
+        Route::delete('/cockpits/{cockpit}', [CockpitController::class, 'destroy'])->name('cockpits.destroy');
+    });
 
-    Route::get('/reports/income', [IncomeReportController::class, 'index'])->name('reports.income');
-    Route::get('/reports/income/export', [IncomeReportController::class, 'export'])->name('reports.income.export');
-    Route::get('/reports/accounting/events', [AccountingController::class, 'events'])->name('reports.accounting.events');
-    Route::get('/reports/accounting/events/export', [AccountingController::class, 'exportEvents'])->name('reports.accounting.events.export');
-    Route::get('/reports/accounting/fights/{fight}', [AccountingController::class, 'fightBets'])->name('reports.accounting.fight');
-    Route::get('/reports/accounting/fights/{fight}/export', [AccountingController::class, 'exportFightBets'])->name('reports.accounting.fight.export');
-    Route::get('/reports/teller-cash-flow', [TellerCashFlowReportController::class, 'index'])->name('reports.teller-cash-flow');
-    Route::get('/reports/teller-cash-flow/export', [TellerCashFlowReportController::class, 'export'])->name('reports.teller-cash-flow.export');
+    Route::middleware('permission:manage-odds-tiers')->group(function () {
+        Route::get('/odds-tiers', [OddsTierController::class, 'index'])->name('odds-tiers.index');
+        Route::post('/odds-tiers', [OddsTierController::class, 'store'])->name('odds-tiers.store');
+        Route::post('/odds-tiers/reorder', [OddsTierController::class, 'reorder'])->name('odds-tiers.reorder');
+        Route::put('/odds-tiers/{oddsTier}', [OddsTierController::class, 'update'])->name('odds-tiers.update');
+        Route::delete('/odds-tiers/{oddsTier}', [OddsTierController::class, 'destroy'])->name('odds-tiers.destroy');
+    });
 
-    Route::get('/wallets', [WalletController::class, 'index'])->name('wallets.index');
-    Route::get('/wallets/{user}/transactions', [WalletController::class, 'transactions'])->name('wallets.transactions');
-    Route::post('/wallets/{user}/credit', [WalletController::class, 'credit'])->name('wallets.credit');
-    Route::post('/wallets/{user}/debit', [WalletController::class, 'debit'])->name('wallets.debit');
+    Route::middleware('permission:manage-cockpit-presets')->group(function () {
+        Route::get('/cockpit-presets', [CockpitPresetController::class, 'index'])->name('cockpit-presets.index');
+        Route::post('/cockpit-presets', [CockpitPresetController::class, 'store'])->name('cockpit-presets.store');
+        Route::put('/cockpit-presets/{cockpitPreset}', [CockpitPresetController::class, 'update'])->name('cockpit-presets.update');
+        Route::delete('/cockpit-presets/{cockpitPreset}', [CockpitPresetController::class, 'destroy'])->name('cockpit-presets.destroy');
+    });
 
-    Route::get('/pin', [PinController::class, 'edit'])->name('pin.edit');
-    Route::put('/pin', [PinController::class, 'update'])->name('pin.update');
+    Route::middleware('permission:view-reports')->group(function () {
+        Route::get('/reports/income', [IncomeReportController::class, 'index'])->name('reports.income');
+        Route::get('/reports/income/export', [IncomeReportController::class, 'export'])->name('reports.income.export');
+        Route::get('/reports/accounting/events', [AccountingController::class, 'events'])->name('reports.accounting.events');
+        Route::get('/reports/accounting/events/export', [AccountingController::class, 'exportEvents'])->name('reports.accounting.events.export');
+        Route::get('/reports/accounting/fights/{fight}', [AccountingController::class, 'fightBets'])->name('reports.accounting.fight');
+        Route::get('/reports/accounting/fights/{fight}/export', [AccountingController::class, 'exportFightBets'])->name('reports.accounting.fight.export');
+        Route::get('/reports/teller-cash-flow', [TellerCashFlowReportController::class, 'index'])->name('reports.teller-cash-flow');
+        Route::get('/reports/teller-cash-flow/export', [TellerCashFlowReportController::class, 'export'])->name('reports.teller-cash-flow.export');
+    });
 
-    Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
+    Route::middleware('permission:manage-wallets')->group(function () {
+        Route::get('/wallets', [WalletController::class, 'index'])->name('wallets.index');
+        Route::get('/wallets/{user}/transactions', [WalletController::class, 'transactions'])->name('wallets.transactions');
+        Route::post('/wallets/{user}/credit', [WalletController::class, 'credit'])->name('wallets.credit');
+        Route::post('/wallets/{user}/debit', [WalletController::class, 'debit'])->name('wallets.debit');
+    });
 
-    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
-    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::middleware('permission:manage-approval-pin')->group(function () {
+        Route::get('/pin', [PinController::class, 'edit'])->name('pin.edit');
+        Route::put('/pin', [PinController::class, 'update'])->name('pin.update');
+    });
 
-    Route::get('/agents', [SuperadminAgentController::class, 'index'])->name('agents.index');
-    Route::get('/agents/create', [SuperadminAgentController::class, 'create'])->name('agents.create');
-    Route::post('/agents', [SuperadminAgentController::class, 'store'])->name('agents.store');
-    Route::post('/agents/{user}/level', [SuperadminAgentController::class, 'setLevel'])->name('agents.set-level');
-    Route::post('/agents/{user}/rate', [SuperadminAgentController::class, 'setRate'])->name('agents.set-rate');
+    Route::middleware('permission:view-audit-log')->group(function () {
+        Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
+    });
 
-    Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
-    Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
-    Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
-    Route::get('/staff/{user}/edit', [StaffController::class, 'edit'])->name('staff.edit');
-    Route::put('/staff/{user}', [StaffController::class, 'update'])->name('staff.update');
-    Route::post('/staff/{user}/toggle-status', [StaffController::class, 'toggleStatus'])->name('staff.toggle-status');
+    Route::middleware('permission:manage-settings')->group(function () {
+        Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    });
 
-    Route::prefix('rfid-terminals')->name('rfid-terminals.')->group(function () {
+    Route::middleware('permission:manage-agents')->group(function () {
+        Route::get('/agents', [SuperadminAgentController::class, 'index'])->name('agents.index');
+        Route::get('/agents/create', [SuperadminAgentController::class, 'create'])->name('agents.create');
+        Route::post('/agents', [SuperadminAgentController::class, 'store'])->name('agents.store');
+        Route::post('/agents/{user}/level', [SuperadminAgentController::class, 'setLevel'])->name('agents.set-level');
+        Route::post('/agents/{user}/rate', [SuperadminAgentController::class, 'setRate'])->name('agents.set-rate');
+    });
+
+    Route::middleware('permission:manage-staff')->group(function () {
+        Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+        Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
+        Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+        Route::get('/staff/{user}/edit', [StaffController::class, 'edit'])->name('staff.edit');
+        Route::put('/staff/{user}', [StaffController::class, 'update'])->name('staff.update');
+        Route::post('/staff/{user}/toggle-status', [StaffController::class, 'toggleStatus'])->name('staff.toggle-status');
+    });
+
+    Route::middleware('permission:manage-rfid-terminals')->prefix('rfid-terminals')->name('rfid-terminals.')->group(function () {
         Route::get('/', [RfidTerminalController::class, 'index'])->name('index');
         Route::post('/', [RfidTerminalController::class, 'store'])->name('store');
         Route::post('/{rfidTerminal}/toggle', [RfidTerminalController::class, 'toggle'])->name('toggle');
@@ -280,5 +311,10 @@ Route::middleware(['auth', 'role:superadmin|webmaster'])->prefix('superadmin')->
         Route::post('/{rfidTerminal}/readers/{rfidReader}/role', [RfidTerminalController::class, 'assignReaderRole'])->name('readers.role');
         Route::delete('/{rfidTerminal}/readers/{rfidReader}', [RfidTerminalController::class, 'destroyReader'])->name('readers.destroy');
         Route::delete('/{rfidTerminal}', [RfidTerminalController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::middleware('permission:manage-roles')->group(function () {
+        Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+        Route::put('/roles/{role}', [RoleController::class, 'update'])->name('roles.update');
     });
 });
