@@ -95,6 +95,7 @@ class LocalizedPagesSmokeTest extends TestCase
             route('play.index'),
             route('play.pool-fight', $this->fight),
             route('play.wallet.index'),
+            route('play.transactions.index'),
             route('play.profile'),
             route('play.cash.index'),
             route('play.cash.show', $this->cashTransaction),

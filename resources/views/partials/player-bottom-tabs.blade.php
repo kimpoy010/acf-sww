@@ -3,14 +3,19 @@
      player needs day to day, so they live within thumb's reach at the bottom
      of the screen instead of behind a top-nav dropdown.
 
-     Cash (deposit/withdraw via GCash/Maya — see Player\CashController and
-     App\Services\Paybucks) is back here now that it's self-service again;
-     it only dropped out while it needed a teller to approve each request,
-     and teller accounts are retired. --}}
+     Deposit/withdraw (via GCash/Maya — see Player\CashController and
+     App\Services\Paybucks) now lives inline on the Wallet page's own
+     Deposit/Withdraw tabs, so the standalone Cash In/Out page no longer
+     needs its own bottom-nav slot; that slot goes to Transactions instead
+     (the full ledger across every category — see WalletController::
+     transactions()). play.cash.* is still reachable (the wallet page's
+     forms post there, and its show/status pages are where a payment
+     actually happens) — it's just folded under the Wallet tab now. --}}
 @php
     $activeTab = match (true) {
         request()->routeIs('play.wallet.*') => 'wallet',
-        request()->routeIs('play.cash.*') => 'cash',
+        request()->routeIs('play.cash.*') => 'wallet',
+        request()->routeIs('play.transactions.*') => 'transactions',
         request()->routeIs('play.profile') => 'profile',
         default => 'home',
     };
@@ -18,7 +23,7 @@
     $tabs = [
         ['key' => 'home', 'route' => route('play.index'), 'icon' => 'home', 'label' => __('Home')],
         ['key' => 'wallet', 'route' => route('play.wallet.index'), 'icon' => 'wallet', 'label' => __('Wallet')],
-        ['key' => 'cash', 'route' => route('play.cash.index'), 'icon' => 'cash', 'label' => __('Cash')],
+        ['key' => 'transactions', 'route' => route('play.transactions.index'), 'icon' => 'transactions', 'label' => __('Transactions')],
         ['key' => 'profile', 'route' => route('play.profile'), 'icon' => 'profile', 'label' => __('Profile')],
     ];
 @endphp
@@ -54,9 +59,9 @@
                             <path d="M7 6.5V5.8a1.8 1.8 0 011.8-1.8h5.6a1.2 1.2 0 011.2 1.2v1.3"/>
                             <circle cx="16.2" cy="12.5" r="1.4" fill="currentColor" stroke="none"/>
                             @break
-                        @case('cash')
-                            <rect x="2.5" y="7" width="19" height="11" rx="2"/>
-                            <circle cx="12" cy="12.5" r="2.3"/>
+                        @case('transactions')
+                            <rect x="4.5" y="3.5" width="15" height="17" rx="2"/>
+                            <path d="M8 8.5h8M8 12h8M8 15.5h5"/>
                             @break
                         @case('profile')
                             <circle cx="12" cy="8.2" r="3.4"/>

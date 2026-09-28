@@ -38,9 +38,9 @@ class PlayerBottomTabsTest extends TestCase
         $response->assertOk();
         $response->assertSee('href="'.route('play.wallet.index').'"', false);
         $response->assertSee('href="'.route('play.profile').'"', false);
-        // Cash is back on the bottom nav — deposits/withdrawals are
-        // self-service via GCash/Maya now, no teller approval needed.
-        $response->assertSee('href="'.route('play.cash.index').'"', false);
+        // Cash In/Out is now reached from the Wallet page's own
+        // Deposit/Withdraw tabs — Transactions takes its old nav slot.
+        $response->assertSee('href="'.route('play.transactions.index').'"', false);
     }
 
     public function test_a_non_player_does_not_see_the_bottom_tab_bar(): void
