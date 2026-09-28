@@ -23,6 +23,7 @@ class SuperadminTellerCashFlowReportTest extends TestCase
 
         Role::firstOrCreate(['name' => 'superadmin']);
         Role::firstOrCreate(['name' => 'teller']);
+        Role::firstOrCreate(['name' => 'declarator']);
     }
 
     private function admin(): User
@@ -45,6 +46,15 @@ class SuperadminTellerCashFlowReportTest extends TestCase
         return $teller;
     }
 
+    private function declarator(): User
+    {
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
+
+        return $declarator;
+    }
+
     private function fight(): Fight
     {
         $game = Game::firstOrCreate(['game_name' => 'pool-sabong'], [
@@ -58,9 +68,9 @@ class SuperadminTellerCashFlowReportTest extends TestCase
 
     public function test_non_superadmin_cannot_view_it(): void
     {
-        $teller = $this->teller();
+        $declarator = $this->declarator();
 
-        $this->actingAs($teller)->get(route('superadmin.reports.teller-cash-flow'))->assertForbidden();
+        $this->actingAs($declarator)->get(route('superadmin.reports.teller-cash-flow'))->assertForbidden();
     }
 
     public function test_it_shows_stakes_collected_from_tickets_written(): void
@@ -147,9 +157,9 @@ class SuperadminTellerCashFlowReportTest extends TestCase
 
     public function test_non_superadmin_cannot_export_it(): void
     {
-        $teller = $this->teller();
+        $declarator = $this->declarator();
 
-        $this->actingAs($teller)->get(route('superadmin.reports.teller-cash-flow.export'))->assertForbidden();
+        $this->actingAs($declarator)->get(route('superadmin.reports.teller-cash-flow.export'))->assertForbidden();
     }
 
     public function test_export_streams_a_csv_with_stakes_collected(): void

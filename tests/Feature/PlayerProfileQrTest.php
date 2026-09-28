@@ -17,7 +17,6 @@ class PlayerProfileQrTest extends TestCase
         parent::setUp();
 
         Role::firstOrCreate(['name' => 'player']);
-        Role::firstOrCreate(['name' => 'teller']);
     }
 
     private function player(string $username = 'juan'): User
@@ -27,15 +26,6 @@ class PlayerProfileQrTest extends TestCase
         Wallet::create(['user_id' => $player->id]);
 
         return $player;
-    }
-
-    private function teller(): User
-    {
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
-
-        return $teller;
     }
 
     public function test_viewing_the_profile_page_generates_a_stable_code(): void
@@ -66,60 +56,17 @@ class PlayerProfileQrTest extends TestCase
         $response->assertSee('href="'.route('locale.switch', 'es').'"', false);
     }
 
-    public function test_teller_can_open_the_link_form_from_a_players_qr_code(): void
+    /**
+     * The RFID-card-linking flow this QR code was for (a teller scanning
+     * it, per the now-removed teller tests) is retired along with every
+     * other teller account (see DisableTellerRoutes) — the link those
+     * routes generated is simply a dead end now.
+     */
+    public function test_the_generated_qr_code_link_now_404s(): void
     {
-        $teller = $this->teller();
         $player = $this->player();
         $code = $player->profileCode();
 
-        $response = $this->actingAs($teller)->get(route('teller.rfid.link', $code));
-
-        $response->assertOk();
-        $response->assertSee($player->displayName());
-    }
-
-    public function test_link_form_404s_for_an_unknown_code(): void
-    {
-        $teller = $this->teller();
-
-        $response = $this->actingAs($teller)->get(route('teller.rfid.link', 'NOTAREALCODE'));
-
-        $response->assertNotFound();
-    }
-
-    public function test_teller_can_link_a_card_via_the_scanned_player_code(): void
-    {
-        $teller = $this->teller();
-        $player = $this->player();
-        $code = $player->profileCode();
-
-        $response = $this->actingAs($teller)->post(route('teller.rfid.store'), [
-            'player_code' => $code,
-            'tag_uid' => 'CARD-QR-1',
-        ]);
-
-        $response->assertRedirect(route('teller.rfid.index'));
-        $this->assertSame('CARD-QR-1', $player->fresh()->rfid_uid);
-    }
-
-    public function test_manual_code_lookup_redirects_to_the_link_form(): void
-    {
-        $teller = $this->teller();
-        $player = $this->player();
-        $code = $player->profileCode();
-
-        $response = $this->actingAs($teller)->post(route('teller.rfid.lookup'), ['code' => strtolower($code)]);
-
-        $response->assertRedirect(route('teller.rfid.link', $player));
-    }
-
-    public function test_manual_code_lookup_with_unknown_code_shows_an_error(): void
-    {
-        $teller = $this->teller();
-
-        $response = $this->actingAs($teller)->post(route('teller.rfid.lookup'), ['code' => 'NOPE']);
-
-        $response->assertRedirect(route('teller.rfid.index'));
-        $response->assertSessionHas('error');
+        $this->get(route('teller.rfid.link', $code))->assertNotFound();
     }
 }

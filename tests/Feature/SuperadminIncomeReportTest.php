@@ -77,11 +77,11 @@ class SuperadminIncomeReportTest extends TestCase
 
     public function test_non_superadmin_cannot_view_the_income_report(): void
     {
-        $teller = User::factory()->create();
-        Role::firstOrCreate(['name' => 'teller']);
-        $teller->assignRole('teller');
+        $declarator = User::factory()->create();
+        Role::firstOrCreate(['name' => 'declarator']);
+        $declarator->assignRole('declarator');
 
-        $response = $this->actingAs($teller)->get(route('superadmin.reports.income'));
+        $response = $this->actingAs($declarator)->get(route('superadmin.reports.income'));
 
         $response->assertForbidden();
     }
@@ -157,11 +157,11 @@ class SuperadminIncomeReportTest extends TestCase
 
     public function test_non_superadmin_cannot_export_the_income_report(): void
     {
-        $teller = User::factory()->create();
-        Role::firstOrCreate(['name' => 'teller']);
-        $teller->assignRole('teller');
+        $declarator = User::factory()->create();
+        Role::firstOrCreate(['name' => 'declarator']);
+        $declarator->assignRole('declarator');
 
-        $this->actingAs($teller)->get(route('superadmin.reports.income.export'))->assertForbidden();
+        $this->actingAs($declarator)->get(route('superadmin.reports.income.export'))->assertForbidden();
     }
 
     public function test_export_streams_a_csv_with_matching_rows_and_respects_filters(): void

@@ -22,6 +22,7 @@ class LoginRedirectTest extends TestCase
 
         Role::firstOrCreate(['name' => 'player']);
         Role::firstOrCreate(['name' => 'teller']);
+        Role::firstOrCreate(['name' => 'declarator']);
     }
 
     private function player(string $username = 'juan'): User
@@ -100,10 +101,26 @@ class LoginRedirectTest extends TestCase
 
     public function test_a_non_player_still_lands_on_their_own_home_route(): void
     {
+        $declarator = User::factory()->create(['password' => Hash::make('password')]);
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
+
+        $this->login($declarator)->assertRedirect(route('declarator.events.index'));
+    }
+
+    /**
+     * The app no longer supports teller accounts (see CheckUserStatus and
+     * LoginController's own teller-role block) — a login attempt with
+     * otherwise-correct credentials is rejected rather than landing
+     * anywhere.
+     */
+    public function test_a_teller_login_is_rejected(): void
+    {
         $teller = User::factory()->create(['password' => Hash::make('password')]);
         $teller->assignRole('teller');
         Wallet::create(['user_id' => $teller->id]);
 
-        $this->login($teller)->assertRedirect(route('teller.dashboard'));
+        $this->login($teller)->assertSessionHasErrors('login');
+        $this->assertGuest();
     }
 }

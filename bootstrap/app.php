@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AuthenticateRfidTerminal;
 use App\Http\Middleware\CheckUserStatus;
+use App\Http\Middleware\DisableTellerRoutes;
 use App\Http\Middleware\SecureHeaders;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
@@ -39,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'rfid.terminal' => AuthenticateRfidTerminal::class,
+            'teller.disabled' => DisableTellerRoutes::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

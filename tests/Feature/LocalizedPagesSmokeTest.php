@@ -131,39 +131,35 @@ class LocalizedPagesSmokeTest extends TestCase
         }
     }
 
+    /**
+     * The app no longer supports teller accounts. Two separate guards,
+     * exercised here: every /teller/* route 404s unconditionally (see
+     * DisableTellerRoutes) for anyone who isn't a teller — a guest, or
+     * another role, since $this->declarator has no business there
+     * either; and CheckUserStatus signs a teller-role session out (to
+     * /login) before it ever reaches that route middleware, on ANY page,
+     * not just /teller/* ones. $this->teller still exists in setUp()
+     * only to attribute the cash transaction/ticket fixtures other tests
+     * here use (e.g. test_player_pages_render's $this->cashTransaction).
+     */
     #[DataProvider('localeProvider')]
-    public function test_teller_pages_render(string $locale): void
+    public function test_teller_pages_all_404_and_a_teller_session_is_signed_out(string $locale): void
     {
         $this->get(route('locale.switch', $locale));
 
         foreach ([
             route('teller.dashboard'),
             route('teller.rfid.index'),
-            route('teller.rfid.link', $this->player->profileCode()),
-            route('teller.shift.end'),
-            route('teller.shifts.history'),
-            route('teller.shift.report', $this->shift),
+            route('teller.shift.start'),
             route('teller.station.index'),
-            route('teller.station.show', $this->terminal),
             route('teller.tickets.create'),
-            route('teller.tickets.show', $this->ticket),
-            route('teller.tickets.receipt', $this->ticket),
-            route('teller.transactions.show', $this->cashTransaction),
         ] as $url) {
-            $this->actingAs($this->teller)->get($url)->assertSuccessful();
+            $this->get($url)->assertNotFound();
+            $this->actingAs($this->declarator)->get($url)->assertNotFound();
         }
-    }
 
-    #[DataProvider('localeProvider')]
-    public function test_teller_shift_start_page_renders_for_a_teller_with_no_open_shift(string $locale): void
-    {
-        $this->get(route('locale.switch', $locale));
-
-        $freshTeller = User::factory()->create();
-        $freshTeller->assignRole('teller');
-        Wallet::create(['user_id' => $freshTeller->id]);
-
-        $this->actingAs($freshTeller)->get(route('teller.shift.start'))->assertSuccessful();
+        $this->actingAs($this->teller)->get(route('teller.dashboard'))->assertRedirect(route('login'));
+        $this->assertGuest();
     }
 
     #[DataProvider('localeProvider')]

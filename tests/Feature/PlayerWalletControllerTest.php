@@ -366,12 +366,12 @@ class PlayerWalletControllerTest extends TestCase
 
     public function test_wallet_page_is_only_accessible_to_players(): void
     {
-        Role::firstOrCreate(['name' => 'teller']);
+        Role::firstOrCreate(['name' => 'declarator']);
 
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
 
-        $response = $this->actingAs($teller)->get(route('play.wallet.index'));
+        $response = $this->actingAs($declarator)->get(route('play.wallet.index'));
 
         $response->assertForbidden();
     }

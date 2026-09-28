@@ -160,7 +160,12 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
     Route::post('/transfer', [AgentDashboardController::class, 'transfer'])->name('transfer');
 });
 
-Route::middleware(['auth', 'role:teller'])->prefix('teller')->name('teller.')->group(function () {
+// 404s unconditionally — the app no longer supports teller accounts (see
+// Console\Commands\DeleteTellerAccounts and LoginController's teller-role
+// block). Route names/controllers are untouched below so a route() call
+// elsewhere (a player-facing QR code, mainly) doesn't break; visiting the
+// URL it generates is just a dead end now.
+Route::middleware(['teller.disabled'])->prefix('teller')->name('teller.')->group(function () {
     Route::get('/', [TellerTransactionController::class, 'dashboard'])->name('dashboard');
     Route::post('/lookup', [TellerTransactionController::class, 'lookup'])->name('lookup');
     Route::get('/scan/{cashTransaction:code}', [TellerTransactionController::class, 'show'])->name('transactions.show');

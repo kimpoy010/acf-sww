@@ -64,14 +64,14 @@ class SuperadminAccountingReportTest extends TestCase
 
     public function test_non_superadmin_cannot_view_either_report(): void
     {
-        Role::firstOrCreate(['name' => 'teller']);
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
+        Role::firstOrCreate(['name' => 'declarator']);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
 
-        $this->actingAs($teller)->get(route('superadmin.reports.accounting.events'))->assertForbidden();
+        $this->actingAs($declarator)->get(route('superadmin.reports.accounting.events'))->assertForbidden();
 
         $fight = $this->fight();
-        $this->actingAs($teller)->get(route('superadmin.reports.accounting.fight', $fight))->assertForbidden();
+        $this->actingAs($declarator)->get(route('superadmin.reports.accounting.fight', $fight))->assertForbidden();
     }
 
     public function test_event_rollup_sums_every_bet_across_its_fights(): void
@@ -154,14 +154,14 @@ class SuperadminAccountingReportTest extends TestCase
 
     public function test_non_superadmin_cannot_export_either_report(): void
     {
-        Role::firstOrCreate(['name' => 'teller']);
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
+        Role::firstOrCreate(['name' => 'declarator']);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
 
-        $this->actingAs($teller)->get(route('superadmin.reports.accounting.events.export'))->assertForbidden();
+        $this->actingAs($declarator)->get(route('superadmin.reports.accounting.events.export'))->assertForbidden();
 
         $fight = $this->fight();
-        $this->actingAs($teller)->get(route('superadmin.reports.accounting.fight.export', $fight))->assertForbidden();
+        $this->actingAs($declarator)->get(route('superadmin.reports.accounting.fight.export', $fight))->assertForbidden();
     }
 
     public function test_events_export_streams_a_csv_of_every_matching_event(): void

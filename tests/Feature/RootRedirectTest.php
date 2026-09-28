@@ -46,7 +46,11 @@ class RootRedirectTest extends TestCase
 
     public function test_authenticated_user_hitting_root_never_redirects_back_to_login(): void
     {
-        foreach (['player', 'declarator', 'superadmin', 'agent', 'teller'] as $role) {
+        // 'teller' excluded — the app no longer supports teller accounts,
+        // so it's the one role for which "/" redirecting to /login is
+        // correct (CheckUserStatus signs it out on every request); see
+        // test_a_teller_hitting_root_is_signed_out_to_login below.
+        foreach (['player', 'declarator', 'superadmin', 'agent'] as $role) {
             $user = $this->userWithRole($role);
 
             $response = $this->actingAs($user)->get('/');
@@ -54,6 +58,14 @@ class RootRedirectTest extends TestCase
             $response->assertRedirect(route($user->homeRouteName()));
             $this->assertNotSame(route('login'), route($user->homeRouteName()));
         }
+    }
+
+    public function test_a_teller_hitting_root_is_signed_out_to_login(): void
+    {
+        $teller = $this->userWithRole('teller');
+
+        $this->actingAs($teller)->get('/')->assertRedirect(route('login'));
+        $this->assertGuest();
     }
 
     public function test_authenticated_user_hitting_login_page_eventually_reaches_their_dashboard_not_a_loop(): void

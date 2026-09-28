@@ -226,14 +226,14 @@ class SuperadminWalletTransactionsTest extends TestCase
 
     public function test_a_non_superadmin_cannot_view_the_page(): void
     {
-        Role::firstOrCreate(['name' => 'teller']);
+        Role::firstOrCreate(['name' => 'declarator']);
         Role::firstOrCreate(['name' => 'player']);
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
         $player = $this->player();
 
-        $response = $this->actingAs($teller)->get(route('superadmin.wallets.transactions', $player));
+        $response = $this->actingAs($declarator)->get(route('superadmin.wallets.transactions', $player));
 
         $response->assertForbidden();
     }

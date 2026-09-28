@@ -12,8 +12,7 @@
     <div>
         <label class="block text-sm text-slate-400 mb-1">{{ __('Role') }}</label>
         <select name="role" required class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
-            <option value="teller" @selected(old('role', $staffMember->hasRole('teller') ? 'teller' : 'declarator') === 'teller')>{{ __('Teller') }}</option>
-            <option value="declarator" @selected(old('role', $staffMember->hasRole('teller') ? 'teller' : 'declarator') === 'declarator')>{{ __('Declarator') }}</option>
+            <option value="declarator" selected>{{ __('Declarator') }}</option>
         </select>
     </div>
     <div>

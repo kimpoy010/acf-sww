@@ -25,7 +25,13 @@ class SuperadminStaffTest extends TestCase
         return $admin;
     }
 
-    public function test_a_superadmin_can_create_a_teller_account(): void
+    /**
+     * The app no longer supports teller accounts — this page's own
+     * validation (Superadmin\StaffController::ROLES is just
+     * ['declarator'] now) rejects it as a creatable role, same as it
+     * already did for 'superadmin' below.
+     */
+    public function test_teller_is_not_a_creatable_role(): void
     {
         $admin = $this->admin();
 
@@ -37,12 +43,8 @@ class SuperadminStaffTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertRedirect(route('superadmin.staff.index'));
-
-        $teller = User::where('username', 'new_teller')->firstOrFail();
-        $this->assertTrue($teller->hasRole('teller'));
-        $this->assertFalse($teller->hasRole('declarator'));
-        $this->assertNotNull($teller->wallet);
+        $response->assertSessionHasErrors('role');
+        $this->assertNull(User::where('username', 'new_teller')->first());
     }
 
     public function test_a_superadmin_can_create_a_declarator_account(): void
@@ -69,23 +71,16 @@ class SuperadminStaffTest extends TestCase
         $admin = $this->admin();
 
         $this->actingAs($admin)->post(route('superadmin.staff.store'), [
-            'role' => 'teller',
-            'name' => 'Login Teller',
-            'username' => 'login_teller',
-            'email' => 'login-teller@example.com',
+            'role' => 'declarator',
+            'name' => 'Login Declarator',
+            'username' => 'login_declarator',
+            'email' => 'login-declarator@example.com',
             'password' => 'password123',
         ]);
 
-        $teller = User::where('username', 'login_teller')->firstOrFail();
+        $declarator = User::where('username', 'login_declarator')->firstOrFail();
 
-        // No shift open yet — the dashboard itself redirects to start one,
-        // which is expected; what matters here is the account can actually
-        // authenticate into the teller area at all, not just that the role
-        // was assigned in the database.
-        $response = $this->actingAs($teller)->get(route('teller.dashboard'));
-        $response->assertRedirect(route('teller.shift.start'));
-
-        $this->actingAs($teller)->get(route('teller.shift.start'))->assertOk();
+        $this->actingAs($declarator)->get(route('declarator.events.index'))->assertOk();
     }
 
     public function test_an_invalid_role_is_rejected(): void
@@ -108,7 +103,7 @@ class SuperadminStaffTest extends TestCase
     {
         $admin = $this->admin();
         $existing = User::factory()->create(['username' => 'taken_name']);
-        $existing->assignRole('teller');
+        $existing->assignRole('declarator');
         Wallet::create(['user_id' => $existing->id]);
 
         $response = $this->actingAs($admin)->post(route('superadmin.staff.store'), [
@@ -122,7 +117,12 @@ class SuperadminStaffTest extends TestCase
         $response->assertSessionHasErrors('username');
     }
 
-    public function test_the_index_lists_only_tellers_and_declarators(): void
+    /**
+     * A teller row can still exist (e.g. one the teller:delete-accounts
+     * command hasn't been run against yet) — it must not show up here
+     * regardless, same as a player never has.
+     */
+    public function test_the_index_lists_only_declarators(): void
     {
         $admin = $this->admin();
         Role::firstOrCreate(['name' => 'player']);
@@ -142,38 +142,37 @@ class SuperadminStaffTest extends TestCase
         $response = $this->actingAs($admin)->get(route('superadmin.staff.index'));
 
         $response->assertOk();
-        $response->assertSee('the_teller');
+        $response->assertDontSee('the_teller');
         $response->assertSee('the_declarator');
         $response->assertDontSee('the_player');
     }
 
     public function test_a_non_superadmin_cannot_reach_the_staff_pages(): void
     {
-        Role::firstOrCreate(['name' => 'teller']);
         Role::firstOrCreate(['name' => 'declarator']);
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
 
-        $this->actingAs($teller)->get(route('superadmin.staff.index'))->assertForbidden();
-        $this->actingAs($teller)->get(route('superadmin.staff.create'))->assertForbidden();
-        $this->actingAs($teller)->post(route('superadmin.staff.store'), [
+        $this->actingAs($declarator)->get(route('superadmin.staff.index'))->assertForbidden();
+        $this->actingAs($declarator)->get(route('superadmin.staff.create'))->assertForbidden();
+        $this->actingAs($declarator)->post(route('superadmin.staff.store'), [
             'role' => 'declarator', 'name' => 'X', 'username' => 'x', 'email' => 'x@example.com', 'password' => 'password123',
         ])->assertForbidden();
-        $this->actingAs($teller)->get(route('superadmin.staff.edit', $teller))->assertForbidden();
-        $this->actingAs($teller)->put(route('superadmin.staff.update', $teller), [])->assertForbidden();
-        $this->actingAs($teller)->post(route('superadmin.staff.toggle-status', $teller))->assertForbidden();
+        $this->actingAs($declarator)->get(route('superadmin.staff.edit', $declarator))->assertForbidden();
+        $this->actingAs($declarator)->put(route('superadmin.staff.update', $declarator), [])->assertForbidden();
+        $this->actingAs($declarator)->post(route('superadmin.staff.toggle-status', $declarator))->assertForbidden();
     }
 
     public function test_a_superadmin_can_edit_a_staff_members_details(): void
     {
         $admin = $this->admin();
-        $teller = User::factory()->create(['name' => 'Old Name', 'username' => 'old_username', 'email' => 'old@example.com']);
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        $declarator = User::factory()->create(['name' => 'Old Name', 'username' => 'old_username', 'email' => 'old@example.com']);
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
 
-        $response = $this->actingAs($admin)->put(route('superadmin.staff.update', $teller), [
-            'role' => 'teller',
+        $response = $this->actingAs($admin)->put(route('superadmin.staff.update', $declarator), [
+            'role' => 'declarator',
             'name' => 'New Name',
             'username' => 'new_username',
             'email' => 'new@example.com',
@@ -181,96 +180,76 @@ class SuperadminStaffTest extends TestCase
         ]);
 
         $response->assertRedirect(route('superadmin.staff.index'));
-        $teller->refresh();
-        $this->assertSame('New Name', $teller->name);
-        $this->assertSame('new_username', $teller->username);
-        $this->assertSame('new@example.com', $teller->email);
-    }
-
-    public function test_editing_can_switch_the_role_between_teller_and_declarator(): void
-    {
-        $admin = $this->admin();
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
-
-        $this->actingAs($admin)->put(route('superadmin.staff.update', $teller), [
-            'role' => 'declarator',
-            'name' => $teller->name,
-            'username' => $teller->username,
-            'email' => $teller->email,
-            'password' => '',
-        ]);
-
-        $teller->refresh();
-        $this->assertTrue($teller->hasRole('declarator'));
-        $this->assertFalse($teller->hasRole('teller'));
+        $declarator->refresh();
+        $this->assertSame('New Name', $declarator->name);
+        $this->assertSame('new_username', $declarator->username);
+        $this->assertSame('new@example.com', $declarator->email);
     }
 
     public function test_a_blank_password_on_edit_keeps_the_existing_password(): void
     {
         $admin = $this->admin();
-        $teller = User::factory()->create(['password' => bcrypt('original-password')]);
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
-        $originalHash = $teller->password;
+        $declarator = User::factory()->create(['password' => bcrypt('original-password')]);
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
+        $originalHash = $declarator->password;
 
-        $this->actingAs($admin)->put(route('superadmin.staff.update', $teller), [
-            'role' => 'teller',
-            'name' => $teller->name,
-            'username' => $teller->username,
-            'email' => $teller->email,
+        $this->actingAs($admin)->put(route('superadmin.staff.update', $declarator), [
+            'role' => 'declarator',
+            'name' => $declarator->name,
+            'username' => $declarator->username,
+            'email' => $declarator->email,
             'password' => '',
         ]);
 
-        $this->assertSame($originalHash, $teller->fresh()->password);
+        $this->assertSame($originalHash, $declarator->fresh()->password);
     }
 
     public function test_a_provided_password_on_edit_changes_it(): void
     {
         $admin = $this->admin();
-        $teller = User::factory()->create(['password' => bcrypt('original-password')]);
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        $declarator = User::factory()->create(['password' => bcrypt('original-password')]);
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
 
-        $this->actingAs($admin)->put(route('superadmin.staff.update', $teller), [
-            'role' => 'teller',
-            'name' => $teller->name,
-            'username' => $teller->username,
-            'email' => $teller->email,
+        $this->actingAs($admin)->put(route('superadmin.staff.update', $declarator), [
+            'role' => 'declarator',
+            'name' => $declarator->name,
+            'username' => $declarator->username,
+            'email' => $declarator->email,
             'password' => 'brand-new-password',
         ]);
 
-        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('brand-new-password', $teller->fresh()->password));
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('brand-new-password', $declarator->fresh()->password));
     }
 
     public function test_a_superadmin_can_deactivate_and_reactivate_a_staff_member(): void
     {
         $admin = $this->admin();
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
 
-        $this->actingAs($admin)->post(route('superadmin.staff.toggle-status', $teller))->assertRedirect();
-        $this->assertSame('inactive', $teller->fresh()->status);
+        $this->actingAs($admin)->post(route('superadmin.staff.toggle-status', $declarator))->assertRedirect();
+        $this->assertSame('inactive', $declarator->fresh()->status);
 
-        $this->actingAs($admin)->post(route('superadmin.staff.toggle-status', $teller))->assertRedirect();
-        $this->assertSame('active', $teller->fresh()->status);
+        $this->actingAs($admin)->post(route('superadmin.staff.toggle-status', $declarator))->assertRedirect();
+        $this->assertSame('active', $declarator->fresh()->status);
     }
 
     public function test_a_deactivated_staff_member_is_signed_out_on_their_next_request(): void
     {
         $admin = $this->admin();
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
 
-        $this->actingAs($admin)->post(route('superadmin.staff.toggle-status', $teller));
+        $this->actingAs($admin)->post(route('superadmin.staff.toggle-status', $declarator));
 
         // actingAs() authenticates using this exact in-memory model, so it
         // must be refreshed first — otherwise the guard would carry the
         // stale (still-active) status the variable was created with.
-        $response = $this->actingAs($teller->refresh())->get(route('teller.dashboard'));
+        $response = $this->actingAs($declarator->refresh())->get(route('declarator.events.index'));
         $response->assertRedirect(route('login'));
     }
 
@@ -284,8 +263,27 @@ class SuperadminStaffTest extends TestCase
 
         $this->actingAs($admin)->get(route('superadmin.staff.edit', $player))->assertStatus(422);
         $this->actingAs($admin)->put(route('superadmin.staff.update', $player), [
-            'role' => 'teller', 'name' => 'X', 'username' => 'x2', 'email' => 'x2@example.com', 'password' => '',
+            'role' => 'declarator', 'name' => 'X', 'username' => 'x2', 'email' => 'x2@example.com', 'password' => '',
         ])->assertStatus(422);
         $this->actingAs($admin)->post(route('superadmin.staff.toggle-status', $player))->assertStatus(422);
+    }
+
+    /**
+     * A leftover teller row (not yet purged by teller:delete-accounts)
+     * is no longer manageable through this page either, same as any
+     * other non-declarator user.
+     */
+    public function test_editing_an_existing_teller_through_this_controller_is_rejected(): void
+    {
+        $admin = $this->admin();
+        $teller = User::factory()->create();
+        $teller->assignRole('teller');
+        Wallet::create(['user_id' => $teller->id]);
+
+        $this->actingAs($admin)->get(route('superadmin.staff.edit', $teller))->assertStatus(422);
+        $this->actingAs($admin)->put(route('superadmin.staff.update', $teller), [
+            'role' => 'declarator', 'name' => 'X', 'username' => 'x3', 'email' => 'x3@example.com', 'password' => '',
+        ])->assertStatus(422);
+        $this->actingAs($admin)->post(route('superadmin.staff.toggle-status', $teller))->assertStatus(422);
     }
 }

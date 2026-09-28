@@ -9,11 +9,16 @@ use Illuminate\Database\Seeder;
 class DemoStaffAndPlayersSeeder extends Seeder
 {
     /**
-     * Ten player accounts and ten teller accounts for local demos and
-     * manual testing — RolesAndUsersSeeder already gives you one of each
-     * (player@example.com / teller@example.com); this fills out a bigger
-     * roster so flows like teller-to-teller lookups or player search have
+     * Ten player accounts for local demos and manual testing —
+     * RolesAndUsersSeeder already gives you one (player@example.com);
+     * this fills out a bigger roster so a flow like player search has
      * more than a single record to work against.
+     *
+     * Used to also seed ten demo teller accounts here — dropped along
+     * with the rest of teller support (see
+     * Console\Commands\DeleteTellerAccounts); assigning a 'teller' role
+     * that may no longer even exist as a Role row would throw
+     * Spatie's RoleDoesNotExist on a fresh environment.
      */
     public function run(): void
     {
@@ -31,22 +36,6 @@ class DemoStaffAndPlayersSeeder extends Seeder
                 $player->assignRole('player');
             }
             Wallet::firstOrCreate(['user_id' => $player->id], ['main_balance' => 1000]);
-        }
-
-        for ($i = 1; $i <= 10; $i++) {
-            $teller = User::firstOrCreate(
-                ['email' => "teller{$i}@example.com"],
-                [
-                    'name' => "Demo Teller {$i}",
-                    'username' => "teller{$i}",
-                    'password' => bcrypt('password'),
-                    'email_verified_at' => now(),
-                ]
-            );
-            if (! $teller->hasRole('teller')) {
-                $teller->assignRole('teller');
-            }
-            Wallet::firstOrCreate(['user_id' => $teller->id]);
         }
     }
 }

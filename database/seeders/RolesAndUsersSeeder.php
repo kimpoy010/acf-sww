@@ -12,7 +12,12 @@ class RolesAndUsersSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['player', 'declarator', 'superadmin', 'agent', 'teller', 'webmaster'] as $role) {
+        // 'teller' is deliberately absent — the app no longer supports
+        // teller accounts (see Console\Commands\DeleteTellerAccounts and
+        // the /teller route group's own unconditional 404). Its Role row
+        // is left alone wherever it already exists (nothing here deletes
+        // it), just never (re)assigned to a demo account by this seeder.
+        foreach (['player', 'declarator', 'superadmin', 'agent', 'webmaster'] as $role) {
             Role::firstOrCreate(['name' => $role]);
         }
 
@@ -24,8 +29,10 @@ class RolesAndUsersSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'email_verified_at' => now(),
                 'referral_code' => 'ROOTADMIN',
-                // Demo-only approval PIN, used to sign off a teller's void
-                // request in person — change it via Approval PIN in a real
+                // Demo-only approval PIN, used to sign off an in-person
+                // approval prompt (currently unused now that teller
+                // accounts, the only feature that ever asked for one, are
+                // retired) — change it via Approval PIN in a real
                 // deployment.
                 'pin' => '1234',
             ]
@@ -82,20 +89,6 @@ class RolesAndUsersSeeder extends Seeder
             $declarator->assignRole('declarator');
         }
         Wallet::firstOrCreate(['user_id' => $declarator->id]);
-
-        $teller = User::firstOrCreate(
-            ['email' => 'teller@example.com'],
-            [
-                'name' => 'Cashier Teller',
-                'username' => 'teller',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-        if (! $teller->hasRole('teller')) {
-            $teller->assignRole('teller');
-        }
-        Wallet::firstOrCreate(['user_id' => $teller->id]);
 
         $player = User::firstOrCreate(
             ['email' => 'player@example.com'],

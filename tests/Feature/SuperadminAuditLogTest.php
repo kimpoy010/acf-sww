@@ -17,6 +17,7 @@ class SuperadminAuditLogTest extends TestCase
     {
         Role::firstOrCreate(['name' => 'superadmin']);
         Role::firstOrCreate(['name' => 'teller']);
+        Role::firstOrCreate(['name' => 'declarator']);
 
         $admin = User::factory()->create();
         $admin->assignRole('superadmin');
@@ -107,11 +108,11 @@ class SuperadminAuditLogTest extends TestCase
     public function test_a_non_superadmin_cannot_view_the_audit_trail(): void
     {
         $admin = $this->admin();
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
 
-        $response = $this->actingAs($teller)->get(route('superadmin.audit.index'));
+        $response = $this->actingAs($declarator)->get(route('superadmin.audit.index'));
 
         $response->assertForbidden();
     }

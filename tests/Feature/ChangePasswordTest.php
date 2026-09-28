@@ -84,14 +84,23 @@ class ChangePasswordTest extends TestCase
 
     /**
      * Not scoped to any one role — every role reaches it through the
-     * shared account.* routes, not a role-prefixed group.
+     * shared account.* routes, not a role-prefixed group. 'teller' is
+     * excluded — the app no longer supports teller accounts at all (see
+     * CheckUserStatus), so it's covered separately below.
      */
     public function test_every_role_can_reach_the_password_change_page(): void
     {
-        foreach (['player', 'teller', 'declarator', 'superadmin', 'agent'] as $role) {
+        foreach (['player', 'declarator', 'superadmin', 'agent'] as $role) {
             $user = $this->userWithRole($role);
 
             $this->actingAs($user)->get(route('account.password.edit'))->assertOk();
         }
+    }
+
+    public function test_a_teller_cannot_reach_the_password_change_page(): void
+    {
+        $teller = $this->userWithRole('teller');
+
+        $this->actingAs($teller)->get(route('account.password.edit'))->assertRedirect(route('login'));
     }
 }

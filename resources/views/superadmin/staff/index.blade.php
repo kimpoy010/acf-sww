@@ -26,8 +26,8 @@
                     <td class="px-4 py-2 font-semibold">{{ $user->displayName() }}</td>
                     <td class="text-slate-400">{{ $user->username }}</td>
                     <td>
-                        <span class="text-xs px-2 py-0.5 rounded-full {{ $user->hasRole('teller') ? 'bg-emerald-900 text-emerald-300' : 'bg-sky-900 text-sky-300' }}">
-                            {{ $user->hasRole('teller') ? __('Teller') : __('Declarator') }}
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-sky-900 text-sky-300">
+                            {{ __('Declarator') }}
                         </span>
                     </td>
                     <td class="text-slate-400">{{ $user->email }}</td>
@@ -50,7 +50,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="px-4 py-6 text-slate-500">{{ __('No teller or declarator accounts yet.') }}</td></tr>
+                <tr><td colspan="6" class="px-4 py-6 text-slate-500">{{ __('No declarator accounts yet.') }}</td></tr>
             @endforelse
         </tbody>
     </table>

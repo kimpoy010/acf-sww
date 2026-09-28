@@ -13,15 +13,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 /**
- * Tellers and declarators — the two counter/ring-side staff roles, grouped
- * on one page since they're otherwise identical accounts (just a different
- * role assigned). Player accounts self-register; agents have their own
- * dedicated section (AgentController) for the extra commission/upline
- * fields neither of these roles needs.
+ * Declarator accounts — ring-side staff who run fights. Player accounts
+ * self-register; agents have their own dedicated section (AgentController)
+ * for the extra commission/upline fields declarators don't need.
+ *
+ * Teller was the other role this page used to manage — the app no longer
+ * supports teller accounts at all (see routes/web.php's teller prefix
+ * group, now an unconditional 404, and the teller:delete-accounts
+ * command), so it's gone from here too: not creatable, and an existing
+ * teller row (until purged) no longer even shows in the list below.
  */
 class StaffController extends Controller
 {
-    private const ROLES = ['teller', 'declarator'];
+    private const ROLES = ['declarator'];
 
     public function index(): View
     {
@@ -93,7 +97,9 @@ class StaffController extends Controller
         ]);
 
         $before = $user->only(['name', 'username', 'email']);
-        $oldRole = $user->hasRole('teller') ? 'teller' : 'declarator';
+        // assertIsStaff above already confirmed $user holds a role in
+        // self::ROLES (just 'declarator' now), so this is always that.
+        $oldRole = 'declarator';
 
         $user->update([
             'name' => $data['name'],

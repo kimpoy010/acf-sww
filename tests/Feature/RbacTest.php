@@ -64,14 +64,14 @@ class RbacTest extends TestCase
 
     public function test_a_role_with_no_admin_permissions_is_forbidden_from_every_superadmin_section(): void
     {
-        Role::firstOrCreate(['name' => 'teller']);
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        Role::firstOrCreate(['name' => 'declarator']);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
 
-        // A teller isn't even in role:superadmin|webmaster, so this is
+        // declarator isn't in role:superadmin|webmaster, so this is
         // blocked at the outer role gate before permissions come into it.
-        $this->actingAs($teller)->get(route('superadmin.wallets.index'))->assertForbidden();
+        $this->actingAs($declarator)->get(route('superadmin.wallets.index'))->assertForbidden();
     }
 
     public function test_webmaster_can_view_and_update_the_roles_and_permissions_screen(): void

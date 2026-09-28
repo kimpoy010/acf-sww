@@ -62,6 +62,21 @@ class LoginController extends Controller
             return back()->withErrors(['login' => __('Those credentials do not match our records.')])->onlyInput('login');
         }
 
+        // The app no longer supports teller accounts at all (see
+        // Console\Commands\DeleteTellerAccounts and the /teller route
+        // group's own unconditional 404) — block the login itself too,
+        // rather than relying only on those 404s, so a teller-role
+        // account left over anywhere (a stale row the delete command
+        // hasn't been run against yet, a manual tinker assignment) can
+        // never reach any part of the app, not even ones outside /teller
+        // like the shared declarator|superadmin event routes.
+        if (Auth::user()->hasRole('teller')) {
+            Auth::logout();
+            RateLimiter::hit($throttleKey, self::LOGIN_DECAY_SECONDS);
+
+            return back()->withErrors(['login' => __('Teller accounts are no longer supported.')])->onlyInput('login');
+        }
+
         RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
 

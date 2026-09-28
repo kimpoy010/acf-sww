@@ -127,21 +127,21 @@ class AuditLoggerTest extends TestCase
     public function test_a_deactivating_staff_action_writes_an_audit_entry_with_before_and_after_status(): void
     {
         Role::firstOrCreate(['name' => 'superadmin']);
-        Role::firstOrCreate(['name' => 'teller']);
+        Role::firstOrCreate(['name' => 'declarator']);
         $admin = User::factory()->create();
         $admin->assignRole('superadmin');
         Wallet::create(['user_id' => $admin->id]);
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
 
-        $this->actingAs($admin)->post(route('superadmin.staff.toggle-status', $teller));
+        $this->actingAs($admin)->post(route('superadmin.staff.toggle-status', $declarator));
 
         $log = AuditLog::where('action', 'staff.deactivated')->latest('id')->first();
 
         $this->assertNotNull($log);
         $this->assertSame($admin->id, $log->actor_user_id);
-        $this->assertSame($teller->id, $log->target_id);
+        $this->assertSame($declarator->id, $log->target_id);
         $this->assertSame(['old' => 'active', 'new' => 'inactive'], $log->changes['status']);
     }
 }

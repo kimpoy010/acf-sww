@@ -17,7 +17,7 @@ class PlayerBottomTabsTest extends TestCase
         parent::setUp();
 
         Role::firstOrCreate(['name' => 'player']);
-        Role::firstOrCreate(['name' => 'teller']);
+        Role::firstOrCreate(['name' => 'declarator']);
     }
 
     private function player(): User
@@ -43,13 +43,11 @@ class PlayerBottomTabsTest extends TestCase
 
     public function test_a_non_player_does_not_see_the_bottom_tab_bar(): void
     {
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
 
-        // teller.dashboard redirects to shift.start without an open shift —
-        // use a page that renders directly instead.
-        $response = $this->actingAs($teller)->get(route('teller.shift.start'));
+        $response = $this->actingAs($declarator)->get(route('declarator.events.index'));
 
         $response->assertOk();
         $response->assertDontSee('aria-current="page"', false);
@@ -76,11 +74,11 @@ class PlayerBottomTabsTest extends TestCase
 
     public function test_a_non_player_still_sees_the_top_nav(): void
     {
-        $teller = User::factory()->create();
-        $teller->assignRole('teller');
-        Wallet::create(['user_id' => $teller->id]);
+        $declarator = User::factory()->create();
+        $declarator->assignRole('declarator');
+        Wallet::create(['user_id' => $declarator->id]);
 
-        $response = $this->actingAs($teller)->get(route('teller.shift.start'));
+        $response = $this->actingAs($declarator)->get(route('declarator.events.index'));
 
         $response->assertOk();
         $response->assertSee('id="site-nav"', false);
