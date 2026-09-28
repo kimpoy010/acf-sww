@@ -9,7 +9,7 @@
     .gold-ornament .diamond{width:5px;height:5px;background:#a8791f;transform:rotate(45deg)}
     .gold-eyebrow{font-size:11px;font-weight:600;letter-spacing:.28em;color:#c9a04a;margin:0 0 2px;text-align:center;text-transform:uppercase}
     .gold-h1{font-size:28px;font-weight:600;letter-spacing:.02em;margin:2px 0 18px;text-align:center;color:#f4efe4}
-    .gold-card{position:relative;border-radius:14px;padding:22px 20px;background:linear-gradient(180deg,#0e0e10,#0b0b0c);border:1px solid rgba(168,121,31,.34)}
+    .gold-card{position:relative;border-radius:14px;padding:22px 20px;background:linear-gradient(180deg,#0e0e10,#0b0b0c);border:1px solid rgba(168,121,31,.55)}
     .gold-card::before{content:"";position:absolute;top:0;left:14%;right:14%;height:1px;background:linear-gradient(90deg,transparent,#a8791f,transparent);opacity:.8}
     .gold-label{font-size:10px;font-weight:600;letter-spacing:.22em;color:#9c8f7b;text-align:center;text-transform:uppercase;margin:0 0 8px}
     .gold-balance{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;text-align:center;margin:0 0 18px;letter-spacing:.01em;
@@ -36,9 +36,11 @@
     .gold-chip-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;border-radius:7px;border:1px solid rgba(168,121,31,.4);background:rgba(168,121,31,.08);color:#c9a04a;font-weight:700;font-size:11px;letter-spacing:.04em;padding:7px 12px;text-decoration:none;cursor:pointer;transition:background .15s,border-color .15s}
     .gold-chip-btn:hover{background:rgba(168,121,31,.16);border-color:rgba(168,121,31,.6)}
 
-    /* Gold hairline border for cards/panels, in place of the plain
-       near-black border those used before. */
-    .gold-panel{background:#0a0e16;border:1px solid rgba(168,121,31,.22);border-radius:.75rem}
+    /* Gold border for cards/panels, in place of the plain near-black
+       border those used before. Same near-black gradient gold-card uses —
+       #0a0e16 (the pre-redesign panel color) reads as dark navy blue next
+       to true black elsewhere on the page. */
+    .gold-panel{background:linear-gradient(180deg,#0e0e10,#0b0b0c);border:1px solid rgba(168,121,31,.5);border-radius:.75rem}
 
     .gold-section-title{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#9c8f7b;margin:0 0 10px;padding:0 2px}
     .gold-tabs{display:flex;gap:18px;padding:0 4px 10px;margin-bottom:2px;border-bottom:1px solid rgba(255,255,255,.06);overflow-x:auto}
