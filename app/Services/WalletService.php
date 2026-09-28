@@ -178,7 +178,7 @@ class WalletService
                 throw new \RuntimeException(__('Wallet is locked and cannot process withdrawals.'));
             }
             if ($locked->commission_balance < $amount) {
-                throw new \RuntimeException(__('Insufficient commission balance. Available: :available.', ['available' => '$'.number_format($locked->commission_balance, 2)]));
+                throw new \RuntimeException(__('Insufficient commission balance. Available: :available.', ['available' => '₱'.number_format($locked->commission_balance, 2)]));
             }
 
             $locked->decrement('commission_balance', $amount);

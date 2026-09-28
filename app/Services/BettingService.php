@@ -65,8 +65,8 @@ class BettingService
                 $remaining = (float) $game->max_draw_bet - (float) $existingDraw;
                 if ($amount > $remaining) {
                     throw new \InvalidArgumentException($remaining > 0
-                        ? __(':remaining remaining in the draw pool (limit :limit).', ['remaining' => '$'.number_format($remaining, 2), 'limit' => '$'.number_format((float) $game->max_draw_bet, 0)])
-                        : __('The draw pool limit of :limit has been reached.', ['limit' => '$'.number_format((float) $game->max_draw_bet, 0)]));
+                        ? __(':remaining remaining in the draw pool (limit :limit).', ['remaining' => '₱'.number_format($remaining, 2), 'limit' => '₱'.number_format((float) $game->max_draw_bet, 0)])
+                        : __('The draw pool limit of :limit has been reached.', ['limit' => '₱'.number_format((float) $game->max_draw_bet, 0)]));
                 }
             }
 
@@ -144,8 +144,8 @@ class BettingService
                 $remaining = (float) $game->max_draw_bet - (float) $existingDraw;
                 if ($amount > $remaining) {
                     throw new \InvalidArgumentException($remaining > 0
-                        ? __(':remaining remaining in the draw pool (limit :limit).', ['remaining' => '$'.number_format($remaining, 2), 'limit' => '$'.number_format((float) $game->max_draw_bet, 0)])
-                        : __('The draw pool limit of :limit has been reached.', ['limit' => '$'.number_format((float) $game->max_draw_bet, 0)]));
+                        ? __(':remaining remaining in the draw pool (limit :limit).', ['remaining' => '₱'.number_format($remaining, 2), 'limit' => '₱'.number_format((float) $game->max_draw_bet, 0)])
+                        : __('The draw pool limit of :limit has been reached.', ['limit' => '₱'.number_format((float) $game->max_draw_bet, 0)]));
                 }
             }
 

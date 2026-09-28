@@ -58,8 +58,8 @@
                                  for the same row, two currency figures don't fit next to them on a
                                  phone — and the agent dashboard shows both balances prominently on
                                  the page itself, so nothing is lost by hiding them here. --}}
-                            <span class="hidden sm:inline text-emerald-400 font-semibold text-sm whitespace-nowrap" title="{{ __('Main balance') }}">{{ $currencySymbol ?? '$' }}<span data-wallet-balance="main">{{ number_format(auth()->user()->wallet->main_balance ?? 0, 2) }}</span></span>
-                            <span class="hidden sm:inline text-amber-400 font-semibold text-sm whitespace-nowrap" title="{{ __('Commission balance') }}">💰{{ $currencySymbol ?? '$' }}<span data-wallet-balance="commission">{{ number_format(auth()->user()->wallet->commission_balance ?? 0, 2) }}</span></span>
+                            <span class="hidden sm:inline text-emerald-400 font-semibold text-sm whitespace-nowrap" title="{{ __('Main balance') }}">{{ $currencySymbol ?? '₱' }}<span data-wallet-balance="main">{{ number_format(auth()->user()->wallet->main_balance ?? 0, 2) }}</span></span>
+                            <span class="hidden sm:inline text-amber-400 font-semibold text-sm whitespace-nowrap" title="{{ __('Commission balance') }}">💰{{ $currencySymbol ?? '₱' }}<span data-wallet-balance="commission">{{ number_format(auth()->user()->wallet->commission_balance ?? 0, 2) }}</span></span>
                         @endrole
 
                         <div id="user-menu" class="relative shrink-0">

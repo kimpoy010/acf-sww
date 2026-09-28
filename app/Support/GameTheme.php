@@ -77,12 +77,13 @@ class GameTheme
     }
 
     /**
-     * Mexico prices in pesos, so a bare "$" is ambiguous with USD — every
-     * other region keeps the plain "$" it already used.
+     * Mexico prices in pesos too, but "Mex$" stays distinct from the
+     * Philippine peso sign every other region uses, to keep the two
+     * currencies visually distinguishable.
      */
     public static function currencySymbol(?string $region): string
     {
-        return $region === 'mexico' ? 'Mex$' : '$';
+        return $region === 'mexico' ? 'Mex$' : '₱';
     }
 
     /**

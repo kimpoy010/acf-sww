@@ -101,7 +101,7 @@ class Bet extends Model
     {
         return match (true) {
             $this->status === 'matched' => ['label' => __('Pending'), 'class' => 'text-amber-400'],
-            $this->status === 'settled' && (float) $this->payout > 0 => ['label' => __('Won :amount', ['amount' => '$'.number_format((float) $this->payout, 2)]), 'class' => 'text-emerald-400'],
+            $this->status === 'settled' && (float) $this->payout > 0 => ['label' => __('Won :amount', ['amount' => '₱'.number_format((float) $this->payout, 2)]), 'class' => 'text-emerald-400'],
             $this->status === 'settled' => ['label' => __('Lost'), 'class' => 'text-red-400'],
             $this->status === 'voided' => ['label' => __('Voided'), 'class' => 'text-slate-500'],
             $this->status === 'refunded' => ['label' => __('Refunded'), 'class' => 'text-slate-500'],

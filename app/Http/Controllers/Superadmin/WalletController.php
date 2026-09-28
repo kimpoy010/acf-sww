@@ -138,7 +138,7 @@ class WalletController extends Controller
             'Manual top-up by superadmin'
         );
 
-        return back()->with('success', __('Credited :amount to :name.', ['amount' => '$'.$data['amount'], 'name' => $user->displayName()]));
+        return back()->with('success', __('Credited :amount to :name.', ['amount' => '₱'.$data['amount'], 'name' => $user->displayName()]));
     }
 
     public function debit(Request $request, User $user): RedirectResponse
@@ -157,6 +157,6 @@ class WalletController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
-        return back()->with('success', __('Debited :amount from :name.', ['amount' => '$'.$data['amount'], 'name' => $user->displayName()]));
+        return back()->with('success', __('Debited :amount from :name.', ['amount' => '₱'.$data['amount'], 'name' => $user->displayName()]));
     }
 }

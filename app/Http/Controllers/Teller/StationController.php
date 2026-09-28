@@ -54,7 +54,7 @@ class StationController extends Controller
         }
 
         return redirect()->route('teller.station.show', $rfidTerminal)
-            ->with('success', __(':amount deposited for :name.', ['amount' => '$'.number_format($data['amount'], 2), 'name' => $player->displayName()]));
+            ->with('success', __(':amount deposited for :name.', ['amount' => '₱'.number_format($data['amount'], 2), 'name' => $player->displayName()]));
     }
 
     public function withdraw(RfidTerminal $rfidTerminal, User $player): RedirectResponse
@@ -71,7 +71,7 @@ class StationController extends Controller
         }
 
         return redirect()->route('teller.station.show', $rfidTerminal)
-            ->with('success', __(':amount withdrawn for :name.', ['amount' => '$'.number_format((float) $transaction->amount, 2), 'name' => $player->displayName()]));
+            ->with('success', __(':amount withdrawn for :name.', ['amount' => '₱'.number_format((float) $transaction->amount, 2), 'name' => $player->displayName()]));
     }
 
     private function requireOpenShift(): TellerShift|RedirectResponse

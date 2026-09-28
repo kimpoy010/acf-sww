@@ -79,7 +79,7 @@ class PoolDrawBetLimitTest extends TestCase
         $this->service->placeBet($this->bettor(), $this->fight, 'draw', 100);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('The draw pool limit of $100 has been reached.');
+        $this->expectExceptionMessage('The draw pool limit of ₱100 has been reached.');
 
         $this->service->placeBet($this->bettor(), $this->fight, 'draw', 1);
     }

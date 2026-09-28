@@ -63,7 +63,7 @@ class PoolBetLimitCurrencyTest extends TestCase
         $response->assertJsonFragment(['message' => 'La apuesta supera el límite máximo de Mex$500.']);
     }
 
-    public function test_philippines_region_bet_limit_message_keeps_plain_dollar_sign(): void
+    public function test_philippines_region_bet_limit_message_shows_the_peso_sign(): void
     {
         $fight = $this->fightWithBetLimit('philippines', 500);
         $bettor = User::factory()->create();
@@ -76,6 +76,6 @@ class PoolBetLimitCurrencyTest extends TestCase
         ]);
 
         $response->assertStatus(422);
-        $response->assertJsonFragment(['message' => 'Bet exceeds the maximum limit of $500.']);
+        $response->assertJsonFragment(['message' => 'Bet exceeds the maximum limit of ₱500.']);
     }
 }

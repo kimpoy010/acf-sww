@@ -87,7 +87,7 @@ class SuperadminTellerCashFlowReportTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('teller_juan');
-        $response->assertSee('$150.00', false); // 100 + 50 collected
+        $response->assertSee('₱150.00', false); // 100 + 50 collected
     }
 
     public function test_a_voided_ticket_is_counted_but_never_added_to_stakes_collected(): void
@@ -108,7 +108,7 @@ class SuperadminTellerCashFlowReportTest extends TestCase
         $response->assertOk();
         // The only ticket this teller wrote was voided — no stakes ever
         // counted as collected, but it still shows in the voided column.
-        $response->assertDontSee('$100.00', false);
+        $response->assertDontSee('₱100.00', false);
         $response->assertSee('teller_juan');
     }
 

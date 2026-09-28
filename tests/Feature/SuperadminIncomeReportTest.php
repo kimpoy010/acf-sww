@@ -104,9 +104,9 @@ class SuperadminIncomeReportTest extends TestCase
         $response = $this->actingAs($admin)->get(route('superadmin.reports.income'));
 
         $response->assertOk();
-        $response->assertSee('$106.00', false);
-        $response->assertSee('$105.00', false);
-        $response->assertSee('$1.00', false);
+        $response->assertSee('₱106.00', false);
+        $response->assertSee('₱105.00', false);
+        $response->assertSee('₱1.00', false);
     }
 
     public function test_a_cancelled_fully_refunded_fight_shows_zero_net_income(): void
@@ -128,10 +128,10 @@ class SuperadminIncomeReportTest extends TestCase
         $response = $this->actingAs($admin)->get(route('superadmin.reports.income'));
 
         $response->assertOk();
-        $response->assertSee('$105.00', false); // staked
+        $response->assertSee('₱105.00', false); // staked
         // Fully refunded: paid out equals staked, net income 0.00 appears twice
         // (per-row and in the summary tile).
-        $this->assertSame(2, substr_count($response->getContent(), '$0.00'));
+        $this->assertSame(2, substr_count($response->getContent(), '₱0.00'));
     }
 
     public function test_event_filter_narrows_the_report(): void
@@ -152,7 +152,7 @@ class SuperadminIncomeReportTest extends TestCase
         $response = $this->actingAs($admin)->get(route('superadmin.reports.income', ['event_id' => $fightA->event_id]));
 
         $response->assertOk();
-        $response->assertDontSee('$999.00', false);
+        $response->assertDontSee('₱999.00', false);
     }
 
     public function test_non_superadmin_cannot_export_the_income_report(): void

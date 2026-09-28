@@ -134,7 +134,7 @@ class RfidScanService
 
         $this->kioskService->clear($terminal, 'bet');
 
-        return $this->succeed($terminal, __(':amount on :side for :name.', ['amount' => '$'.number_format($amount, 2), 'side' => strtoupper($side), 'name' => $player->displayName()]), [
+        return $this->succeed($terminal, __(':amount on :side for :name.', ['amount' => '₱'.number_format($amount, 2), 'side' => strtoupper($side), 'name' => $player->displayName()]), [
             'player' => $player->displayName(),
             'side' => $bet->side,
             'amount' => (float) $bet->amount,
@@ -158,7 +158,7 @@ class RfidScanService
 
         $this->kioskService->clear($terminal, 'topup');
 
-        return $this->succeed($terminal, __('Top-up request for :amount submitted for :name — show this screen to a teller to complete it.', ['amount' => '$'.number_format($amount, 2), 'name' => $player->displayName()]), [
+        return $this->succeed($terminal, __('Top-up request for :amount submitted for :name — show this screen to a teller to complete it.', ['amount' => '₱'.number_format($amount, 2), 'name' => $player->displayName()]), [
             'player' => $player->displayName(),
             'amount' => (float) $transaction->amount,
             'code' => $transaction->code,

@@ -105,7 +105,7 @@ class SuperadminAccountingReportTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Grand Derby');
-        $response->assertSee('$300.00', false); // 200 + 100 staked across both fights
+        $response->assertSee('₱300.00', false); // 200 + 100 staked across both fights
         $response->assertSee('4', false); // 4 bets total (bet_count column)
     }
 
@@ -128,8 +128,8 @@ class SuperadminAccountingReportTest extends TestCase
         $response->assertOk();
         $response->assertSee($meronBettor->displayName());
         $response->assertSee($walaBettor->displayName());
-        $response->assertSee('$100.00', false);
-        $response->assertSee('$6.00', false);
+        $response->assertSee('₱100.00', false);
+        $response->assertSee('₱6.00', false);
     }
 
     public function test_a_counter_bet_ticket_shows_its_code_and_teller_in_the_ledger(): void

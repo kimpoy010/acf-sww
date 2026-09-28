@@ -264,7 +264,7 @@ class TicketController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => __('Ticket voided — return :amount in cash to the bettor.', ['amount' => '$'.number_format((float) $bet->amount, 2)]),
+            'message' => __('Ticket voided — return :amount in cash to the bettor.', ['amount' => '₱'.number_format((float) $bet->amount, 2)]),
         ]);
     }
 

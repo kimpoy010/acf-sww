@@ -44,6 +44,6 @@ class DashboardController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
-        return back()->with('success', __('Transferred :amount to your main balance.', ['amount' => '$'.number_format($amount, 2)]));
+        return back()->with('success', __('Transferred :amount to your main balance.', ['amount' => '₱'.number_format($amount, 2)]));
     }
 }
