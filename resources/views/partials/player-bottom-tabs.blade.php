@@ -23,7 +23,7 @@
     ];
 @endphp
 <style>
-    .player-nav-gold{position:relative;overflow:hidden;background:linear-gradient(180deg,#f2d68e,#c9a04a 45%,#8a611a 100%);box-shadow:0 -8px 20px -10px rgba(0,0,0,.5);border-top:3px solid transparent;border-image:linear-gradient(90deg,#7a591c,#f0cf7e 25%,#fdf0c8 50%,#e8c15f 75%,#a8791f 100%) 1}
+    .player-nav-gold{overflow:hidden;background:linear-gradient(180deg,#f2d68e,#c9a04a 45%,#8a611a 100%);box-shadow:0 -8px 20px -10px rgba(0,0,0,.5);border-top:3px solid transparent;border-image:linear-gradient(90deg,#7a591c,#f0cf7e 25%,#fdf0c8 50%,#e8c15f 75%,#a8791f 100%) 1}
     .player-nav-gold::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.5) 48%,rgba(255,255,255,.05) 58%,transparent 74%);pointer-events:none;z-index:0}
     .player-nav-gold .player-nav-corner{position:absolute;top:2px;width:5px;height:5px;background:#fff3d6;box-shadow:0 0 4px 1px rgba(255,243,214,.9);z-index:2}
     .player-nav-gold .player-nav-corner.l{left:8px}
