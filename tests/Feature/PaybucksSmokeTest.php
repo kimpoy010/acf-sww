@@ -135,7 +135,7 @@ class PaybucksSmokeTest extends TestCase
         $player->assignRole('player');
         $player->wallet()->create(['main_balance' => 1000]);
 
-        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash']);
+        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 500]);
 
         $resp->assertRedirect(route('play.payment-methods.index'));
         $this->assertDatabaseCount('cash_transactions', 0);
@@ -171,13 +171,39 @@ class PaybucksSmokeTest extends TestCase
         $save->assertRedirect(route('play.payment-methods.index'));
         $this->assertEquals('09171234567', $player->fresh()->gcash_account_number);
 
-        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash']);
+        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 400]);
         $resp->assertRedirect();
 
         $tx = \App\Models\CashTransaction::where('user_id', $player->id)->latest()->first();
         $this->assertNotNull($tx);
         $this->assertEquals('09171234567', $tx->account_number);
         $this->assertEquals('pending', $tx->status);
+        $this->assertEquals(400, (float) $tx->amount);
+
+        // The rest of the balance stays available, not reserved — a
+        // partial withdrawal only holds back what was actually asked for.
+        $this->assertEquals(600, $player->wallet->fresh()->availableBalance());
+    }
+
+    public function test_a_withdrawal_amount_over_the_available_balance_is_rejected(): void
+    {
+        Role::firstOrCreate(['name' => 'player']);
+        config(['services.paybucks.api_key' => 'test-key']);
+
+        $player = User::factory()->create();
+        $player->assignRole('player');
+        $player->wallet()->create(['main_balance' => 100]);
+
+        $this->actingAs($player)->post(route('play.payment-methods.update'), [
+            'channel' => 'gcash',
+            'account_number' => '09171234567',
+        ]);
+
+        $resp = $this->actingAs($player)->post(route('play.cash.withdraw'), ['channel' => 'gcash', 'amount' => 500]);
+
+        $resp->assertRedirect(route('play.cash.index'));
+        $this->assertDatabaseCount('cash_transactions', 0);
+        $this->assertEquals(100, $player->wallet->fresh()->main_balance);
     }
 
     /**

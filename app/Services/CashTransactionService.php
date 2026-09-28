@@ -183,13 +183,13 @@ class CashTransactionService
     }
 
     /**
-     * Start a GCash/Maya withdrawal via Paybucks, for the player's full
-     * available balance — same "no partial withdrawal" shape as the
-     * teller flow's createWithdrawal(). The reservation happens up front
-     * (same as the teller flow); main_balance itself is only debited once
-     * reconcilePaybucksOrder() confirms Paybucks actually paid it out.
+     * Start a GCash/Maya withdrawal via Paybucks, for whatever amount the
+     * player asks for (up to their full available balance) — the
+     * reservation happens up front; main_balance itself is only debited
+     * once reconcilePaybucksOrder() confirms Paybucks actually paid it
+     * out.
      */
-    public function createPaybucksWithdrawal(User $player, string $channel, string $accountNumber, ?string $accountName): CashTransaction
+    public function createPaybucksWithdrawal(User $player, string $channel, float $amount, string $accountNumber, ?string $accountName): CashTransaction
     {
         if (! in_array($channel, PaybucksChannel::CHANNELS, true)) {
             throw new \InvalidArgumentException(__('Unsupported payment channel.'));
@@ -206,10 +206,13 @@ class CashTransactionService
         $this->assertNoPendingRequest($player);
 
         $wallet = $player->wallet;
-        $amount = $wallet->availableBalance();
 
         if ($amount <= 0) {
-            throw new \InvalidArgumentException(__('No available balance to withdraw.'));
+            throw new \InvalidArgumentException(__('Withdrawal amount must be positive.'));
+        }
+
+        if ($amount > $wallet->availableBalance()) {
+            throw new \InvalidArgumentException(__('That exceeds your available balance of :amount.', ['amount' => number_format($wallet->availableBalance(), 2)]));
         }
 
         $transaction = DB::transaction(function () use ($player, $wallet, $amount, $channel, $accountNumber, $accountName) {

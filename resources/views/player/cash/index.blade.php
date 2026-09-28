@@ -75,9 +75,19 @@
 
         <div id="cash-out" class="rounded-xl bg-[#0a0e16] border border-[#141a2a] p-4">
             <h2 class="font-semibold mb-3">{{ __('Cash out (withdraw)') }}</h2>
-            <p class="text-sm text-[#8a7a70] mb-3">{{ __('Withdraws your full available balance: :amount', ['amount' => $currencySymbol.number_format($wallet->availableBalance() ?? 0, 2)]) }}</p>
+            <p class="text-sm text-[#8a7a70] mb-3">{{ __('Available balance: :amount', ['amount' => $currencySymbol.number_format($wallet->availableBalance() ?? 0, 2)]) }}</p>
             <form method="POST" action="{{ route($routePrefix.'withdraw') }}" class="space-y-3">
                 @csrf
+                <div>
+                    <label class="block text-sm text-[#8a7a70] mb-1">{{ __('Amount') }}</label>
+                    <div class="flex gap-2">
+                        <input type="text" inputmode="decimal" name="amount" id="withdraw-amount-input" required
+                               value="{{ old('amount') }}" placeholder="{{ __('e.g. :amount', ['amount' => '500']) }}"
+                               class="amount-input w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <button type="button" id="withdraw-max-btn" data-max="{{ $wallet->availableBalance() ?? 0 }}"
+                                class="shrink-0 rounded-lg bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.1] transition text-sm font-semibold px-3">{{ __('Max') }}</button>
+                    </div>
+                </div>
                 <div>
                     <label class="block text-sm text-[#8a7a70] mb-1">{{ __('Channel') }}</label>
                     <div class="grid grid-cols-2 gap-2">
@@ -222,6 +232,16 @@
         });
         const checkedWithdraw = document.querySelector('.withdraw-channel-input:checked');
         if (checkedWithdraw) showWithdrawDestination(checkedWithdraw.value);
+
+        // "Max" fills in the full available balance rather than requiring
+        // the player to type/copy it themselves.
+        const maxBtn = document.getElementById('withdraw-max-btn');
+        const amountInput = document.getElementById('withdraw-amount-input');
+        if (maxBtn && amountInput) {
+            maxBtn.addEventListener('click', () => {
+                amountInput.value = Number(maxBtn.dataset.max).toFixed(2);
+            });
+        }
     })();
 
     (function () {

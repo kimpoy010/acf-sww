@@ -80,6 +80,7 @@ class CashController extends Controller
     {
         $data = $request->validate([
             'channel' => ['required', Rule::in(PaybucksChannel::CHANNELS)],
+            'amount' => 'required|numeric|min:20',
         ]);
 
         $player = auth()->user();
@@ -96,6 +97,7 @@ class CashController extends Controller
             $transaction = $this->cashService->createPaybucksWithdrawal(
                 $player,
                 $data['channel'],
+                (float) $data['amount'],
                 $player->savedAccountNumber($data['channel']),
                 $player->savedAccountName($data['channel']),
             );
