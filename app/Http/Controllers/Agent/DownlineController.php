@@ -32,6 +32,41 @@ class DownlineController extends Controller
     ];
 
     /**
+     * The full (paginated) downline player list — what the dashboard's
+     * "View All" link goes to, since the dashboard card itself only ever
+     * shows the top 10 by balance. Same balance-descending order here,
+     * just not capped at 10.
+     */
+    public function players(): View
+    {
+        $downlinePlayers = auth()->user()->downline()->role('player')
+            ->join('wallets', 'wallets.user_id', '=', 'users.id')
+            ->with('wallet')
+            ->orderByDesc('wallets.main_balance')
+            ->select('users.*')
+            ->paginate(25);
+
+        return view('agent.downline.players', compact('downlinePlayers'));
+    }
+
+    /**
+     * The full (paginated) downline sub-agent list — same relationship to
+     * the dashboard's top-10 card as players() above.
+     */
+    public function agents(): View
+    {
+        $downlineAgents = auth()->user()->downline()->role('agent')
+            ->join('wallets', 'wallets.user_id', '=', 'users.id')
+            ->select('users.*')
+            ->with('wallet')
+            ->withCount('downline')
+            ->orderByDesc('wallets.main_balance')
+            ->paginate(25);
+
+        return view('agent.downline.agents', compact('downlineAgents'));
+    }
+
+    /**
      * A downline account's wallet ledger, viewed by the recruiting agent —
      * scoped to their own direct downline only (one level deep, same as
      * the dashboard's own downline lists), never a sub-agent's downline.

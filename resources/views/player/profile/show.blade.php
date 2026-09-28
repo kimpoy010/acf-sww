@@ -35,7 +35,12 @@
 
     <div class="gold-panel p-4 mb-6">
         <div class="flex items-center justify-between mb-1">
-            <h2 class="font-semibold">{{ __('VIP Status') }}</h2>
+            <div class="flex items-center gap-1.5">
+                <h2 class="font-semibold">{{ __('VIP Status') }}</h2>
+                <button type="button" id="vip-info-open" aria-label="{{ __('About VIP levels') }}"
+                        class="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold leading-none shrink-0"
+                        style="border:1px solid #9c8f7b;color:#9c8f7b">!</button>
+            </div>
             <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:linear-gradient(180deg,#f2d68e,#c9a04a 45%,#8a611a 100%);color:#241600">
                 {{ $vipTier?->name ?? __('Not yet VIP') }}
             </span>
@@ -62,6 +67,34 @@
         @else
             <p class="text-xs text-[#9c8f7b]">{{ __('You\'ve reached the highest VIP tier.') }}</p>
         @endif
+    </div>
+
+    <div id="vip-info-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+        <div class="w-full sm:max-w-sm bg-[#0b0b0d] border rounded-t-2xl sm:rounded-2xl p-5 pb-6 max-h-[80vh] overflow-y-auto scroll-thin" style="border-color:rgba(168,121,31,.5)">
+            <div class="flex items-center justify-between mb-4">
+                <p class="font-semibold" style="color:#f4efe4">{{ __('VIP Levels') }}</p>
+                <button type="button" id="vip-info-close" class="text-[#8a7a70] hover:text-white transition text-xl leading-none">&times;</button>
+            </div>
+            <p class="text-xs text-[#9c8f7b] mb-4">{{ __('Your VIP tier is based on your lifetime valid (matched) bets, and never resets. Each tier automatically credits its rebate percentage back to your wallet on every settled bet.') }}</p>
+            <div class="space-y-2 text-sm">
+                @foreach ($allVipTiers as $tier)
+                    <div class="flex items-center justify-between rounded-lg px-3 py-2" style="background:#05070b;border:1px solid #141a2a">
+                        <div>
+                            <p class="font-semibold" style="color:#f4efe4">{{ $tier->name }}</p>
+                            <p class="text-xs text-[#9c8f7b]">
+                                {{ $currencySymbol }}{{ number_format($tier->min_valid_bets, 0) }}
+                                @if ($tier->max_valid_bets)
+                                    – {{ __('below') }} {{ $currencySymbol }}{{ number_format((float) $tier->max_valid_bets + 0.01, 0) }}
+                                @else
+                                    +
+                                @endif
+                            </p>
+                        </div>
+                        <span class="text-sm font-bold" style="color:#c9a04a">{{ rtrim(rtrim(number_format($tier->rebate_percent, 2), '0'), '.') }}%</span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
     </div>
 
     <a href="{{ route('account.password.edit') }}" class="gold-btn-frame gold-btn-secondary mb-6">
@@ -113,4 +146,27 @@
         </button>
     </form>
 </div>
+
+@push('scripts')
+<script>
+    (function () {
+        const modal = document.getElementById('vip-info-modal');
+        const openBtn = document.getElementById('vip-info-open');
+        const closeBtn = document.getElementById('vip-info-close');
+        if (!modal || !openBtn) return;
+
+        const open = () => modal.classList.remove('hidden');
+        const close = () => modal.classList.add('hidden');
+
+        openBtn.addEventListener('click', open);
+        closeBtn.addEventListener('click', close);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) close();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') close();
+        });
+    })();
+</script>
+@endpush
 @endsection

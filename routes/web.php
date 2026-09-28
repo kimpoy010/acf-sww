@@ -163,6 +163,8 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
     Route::get('/', [AgentDashboardController::class, 'index'])->name('dashboard');
     Route::post('/transfer', [AgentDashboardController::class, 'transfer'])->name('transfer');
 
+    Route::get('/downline/players', [AgentDownlineController::class, 'players'])->name('downline.players');
+    Route::get('/downline/agents', [AgentDownlineController::class, 'agents'])->name('downline.agents');
     Route::get('/downline/{user}/transactions', [AgentDownlineController::class, 'transactions'])->name('downline.transactions');
 
     // Same GCash/Maya deposit & withdrawal flow as play.cash.* — see

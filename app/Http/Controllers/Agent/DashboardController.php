@@ -14,8 +14,28 @@ class DashboardController extends Controller
     {
         $agent = auth()->user();
 
-        $downlineAgents = $agent->downline()->role('agent')->with('wallet')->withCount('downline')->get();
-        $downlinePlayers = $agent->downline()->role('player')->with('wallet')->orderBy('name')->paginate(15, ['*'], 'players_page');
+        // Top 10 by wallet balance, highest first — the dashboard is a
+        // glanceable summary, not the full roster (see DownlineController's
+        // players()/agents() for the full, paginated "View All" lists,
+        // same balance-descending order just not capped at 10).
+        $downlineAgentsCount = $agent->downline()->role('agent')->count();
+        $downlineAgents = $agent->downline()->role('agent')
+            ->join('wallets', 'wallets.user_id', '=', 'users.id')
+            ->select('users.*')
+            ->with('wallet')
+            ->withCount('downline')
+            ->orderByDesc('wallets.main_balance')
+            ->limit(10)
+            ->get();
+
+        $downlinePlayersCount = $agent->downline()->role('player')->count();
+        $downlinePlayers = $agent->downline()->role('player')
+            ->join('wallets', 'wallets.user_id', '=', 'users.id')
+            ->select('users.*')
+            ->with('wallet')
+            ->orderByDesc('wallets.main_balance')
+            ->limit(10)
+            ->get();
 
         $logs = CommissionLog::where('agent_id', $agent->id)
             ->with('player:id,name,username')
@@ -32,7 +52,8 @@ class DashboardController extends Controller
         $referralUrl = $agent->referral_code ? route('register', ['ref' => $agent->referral_code]) : null;
 
         return view('agent.dashboard', compact(
-            'agent', 'downlineAgents', 'downlinePlayers', 'logs', 'totalEarned', 'thisMonth', 'referralUrl'
+            'agent', 'downlineAgents', 'downlineAgentsCount', 'downlinePlayers', 'downlinePlayersCount',
+            'logs', 'totalEarned', 'thisMonth', 'referralUrl'
         ));
     }
 
