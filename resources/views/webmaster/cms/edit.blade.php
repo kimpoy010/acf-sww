@@ -39,7 +39,7 @@
         @endif
         <input type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml"
                class="w-full text-sm text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-slate-200 hover:file:bg-slate-700">
-        <p class="text-sm text-slate-400 mt-2">{{ __('Used as the favicon and next to the site name in the top navigation. PNG/JPG/WEBP/SVG, up to 2 MB.') }}</p>
+        <p class="text-sm text-slate-400 mt-2">{{ __('Used as the favicon and next to the site name in the top navigation. PNG/JPG/WEBP/SVG, up to 10 MB.') }}</p>
         @error('logo')
             <p class="text-sm text-red-400 mt-1">{{ $message }}</p>
         @enderror
