@@ -44,11 +44,40 @@
                         </td>
                     @endforeach
                     <td class="px-3 py-2.5 text-right whitespace-nowrap">
-                        <button form="role-form-{{ $role->id }}" class="rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-3 py-1.5 text-xs">{{ __('Save') }}</button>
+                        <button form="role-form-{{ $role->id }}" data-role-name="{{ $role->name }}" data-original-permissions="{{ implode(',', $rolePermissions) }}" class="save-role-btn rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-3 py-1.5 text-xs">{{ __('Save') }}</button>
                     </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 </div>
+
+<script>
+    // Confirm before a save actually removes access — the checkboxes are
+    // the whole UI here, so an accidental uncheck-and-save (or a save with
+    // literally nothing checked) would otherwise silently strip a role's
+    // access with no undo. This only interrupts a save that would remove
+    // something already granted; adding permissions never prompts.
+    document.querySelectorAll('.save-role-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            const form = document.getElementById(btn.getAttribute('form'));
+            if (!form) return;
+
+            const roleName = btn.dataset.roleName;
+            const before = new Set(btn.dataset.originalPermissions ? btn.dataset.originalPermissions.split(',') : []);
+            const after = new Set(Array.from(form.querySelectorAll('input[name="permissions[]"]:checked')).map((cb) => cb.value));
+            const removed = Array.from(before).filter((name) => !after.has(name));
+
+            if (removed.length === 0) return;
+
+            const message = after.size === 0
+                ? @json(__('This removes ALL admin access from ":role" — nobody with that role will be able to reach any admin section afterward. Continue?'))
+                : @json(__('This removes ":permissions" access from ":role". Continue?')).replace(':permissions', removed.join(', '));
+
+            if (!confirm(message.replace(':role', roleName))) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
 @endsection

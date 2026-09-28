@@ -119,4 +119,18 @@ class RbacTest extends TestCase
 
         $this->assertNull($service->findApprover('4321'));
     }
+
+    public function test_webmaster_restore_access_command_recovers_from_a_full_permission_wipe(): void
+    {
+        $this->admin('webmaster');
+        $webmasterRole = Role::findByName('webmaster');
+        $webmasterRole->syncPermissions([]);
+        $this->assertCount(0, $webmasterRole->fresh()->permissions);
+
+        $this->artisan('webmaster:restore-access')->assertSuccessful();
+
+        $restored = $webmasterRole->fresh()->permissions->pluck('name')->sort()->values()->all();
+        $expected = collect(\App\Http\Controllers\Superadmin\RoleController::permissionNames())->sort()->values()->all();
+        $this->assertEquals($expected, $restored);
+    }
 }
