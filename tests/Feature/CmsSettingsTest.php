@@ -80,6 +80,52 @@ class CmsSettingsTest extends TestCase
         $this->assertNotNull(Setting::get('site_background_url'));
     }
 
+    public function test_the_success_message_is_shown_after_saving(): void
+    {
+        Storage::fake('public');
+        $webmaster = $this->user('webmaster');
+
+        $resp = $this->actingAs($webmaster)->from(route('webmaster.cms.edit'))->followingRedirects()->put(route('webmaster.cms.update'), [
+            'site_name' => 'My Sabong',
+        ]);
+
+        $resp->assertOk();
+        $resp->assertSee('Site branding updated.');
+    }
+
+    /**
+     * The edit page previously rendered no feedback at all on a failed
+     * submission — a rejected upload (wrong mime, over the size limit,
+     * etc.) looked exactly like nothing happened, page just reloaded.
+     */
+    public function test_a_rejected_upload_shows_a_validation_error_on_the_page(): void
+    {
+        Storage::fake('public');
+        $webmaster = $this->user('webmaster');
+
+        // A validation failure redirects via back() (thrown automatically
+        // by $request->validate(), not the controller's own redirect()->
+        // route() calls, which only run on the success path) — that falls
+        // back to the app root without a Referer header, so this needs one
+        // set explicitly or followingRedirects() bounces through an extra
+        // hop and ages the flashed errors out of session before landing.
+        $resp = $this->actingAs($webmaster)->from(route('webmaster.cms.edit'))->followingRedirects()->put(route('webmaster.cms.update'), [
+            'site_name' => 'My Sabong',
+            'background' => UploadedFile::fake()->create('background.pdf', 100, 'application/pdf'),
+        ]);
+
+        // Flash data is consumed by the followed GET's own render, so it's
+        // gone from session by the time we get $resp back — assert on the
+        // rendered page itself instead, which is what actually matters
+        // here (and what the user sees).
+        $resp->assertOk();
+        // @error only ever renders the field's first message (Blade's
+        // $message is $errors->first(), not the full list) — a .pdf fails
+        // the `image` rule before `mimes` ever gets a say.
+        $resp->assertSee('The background field must be an image.');
+        $this->assertNull(Setting::get('site_background_url'));
+    }
+
     public function test_removing_the_logo_clears_it_and_falls_back_to_the_default_mark(): void
     {
         Storage::fake('public');
