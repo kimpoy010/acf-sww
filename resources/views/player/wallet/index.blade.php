@@ -2,40 +2,17 @@
 
 @section('title', __('My Wallet'))
 
+@php
+    $PaybucksChannel = \App\Services\Paybucks\PaybucksChannel::class;
+    $routePrefix = 'play.cash.';
+    $topRoutePrefix = 'play.';
+    $withdrawalFee = \App\Services\CashTransactionService::withdrawalFee();
+    $player = auth()->user();
+    $pending = \App\Models\CashTransaction::where('user_id', $player->id)->where('status', 'pending')->first();
+@endphp
+
 @section('content')
-<style>
-    .gold-serif{font-family:'Cormorant Garamond',Georgia,serif}
-    .gold-ornament{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 6px}
-    .gold-ornament .line{height:1px;width:22px;background:linear-gradient(90deg,transparent,#a8791f)}
-    .gold-ornament .line.r{background:linear-gradient(90deg,#a8791f,transparent)}
-    .gold-ornament .diamond{width:5px;height:5px;background:#a8791f;transform:rotate(45deg)}
-    .gold-eyebrow{font-size:11px;font-weight:600;letter-spacing:.28em;color:#c9a04a;margin:0 0 2px;text-align:center;text-transform:uppercase}
-    .gold-h1{font-size:28px;font-weight:600;letter-spacing:.02em;margin:2px 0 18px;text-align:center;color:#f4efe4}
-    .gold-card{position:relative;border-radius:14px;padding:22px 20px;background:linear-gradient(180deg,#0e0e10,#0b0b0c);border:1px solid rgba(168,121,31,.34)}
-    .gold-card::before{content:"";position:absolute;top:0;left:14%;right:14%;height:1px;background:linear-gradient(90deg,transparent,#a8791f,transparent);opacity:.8}
-    .gold-label{font-size:10px;font-weight:600;letter-spacing:.22em;color:#9c8f7b;text-align:center;text-transform:uppercase;margin:0 0 8px}
-    .gold-balance{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;text-align:center;margin:0 0 18px;letter-spacing:.01em;
-        background:linear-gradient(180deg,#c9a04a,#a8791f 60%,#5e4517);-webkit-background-clip:text;background-clip:text;color:transparent}
-
-    .gold-btn-frame{position:relative;display:block;overflow:hidden;padding:2px;border-radius:9px;background:linear-gradient(155deg,#fdf0c8 0%,#e8c15f 22%,#a8791f 48%,#f0cf7e 68%,#7a591c 100%);box-shadow:0 6px 14px -8px rgba(0,0,0,.6);text-decoration:none}
-    .gold-btn-corner{position:absolute;width:4px;height:4px;background:#fff3d6;box-shadow:0 0 2px 0 rgba(255,243,214,.8)}
-    .gold-btn-corner.tl{top:1px;left:1px} .gold-btn-corner.tr{top:1px;right:1px}
-    .gold-btn-corner.bl{bottom:1px;left:1px} .gold-btn-corner.br{bottom:1px;right:1px}
-    .gold-btn-fill{position:relative;display:block;overflow:hidden;border-radius:7px;padding:12px 0;text-align:center;font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
-    .gold-btn-fill::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.32) 50%,rgba(255,255,255,.03) 60%,transparent 70%);pointer-events:none}
-    .gold-btn-primary .gold-btn-fill{background:linear-gradient(180deg,#f2d68e,#c9a04a 45%,#8a611a 100%);color:#241600;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -6px 10px -6px rgba(50,32,0,.55);text-shadow:0 1px 0 rgba(255,255,255,.3)}
-    .gold-btn-secondary .gold-btn-fill{background:linear-gradient(180deg,#332d24,#161310 55%,#0a0806);color:#c9a04a;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -5px 8px -6px rgba(0,0,0,.75)}
-
-    .gold-section-title{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#9c8f7b;margin:0 0 10px;padding:0 2px}
-    .gold-tabs{display:flex;gap:18px;padding:0 4px 10px;margin-bottom:2px;border-bottom:1px solid rgba(255,255,255,.06);overflow-x:auto}
-    .gold-tab{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6d6252;padding-bottom:9px;position:relative;white-space:nowrap;background:none;border:none;cursor:pointer}
-    .gold-tab.is-active{color:#c9a04a;font-weight:700}
-    .gold-tab.is-active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:1px;background:linear-gradient(90deg,#c9a04a,#a8791f);box-shadow:0 0 6px 0 rgba(168,121,31,.6)}
-
-    .gold-filter-input{background:#0b0b0c;border:1px solid rgba(168,121,31,.2);color:#f4efe4}
-    .gold-filter-input:focus{outline:none;border-color:rgba(168,121,31,.5);box-shadow:0 0 0 2px rgba(168,121,31,.25)}
-    .gold-filter-btn{background:linear-gradient(180deg,#c9a04a,#a8791f);color:#241600;border:none;border-radius:8px;font-weight:800;font-size:11px;letter-spacing:.06em;padding:7px 14px;text-transform:uppercase}
-</style>
+@include('player.partials.gold-theme-styles')
 
 <div class="gold-ornament"><span class="line"></span><span class="diamond"></span><span class="line r"></span></div>
 <p class="gold-eyebrow">{{ __('Pool Sabong') }}</p>
@@ -49,40 +26,40 @@
     @endif
 
     <div class="grid grid-cols-2 gap-2.5">
-        <a href="{{ route('play.cash.index') }}#cash-in" class="gold-btn-frame gold-btn-primary">
+        <button type="button" data-cash-tab="deposit" class="gold-btn-frame gold-btn-primary wallet-cash-tab-btn is-active">
             <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
             <span class="gold-btn-fill">{{ __('Deposit') }}</span>
-        </a>
-        <a href="{{ route('play.cash.index') }}#cash-out" class="gold-btn-frame gold-btn-secondary">
+        </button>
+        <button type="button" data-cash-tab="withdraw" class="gold-btn-frame gold-btn-secondary wallet-cash-tab-btn">
             <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>
             <span class="gold-btn-fill">{{ __('Withdraw') }}</span>
-        </a>
+        </button>
     </div>
+</div>
+
+<div class="mb-4">
+    @if ($pending)
+        @include('player.partials.cash-pending')
+    @else
+        <div id="wallet-cash-deposit" data-cash-panel="deposit">
+            @include('player.partials.deposit-form')
+        </div>
+        <div id="wallet-cash-withdraw" data-cash-panel="withdraw" class="hidden">
+            @include('player.partials.withdraw-form')
+        </div>
+    @endif
 </div>
 
 <div class="rounded-xl border border-[#141a2a] bg-[#0a0e16] p-4">
     <p class="gold-section-title">{{ __('Recent Activity') }}</p>
 
     <div class="gold-tabs" id="wallet-tabs">
-        <button type="button" class="wallet-tab gold-tab" data-tab="all">{{ __('All') }}</button>
         <button type="button" class="wallet-tab gold-tab" data-tab="bets">{{ __('Bets') }}</button>
         <button type="button" class="wallet-tab gold-tab" data-tab="deposits">{{ __('Deposits') }}</button>
         <button type="button" class="wallet-tab gold-tab" data-tab="withdrawals">{{ __('Withdrawals') }}</button>
     </div>
 
     <div class="flex flex-wrap items-end gap-2 mt-3 mb-2">
-        <div id="wallet-filter-type" hidden>
-            <label class="block text-[10px] text-[#8a7a70] mb-1">{{ __('Type') }}</label>
-            <select id="wallet-tx-filter-type" class="rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1.5 text-xs">
-                <option value="">{{ __('All types') }}</option>
-                <option value="bet">{{ __('Bet placed') }}</option>
-                <option value="payout">{{ __('Bet payout') }}</option>
-                <option value="refund">{{ __('Bet refund') }}</option>
-                <option value="deposit">{{ __('Cash deposit') }}</option>
-                <option value="withdrawal">{{ __('Cash withdrawal') }}</option>
-                <option value="reversal">{{ __('Payout reversal') }}</option>
-            </select>
-        </div>
         <div id="wallet-filter-event" hidden>
             <label class="block text-[10px] text-[#8a7a70] mb-1">{{ __('Event') }}</label>
             <select id="wallet-tx-filter-event" class="rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1.5 text-xs">
@@ -156,7 +133,24 @@
 </div>
 
 @push('scripts')
+@include('player.partials.cash-forms-scripts')
 <script>
+    (function () {
+        // --- Deposit/Withdraw dynamic tabs ---------------------------
+        // The balance card's two buttons switch which payment-gateway
+        // form is visible below it, rather than navigating away to the
+        // standalone Cash In/Out page — same forms/routes, just shown
+        // in place.
+        const cashTabBtns = document.querySelectorAll('.wallet-cash-tab-btn');
+        const cashPanels = document.querySelectorAll('[data-cash-panel]');
+        cashTabBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                cashTabBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+                cashPanels.forEach((p) => p.classList.toggle('hidden', p.dataset.cashPanel !== btn.dataset.cashTab));
+            });
+        });
+    })();
+
     (function () {
         const modal = document.getElementById('wallet-tx-modal');
         const results = document.getElementById('wallet-tx-results');
@@ -208,11 +202,9 @@
         // --- Tabs + per-tab filters ---------------------------------
         const baseUrl = @json(route('play.wallet.index'));
         const tabs = document.querySelectorAll('.wallet-tab');
-        const typeGroup = document.getElementById('wallet-filter-type');
         const eventGroup = document.getElementById('wallet-filter-event');
         const dateRangeGroup = document.getElementById('wallet-filter-date-range');
         const amountGroup = document.getElementById('wallet-filter-amount');
-        const typeSelect = document.getElementById('wallet-tx-filter-type');
         const eventSelect = document.getElementById('wallet-tx-filter-event');
         const dateRangeInput = document.getElementById('wallet-tx-filter-date-range');
         const dateFromInput = document.getElementById('wallet-tx-filter-date-from');
@@ -224,7 +216,6 @@
         // Which filter groups apply to each tab — drives both which
         // controls show and which query params load() sends.
         const TAB_FILTERS = {
-            all: ['type', 'date_from', 'date_to'],
             bets: ['event'],
             deposits: ['date_from', 'date_to', 'amount'],
             withdrawals: ['date_from', 'date_to', 'amount'],
@@ -236,20 +227,17 @@
         // the rows already on screen.
         const state = {
             tab: @json($tab),
-            type: @json($type ?? ''),
             event_id: @json($eventId ? (string) $eventId : ''),
             amount: @json($amount !== null ? (string) $amount : ''),
             date_from: @json($dateFrom ?? ''),
             date_to: @json($dateTo ?? ''),
         };
-        typeSelect.value = state.type;
         eventSelect.value = state.event_id;
         amountInput.value = state.amount;
         dateFromInput.value = state.date_from;
         dateToInput.value = state.date_to;
 
         function resetFilterInputs() {
-            typeSelect.value = '';
             eventSelect.value = '';
             if (dateRangeInput._flatpickr) {
                 dateRangeInput._flatpickr.clear();
@@ -258,12 +246,11 @@
                 dateToInput.value = '';
             }
             amountInput.value = '';
-            state.type = state.event_id = state.amount = state.date_from = state.date_to = '';
+            state.event_id = state.amount = state.date_from = state.date_to = '';
         }
 
         function updateFilterVisibility() {
             const active = TAB_FILTERS[state.tab];
-            typeGroup.hidden = !active.includes('type');
             eventGroup.hidden = !active.includes('event');
             dateRangeGroup.hidden = !active.includes('date_from');
             amountGroup.hidden = !active.includes('amount');
@@ -282,7 +269,6 @@
         function load(page) {
             const url = new URL(baseUrl, window.location.origin);
             url.searchParams.set('tab', state.tab);
-            if (state.type) url.searchParams.set('type', state.type);
             if (state.event_id) url.searchParams.set('event_id', state.event_id);
             if (state.amount) url.searchParams.set('amount', state.amount);
             if (state.date_from) url.searchParams.set('date_from', state.date_from);
@@ -309,7 +295,6 @@
         });
 
         applyBtn.addEventListener('click', () => {
-            state.type = typeSelect.value;
             state.event_id = eventSelect.value;
             // amount-input fields display comma-formatted text while
             // focused/filled (see amount-format.js) — this reads outside

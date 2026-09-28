@@ -95,6 +95,7 @@ Route::middleware(['auth', 'role:player'])->prefix('play')->name('play.')->group
     Route::post('/combined-fight/{fight}/bets/{bet}/cancel', [CombinedBetController::class, 'cancelBet'])->name('combined-cancel-bet')->middleware('throttle:30,1');
 
     Route::get('/wallet', [PlayerWalletController::class, 'index'])->name('wallet.index');
+    Route::get('/transactions', [PlayerWalletController::class, 'transactions'])->name('transactions.index');
     Route::get('/profile', [PlayerProfileController::class, 'show'])->name('profile');
 
     Route::prefix('cash')->name('cash.')->group(function () {
