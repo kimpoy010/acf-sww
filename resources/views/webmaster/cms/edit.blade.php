@@ -58,7 +58,7 @@
         @endif
         <input type="file" name="background" accept="image/png,image/jpeg,image/webp,image/gif"
                class="w-full text-sm text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-slate-200 hover:file:bg-slate-700">
-        <p class="text-sm text-slate-400 mt-2">{{ __('Shown full-page behind every player screen except the live betting page. PNG/JPG/WEBP/GIF (animated GIFs play), up to 4 MB.') }}</p>
+        <p class="text-sm text-slate-400 mt-2">{{ __('Shown full-page behind every player screen except the live betting page. PNG/JPG/WEBP/GIF (animated GIFs play), up to 10 MB.') }}</p>
         @error('background')
             <p class="text-sm text-red-400 mt-1">{{ $message }}</p>
         @enderror

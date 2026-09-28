@@ -80,6 +80,42 @@ class CmsSettingsTest extends TestCase
         $this->assertNotNull(Setting::get('site_background_url'));
     }
 
+    /**
+     * Animated gifs routinely land well past the old 4 MB cap — this is
+     * the exact size the webmaster hit in production (the page silently
+     * "just reloaded" before the error-display fix made the real
+     * "must not be greater than 4096 kilobytes" message visible).
+     */
+    public function test_the_background_accepts_a_gif_over_the_old_four_megabyte_cap(): void
+    {
+        Storage::fake('public');
+        $webmaster = $this->user('webmaster');
+
+        $resp = $this->actingAs($webmaster)->put(route('webmaster.cms.update'), [
+            'site_name' => 'My Sabong',
+            'background' => UploadedFile::fake()->create('background.gif', 6144, 'image/gif'),
+        ]);
+
+        $resp->assertRedirect(route('webmaster.cms.edit'));
+        $resp->assertSessionDoesntHaveErrors('background');
+        $this->assertNotNull(Setting::get('site_background_url'));
+    }
+
+    public function test_the_background_still_rejects_a_file_over_ten_megabytes(): void
+    {
+        Storage::fake('public');
+        $webmaster = $this->user('webmaster');
+
+        $resp = $this->actingAs($webmaster)->from(route('webmaster.cms.edit'))->followingRedirects()->put(route('webmaster.cms.update'), [
+            'site_name' => 'My Sabong',
+            'background' => UploadedFile::fake()->create('background.gif', 10241, 'image/gif'),
+        ]);
+
+        $resp->assertOk();
+        $resp->assertSee('The background field must not be greater than 10240 kilobytes.');
+        $this->assertNull(Setting::get('site_background_url'));
+    }
+
     public function test_the_success_message_is_shown_after_saving(): void
     {
         Storage::fake('public');
