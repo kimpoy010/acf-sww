@@ -15,7 +15,10 @@
 
 @section('content')
 <p class="text-[10.5px] font-extrabold tracking-[0.16em] text-[#e0793a] mb-1">{{ __('POOL SABONG') }}</p>
-<h1 class="text-2xl font-extrabold tracking-tight mb-6">{{ __('Cash In / Cash Out') }}</h1>
+<div class="flex items-start justify-between gap-3 mb-6">
+    <h1 class="text-2xl font-extrabold tracking-tight">{{ __('Cash In / Cash Out') }}</h1>
+    <a href="{{ route($topRoutePrefix.'payment-methods.index') }}" class="text-xs text-[#8a7a70] hover:text-[#c9baaf] transition underline whitespace-nowrap mt-1.5">{{ __('Payment methods') }}</a>
+</div>
 
 <div class="relative rounded-2xl overflow-hidden p-6 mb-6 border border-red-900/25" style="background: radial-gradient(circle at 15% -10%, #141f7a, transparent 55%), linear-gradient(160deg, #0c111c, #05080e);">
     <p class="text-[10.5px] font-extrabold tracking-[0.1em] text-[#c99a7a]">{{ __('WALLET BALANCE') }}</p>
@@ -60,7 +63,11 @@
                 <div id="deposit-account-number-field">
                     <label class="block text-sm text-[#8a7a70] mb-1">{{ __('GCash number') }}</label>
                     <input type="text" inputmode="numeric" name="account_number" placeholder="09XXXXXXXXX"
+                           value="{{ old('account_number', $player->gcash_account_number) }}"
                            class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    @unless ($player->gcash_account_number)
+                        <p class="text-xs text-[#8a7a70] mt-1">{!! __('Tip: save this in :link so it fills in automatically next time.', ['link' => '<a href="'.route($topRoutePrefix.'payment-methods.index').'" class="underline">'.__('Payment methods').'</a>']) !!}</p>
+                    @endunless
                 </div>
                 <button class="w-full rounded-lg bg-red-600 hover:bg-red-500 transition font-extrabold py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Deposit') }}</button>
             </form>
@@ -82,18 +89,24 @@
                         @endforeach
                     </div>
                 </div>
-                <div>
-                    <label class="block text-sm text-[#8a7a70] mb-1">{{ __('Account number') }}</label>
-                    <input type="text" inputmode="numeric" name="account_number" required placeholder="09XXXXXXXXX"
-                           class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
-                </div>
-                <div id="withdraw-account-name-field">
-                    <label class="block text-sm text-[#8a7a70] mb-1">{{ __('Account name') }}</label>
-                    <input type="text" name="account_name" placeholder="{{ __('Full name on the account') }}"
-                           class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
-                </div>
-                <button class="w-full rounded-lg bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.1] transition font-extrabold py-2"
-                        {{ ($wallet->availableBalance() ?? 0) < 0.01 ? 'disabled' : '' }}>
+                @foreach ($PaybucksChannel::CHANNELS as $channel)
+                    @php $hasSaved = $player->hasSavedPaymentMethod($channel); @endphp
+                    <div id="withdraw-destination-{{ $channel }}" class="withdraw-destination {{ $loop->first ? '' : 'hidden' }}" data-has-account="{{ $hasSaved ? '1' : '0' }}">
+                        @if ($hasSaved)
+                            <div class="rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 text-sm">
+                                <p class="text-[#8a7a70] text-xs mb-0.5">{{ __('Sending to') }}</p>
+                                <p class="font-semibold">{{ $player->savedAccountNumber($channel) }}{{ $player->savedAccountName($channel) ? ' — '.$player->savedAccountName($channel) : '' }}</p>
+                            </div>
+                        @else
+                            <div class="rounded-lg px-3 py-2 text-sm" style="background:rgba(120,53,15,0.2);border:1px solid rgba(217,119,6,0.4);">
+                                {!! __('No :channel account saved yet — add one in :link first.', ['channel' => $PaybucksChannel::label($channel), 'link' => '<a href="'.route($topRoutePrefix.'payment-methods.index').'" class="underline font-semibold">'.__('Payment methods').'</a>']) !!}
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+                <button id="withdraw-submit" type="submit" class="w-full rounded-lg bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.1] transition font-extrabold py-2"
+                        data-no-balance="{{ ($wallet->availableBalance() ?? 0) < 0.01 ? '1' : '0' }}"
+                        {{ ($wallet->availableBalance() ?? 0) < 0.01 || ! $player->hasSavedPaymentMethod($PaybucksChannel::CHANNELS[0]) ? 'disabled' : '' }}>
                     {{ __('Withdraw') }}
                 </button>
             </form>
@@ -190,15 +203,25 @@
         const checkedDeposit = document.querySelector('.deposit-channel-input:checked');
         if (checkedDeposit) depositField.classList.toggle('hidden', checkedDeposit.dataset.requiresAccount !== '1');
 
-        // Toggle the Maya-only account-name field on the withdrawal form.
-        const accountNameField = document.getElementById('withdraw-account-name-field');
+        // Show the saved destination for whichever channel is selected, and
+        // disable the submit button unless that channel has one saved.
+        const withdrawSubmit = document.getElementById('withdraw-submit');
+        const showWithdrawDestination = (channel) => {
+            document.querySelectorAll('.withdraw-destination').forEach((el) => {
+                el.classList.toggle('hidden', el.id !== 'withdraw-destination-' + channel);
+            });
+            const active = document.getElementById('withdraw-destination-' + channel);
+            if (withdrawSubmit && active) {
+                withdrawSubmit.disabled = active.dataset.hasAccount !== '1' || withdrawSubmit.dataset.noBalance === '1';
+            }
+        };
         document.querySelectorAll('.withdraw-channel-input').forEach((input) => {
             input.addEventListener('change', () => {
-                if (input.checked) accountNameField.classList.toggle('hidden', input.dataset.requiresAccountName !== '1');
+                if (input.checked) showWithdrawDestination(input.value);
             });
         });
         const checkedWithdraw = document.querySelector('.withdraw-channel-input:checked');
-        if (checkedWithdraw) accountNameField.classList.toggle('hidden', checkedWithdraw.dataset.requiresAccountName !== '1');
+        if (checkedWithdraw) showWithdrawDestination(checkedWithdraw.value);
     })();
 
     (function () {

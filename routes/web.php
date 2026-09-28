@@ -13,6 +13,7 @@ use App\Http\Controllers\Kiosk\KioskController;
 use App\Http\Controllers\Player\CashController;
 use App\Http\Controllers\Player\CombinedBetController;
 use App\Http\Controllers\Player\EventController as PlayerEventController;
+use App\Http\Controllers\Player\PaymentMethodController;
 use App\Http\Controllers\Player\PoolBetController;
 use App\Http\Controllers\Player\ProfileController as PlayerProfileController;
 use App\Http\Controllers\Player\WalletController as PlayerWalletController;
@@ -114,6 +115,14 @@ Route::middleware(['auth', 'role:player'])->prefix('play')->name('play.')->group
         Route::get('/{cashTransaction:code}/status', [CashController::class, 'status'])->name('status');
         Route::post('/{cashTransaction:code}/cancel', [CashController::class, 'cancel'])->name('cancel');
     });
+
+    // Where a player registers their own GCash/Maya account — see
+    // Player\PaymentMethodController's own doc comment for why it's
+    // shared with agent.payment-methods.*.
+    Route::prefix('payment-methods')->name('payment-methods.')->group(function () {
+        Route::get('/', [PaymentMethodController::class, 'index'])->name('index');
+        Route::post('/', [PaymentMethodController::class, 'update'])->name('update')->middleware('throttle:10,1');
+    });
 });
 
 Route::middleware(['auth', 'role:declarator|superadmin|webmaster'])->prefix('declarator')->name('declarator.')->group(function () {
@@ -169,6 +178,11 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
         Route::get('/{cashTransaction:code}', [CashController::class, 'show'])->name('show');
         Route::get('/{cashTransaction:code}/status', [CashController::class, 'status'])->name('status');
         Route::post('/{cashTransaction:code}/cancel', [CashController::class, 'cancel'])->name('cancel');
+    });
+
+    Route::prefix('payment-methods')->name('payment-methods.')->group(function () {
+        Route::get('/', [PaymentMethodController::class, 'index'])->name('index');
+        Route::post('/', [PaymentMethodController::class, 'update'])->name('update')->middleware('throttle:10,1');
     });
 });
 

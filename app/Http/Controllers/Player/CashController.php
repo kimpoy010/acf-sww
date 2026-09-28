@@ -42,7 +42,9 @@ class CashController extends Controller
             'wallet' => $wallet,
             'pending' => $pending,
             'history' => $history,
+            'player' => auth()->user(),
             'routePrefix' => $this->routePrefix(),
+            'topRoutePrefix' => $this->topRoutePrefix(),
         ]);
     }
 
@@ -72,16 +74,24 @@ class CashController extends Controller
     {
         $data = $request->validate([
             'channel' => ['required', Rule::in(PaybucksChannel::CHANNELS)],
-            'account_number' => 'required|string|max:32',
-            'account_name' => 'nullable|string|max:191',
         ]);
+
+        $player = auth()->user();
+
+        // Withdrawals are never sent wherever this request happens to
+        // type in — only to the account the player registered ahead of
+        // time on the Payment Methods page (see User::hasSavedPaymentMethod()).
+        if (! $player->hasSavedPaymentMethod($data['channel'])) {
+            return redirect()->route($this->topRoutePrefix().'payment-methods.index')
+                ->with('error', __('Save your :channel account first before withdrawing to it.', ['channel' => PaybucksChannel::label($data['channel'])]));
+        }
 
         try {
             $transaction = $this->cashService->createPaybucksWithdrawal(
-                auth()->user(),
+                $player,
                 $data['channel'],
-                $data['account_number'],
-                $data['account_name'] ?? null,
+                $player->savedAccountNumber($data['channel']),
+                $player->savedAccountName($data['channel']),
             );
         } catch (\InvalidArgumentException $e) {
             return redirect()->route($this->routePrefix().'index')->with('error', $e->getMessage());
@@ -143,5 +153,15 @@ class CashController extends Controller
     private function routePrefix(): string
     {
         return (string) str(request()->route()->getName())->beforeLast('.').'.';
+    }
+
+    /**
+     * "play." or "agent." — the top-level prefix, for linking out to a
+     * sibling route group (payment-methods.*) rather than another
+     * cash.* route.
+     */
+    private function topRoutePrefix(): string
+    {
+        return (string) str(request()->route()->getName())->before('.').'.';
     }
 }

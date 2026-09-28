@@ -28,6 +28,9 @@ class User extends Authenticatable
         'rfid_uid',
         'player_code',
         'pin',
+        'gcash_account_number',
+        'maya_account_number',
+        'maya_account_name',
     ];
 
     protected $hidden = [
@@ -57,6 +60,42 @@ class User extends Authenticatable
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class);
+    }
+
+    /**
+     * The saved destination account for a given GCash/Maya channel (see
+     * App\Services\Paybucks\PaybucksChannel) — used to pre-fill a deposit
+     * and, for a withdrawal, as the ONLY account CashTransactionService
+     * will pay out to (see hasSavedPaymentMethod()).
+     */
+    public function savedAccountNumber(string $channel): ?string
+    {
+        return match ($channel) {
+            'gcash' => $this->gcash_account_number,
+            'maya' => $this->maya_account_number,
+            default => null,
+        };
+    }
+
+    public function savedAccountName(string $channel): ?string
+    {
+        return $channel === 'maya' ? $this->maya_account_name : null;
+    }
+
+    /**
+     * Whether every field that channel's withdrawal needs (see
+     * PaybucksChannel::withdrawalRequiresAccountName()) has been saved —
+     * a withdrawal is refused until this is true, so a player can't pay
+     * out to an account no one confirmed is actually theirs.
+     */
+    public function hasSavedPaymentMethod(string $channel): bool
+    {
+        if (! filled($this->savedAccountNumber($channel))) {
+            return false;
+        }
+
+        return ! \App\Services\Paybucks\PaybucksChannel::withdrawalRequiresAccountName($channel)
+            || filled($this->savedAccountName($channel));
     }
 
     public function bets(): HasMany
