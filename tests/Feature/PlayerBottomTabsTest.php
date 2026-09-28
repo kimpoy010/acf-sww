@@ -86,20 +86,38 @@ class PlayerBottomTabsTest extends TestCase
         $response->assertSee('id="site-nav"', false);
     }
 
-    public function test_a_guest_still_sees_the_top_nav(): void
+    /**
+     * Every guest auth page hides the top nav — each carries its own
+     * gold-ornament branding header (see auth/login.blade.php and its
+     * siblings) that the nav would otherwise duplicate.
+     */
+    public function test_the_login_page_hides_the_top_nav(): void
     {
-        // Not the login page — see test_the_login_page_hides_the_top_nav().
+        $response = $this->get(route('login'));
+
+        $response->assertOk();
+        $response->assertDontSee('id="site-nav"', false);
+    }
+
+    public function test_the_register_page_hides_the_top_nav(): void
+    {
         $response = $this->get(route('register'));
 
         $response->assertOk();
-        $response->assertSee('id="site-nav"', false);
+        $response->assertDontSee('id="site-nav"', false);
     }
 
-    public function test_the_login_page_hides_the_top_nav(): void
+    public function test_the_forgot_password_page_hides_the_top_nav(): void
     {
-        // Its own oversized logo (see auth/login.blade.php) already
-        // carries the branding the nav would otherwise show.
-        $response = $this->get(route('login'));
+        $response = $this->get(route('password.request'));
+
+        $response->assertOk();
+        $response->assertDontSee('id="site-nav"', false);
+    }
+
+    public function test_the_reset_password_page_hides_the_top_nav(): void
+    {
+        $response = $this->get(route('password.reset', ['token' => 'x']));
 
         $response->assertOk();
         $response->assertDontSee('id="site-nav"', false);
