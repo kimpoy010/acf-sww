@@ -20,7 +20,7 @@
     }
 </style>
 <div class="gold-ornament"><span class="line"></span><span class="diamond"></span><span class="line r"></span></div>
-<p class="gold-eyebrow">{{ __('Pool Sabong') }}</p>
+<p class="gold-eyebrow">{{ $cms['site_name'] }}</p>
 <h1 class="gold-serif gold-h1">{{ __('Live Events') }}</h1>
 <p class="text-sm text-[#8a7a70] -mt-4 mb-6 text-center">{{ __('Pick a live event to start betting') }}</p>
 

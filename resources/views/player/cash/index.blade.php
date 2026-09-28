@@ -18,7 +18,7 @@
 
 <div class="flex items-start justify-between gap-3 mb-4">
     <div>
-        <p class="gold-eyebrow" style="text-align:left">{{ __('Pool Sabong') }}</p>
+        <p class="gold-eyebrow" style="text-align:left">{{ $cms['site_name'] }}</p>
         <h1 class="gold-serif" style="font-size:24px;font-weight:600;color:#f4efe4;margin-top:2px">{{ __('Cash In / Cash Out') }}</h1>
     </div>
     <a href="{{ route($topRoutePrefix.'payment-methods.index') }}" class="gold-chip-btn whitespace-nowrap mt-1">{{ __('Payment methods') }}</a>

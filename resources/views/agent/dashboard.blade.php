@@ -6,7 +6,7 @@
 @include('player.partials.gold-theme-styles')
 
 <div class="gold-ornament"><span class="line"></span><span class="diamond"></span><span class="line r"></span></div>
-<p class="gold-eyebrow">{{ __('Pool Sabong') }}</p>
+<p class="gold-eyebrow">{{ $cms['site_name'] }}</p>
 <h1 class="gold-serif gold-h1">{{ __('Agent Dashboard') }}</h1>
 
 <div class="grid md:grid-cols-3 gap-4 mb-8">
