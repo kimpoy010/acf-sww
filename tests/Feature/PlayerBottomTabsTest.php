@@ -88,10 +88,21 @@ class PlayerBottomTabsTest extends TestCase
 
     public function test_a_guest_still_sees_the_top_nav(): void
     {
-        $response = $this->get(route('login'));
+        // Not the login page — see test_the_login_page_hides_the_top_nav().
+        $response = $this->get(route('register'));
 
         $response->assertOk();
         $response->assertSee('id="site-nav"', false);
+    }
+
+    public function test_the_login_page_hides_the_top_nav(): void
+    {
+        // Its own oversized logo (see auth/login.blade.php) already
+        // carries the branding the nav would otherwise show.
+        $response = $this->get(route('login'));
+
+        $response->assertOk();
+        $response->assertDontSee('id="site-nav"', false);
     }
 
     public function test_the_wallet_tab_is_marked_active_on_the_wallet_page(): void

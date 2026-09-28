@@ -3,7 +3,12 @@
 @section('title', __('Log in'))
 
 @section('content')
-<div class="max-w-sm mx-auto mt-12 bg-slate-900 border border-slate-800 rounded-xl p-6">
+@if ($cms['logo_url'])
+    <div class="max-w-sm mx-auto mt-8 flex justify-center">
+        <img src="{{ $cms['logo_url'] }}" alt="{{ $cms['site_name'] }}" class="w-[250px] h-[250px] object-contain">
+    </div>
+@endif
+<div class="max-w-sm mx-auto {{ $cms['logo_url'] ? 'mt-4' : 'mt-12' }} bg-slate-900 border border-slate-800 rounded-xl p-6">
     <h1 class="text-xl font-bold mb-6 text-center">{{ __('Log in') }}</h1>
 
     @if ($errors->any())

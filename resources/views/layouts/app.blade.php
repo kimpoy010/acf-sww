@@ -31,8 +31,10 @@
          Profile tab (see partials.player-bottom-tabs and
          player/profile/show.blade.php) so the bottom tab bar is the only
          chrome on screen, leaving more room for the actual app content on
-         a phone. Every other role keeps this bar as-is. --}}
-    @unless (auth()->check() && auth()->user()->hasRole('player'))
+         a phone. Every other role keeps this bar as-is. The login page
+         also drops it — its own oversized logo (see auth/login.blade.php)
+         already carries the branding the nav would otherwise show. --}}
+    @unless ((auth()->check() && auth()->user()->hasRole('player')) || request()->routeIs('login'))
         <nav id="site-nav" class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
             <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
                 <a href="{{ route(auth()->check() ? auth()->user()->homeRouteName() : 'login') }}" class="flex items-center gap-2 font-bold text-base sm:text-lg tracking-tight text-red-400 whitespace-nowrap shrink-0">
