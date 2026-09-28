@@ -108,7 +108,7 @@
          otherwise sit on top of the page's own last bit of content — the
          safe-area inset is on top of the tab bar's own height, not instead
          of it, since the tab bar already pads itself for the home indicator. --}}
-    <main class="max-w-6xl mx-auto px-4 py-6 @role('player') pb-24 @endrole">
+    <main class="max-w-6xl mx-auto py-6 {{ $isGoldTheme ? 'px-3 sm:px-4' : 'px-4' }} @role('player') pb-24 @endrole">
         @if (session('success'))
             <div class="mb-4 rounded-lg border border-emerald-700 bg-emerald-900/40 px-4 py-3 text-emerald-200 text-sm">{{ __(session('success')) }}</div>
         @endif
