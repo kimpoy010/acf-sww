@@ -67,10 +67,11 @@
             <p class="font-semibold">📒 {{ __('Betting accounting') }}</p>
             <p class="text-sm text-slate-500 mt-1">{{ __('Every event, fight, and individual bet — the full ledger.') }}</p>
         </a>
-        <a href="{{ route('superadmin.reports.teller-cash-flow') }}" class="rounded-xl border border-slate-800 bg-slate-900 p-4 hover:border-red-600 transition">
-            <p class="font-semibold">🎟️ {{ __('Teller cash flow') }}</p>
-            <p class="text-sm text-slate-500 mt-1">{{ __('Per-teller ticket sales vs. redemptions.') }}</p>
-        </a>
+        {{-- Teller accounts are retired (see DisableTellerRoutes) — this
+             card is deliberately gone since no new data can ever land here,
+             but the report itself (superadmin.reports.teller-cash-flow) is
+             still reachable by URL for whatever historical data predates
+             the retirement. --}}
     @endcan
     @can('manage-roles')
         <a href="{{ route('superadmin.roles.index') }}" class="rounded-xl border border-slate-800 bg-slate-900 p-4 hover:border-red-600 transition">
