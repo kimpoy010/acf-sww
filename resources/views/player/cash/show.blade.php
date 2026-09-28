@@ -174,6 +174,10 @@
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') close();
     });
+
+    @if (session('open_payment_modal'))
+        open();
+    @endif
 })();
 </script>
 @endpush

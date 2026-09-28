@@ -244,6 +244,51 @@ class PaybucksSmokeTest extends TestCase
         $show->assertDontSee("couldn&#039;t generate a way to pay", false);
     }
 
+    public function test_the_payment_modal_opens_automatically_right_after_depositing(): void
+    {
+        Role::firstOrCreate(['name' => 'player']);
+        config(['services.paybucks.api_key' => 'test-key']);
+
+        Http::fake([
+            '*/payments/deposits' => Http::response([
+                'success' => true,
+                'statusCode' => 201,
+                'data' => [
+                    'transactionId' => 'ext-modal',
+                    'merchantOrderNo' => 'whatever',
+                    'amount' => 100,
+                    'paymentUrl' => 'https://pay.example/z',
+                ],
+            ], 201),
+            '*/payments/orders/*' => Http::response([
+                'success' => true,
+                'statusCode' => 200,
+                'data' => ['status' => 'PENDING', 'merchantOrderNo' => 'whatever', 'kind' => 'DEPOSIT', 'amount' => 100],
+            ], 200),
+        ]);
+
+        $player = User::factory()->create();
+        $player->assignRole('player');
+        $player->wallet()->create(['main_balance' => 0]);
+
+        // Following the redirect the way a browser actually would — the
+        // flash flag only lives for this one next request.
+        $show = $this->actingAs($player)->from(route('play.cash.index'))->followingRedirects()->post(route('play.cash.deposit'), [
+            'channel' => 'gcash',
+            'amount' => 100,
+            'account_number' => '09171234567',
+        ]);
+
+        $show->assertOk();
+        $show->assertSee('open();', false);
+
+        // A plain reload of the same page must not keep reopening it.
+        $tx = \App\Models\CashTransaction::where('user_id', $player->id)->latest()->first();
+        $reload = $this->actingAs($player)->get(route('play.cash.show', $tx));
+        $reload->assertOk();
+        $reload->assertDontSee('open();', false);
+    }
+
     public function test_a_business_level_failure_response_is_treated_as_an_error(): void
     {
         Role::firstOrCreate(['name' => 'player']);

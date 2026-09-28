@@ -67,7 +67,13 @@ class CashController extends Controller
             return redirect()->route($this->routePrefix().'index')->with('error', $e->getMessage());
         }
 
-        return redirect()->route($this->routePrefix().'show', $transaction);
+        // Tells the show page to open the payment modal immediately on
+        // load, instead of requiring an extra tap on "Open payment page"
+        // right after the player just asked to deposit. A flash value
+        // rather than a query string so it only fires on this exact
+        // redirect — reloading or revisiting the same page later (status
+        // poll, browser refresh) won't keep reopening it.
+        return redirect()->route($this->routePrefix().'show', $transaction)->with('open_payment_modal', true);
     }
 
     public function storeWithdrawal(Request $request): RedirectResponse
