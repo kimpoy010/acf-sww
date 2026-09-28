@@ -9,6 +9,7 @@
     <div class="rounded-xl border border-slate-800 bg-slate-900 p-4">
         <p class="text-xs uppercase text-slate-500 mb-1">{{ __('Main balance') }}</p>
         <p class="text-2xl font-bold text-emerald-400">{{ $currencySymbol }}{{ number_format($agent->wallet->main_balance ?? 0, 2) }}</p>
+        <a href="{{ route('agent.cash.index') }}" class="inline-block mt-2 text-xs rounded-lg bg-emerald-700 hover:bg-emerald-600 transition px-3 py-1">{{ __('Cash In / Out') }}</a>
     </div>
     <div class="rounded-xl border border-slate-800 bg-slate-900 p-4">
         <p class="text-xs uppercase text-slate-500 mb-1">{{ __('Commission balance') }}</p>

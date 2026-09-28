@@ -45,4 +45,12 @@ return [
         'secret_key' => env('TURNSTILE_SECRET_KEY'),
     ],
 
+    // GCash/Maya deposits & withdrawals (see App\Services\Paybucks). The
+    // merchant integration key is created in the Paybucks portal's
+    // Settings — see the vendor's Merchant API doc, section 4.
+    'paybucks' => [
+        'base_url' => env('PAYBUCKS_BASE_URL', 'https://api.paybucks.cc'),
+        'api_key' => env('PAYBUCKS_API_KEY'),
+    ],
+
 ];

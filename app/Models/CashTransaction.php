@@ -21,14 +21,32 @@ class CashTransaction extends Model
         'status',
         'expires_at',
         'completed_at',
+        'provider',
+        'channel',
+        'service_type',
+        'account_number',
+        'account_name',
+        'provider_transaction_id',
+        'fee',
+        'provider_error_code',
+        'provider_error_msg',
+        'qr_payload',
+        'qr_image_url',
+        'payment_url',
     ];
 
     /**
-     * Only the terms of the request as it was created — status,
-     * teller_id, teller_shift_id, and completed_at all get set later by
-     * approve()/cancel()/expire() and aren't part of the tamper-evident
-     * creation fact (the resulting money movement, once approved, is
-     * covered separately by its own WalletTransaction chain entry).
+     * Deliberately unchanged from before the Paybucks columns existed —
+     * VerifyHashChains recomputes every row's hash from THIS method's
+     * CURRENT return value, so adding a field here would break
+     * verification for every row already hashed under the old set (their
+     * stored hash never covered it). The new Paybucks columns
+     * (channel, service_type, account_number, account_name,
+     * provider_transaction_id, fee, provider_error_*, qr_*, payment_url)
+     * stay outside the tamper-evident set — routing/provider metadata,
+     * not the money-movement fact itself, which is covered separately by
+     * its own WalletTransaction chain entry once a deposit/withdrawal
+     * actually settles.
      */
     public function hashChainFields(): array
     {
@@ -49,6 +67,7 @@ class CashTransaction extends Model
     {
         return [
             'amount' => 'decimal:2',
+            'fee' => 'decimal:2',
             'expires_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
@@ -86,6 +105,15 @@ class CashTransaction extends Model
 
     public function isExpired(): bool
     {
+        if ($this->type === 'withdrawal' && $this->provider === 'paybucks') {
+            // Already submitted to Paybucks — the payout may be mid-flight
+            // to GCash/Maya. Only reconcilePaybucksOrder() (via callback or
+            // a status poll) may resolve this from here; auto-expiring
+            // would release the wallet reservation while money could still
+            // land on the provider's side, risking a double-spend.
+            return false;
+        }
+
         return $this->isPending() && $this->expires_at->isPast();
     }
 }

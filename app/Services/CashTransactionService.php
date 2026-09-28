@@ -6,9 +6,13 @@ use App\Events\CashTransactionUpdated;
 use App\Models\CashTransaction;
 use App\Models\TellerShift;
 use App\Models\User;
+use App\Services\Paybucks\PaybucksChannel;
+use App\Services\Paybucks\PaybucksClient;
+use App\Services\Paybucks\PaybucksException;
 use App\Support\AuditLogger;
 use App\Support\Broadcaster;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CashTransactionService
@@ -89,6 +93,275 @@ class CashTransactionService
         );
 
         return $transaction;
+    }
+
+    /**
+     * Start a GCash/Maya deposit via Paybucks. Unlike the teller flow, this
+     * calls out to Paybucks immediately — the returned CashTransaction
+     * carries whatever paymentUrl/qrPayload/qrImageUrl the response gave,
+     * for the player's show page to render. Nothing is credited until
+     * reconcilePaybucksOrder() confirms SUCCESS (via the callback or a
+     * status poll) — same as the teller flow never touching main_balance
+     * before an approve().
+     */
+    public function createPaybucksDeposit(User $player, float $amount, string $channel, ?string $accountNumber): CashTransaction
+    {
+        if ($amount <= 0) {
+            throw new \InvalidArgumentException(__('Deposit amount must be positive.'));
+        }
+
+        if (! in_array($channel, PaybucksChannel::CHANNELS, true)) {
+            throw new \InvalidArgumentException(__('Unsupported payment channel.'));
+        }
+
+        if (PaybucksChannel::depositRequiresAccountNumber($channel) && ! filled($accountNumber)) {
+            throw new \InvalidArgumentException(__(':channel number is required.', ['channel' => PaybucksChannel::label($channel)]));
+        }
+
+        $this->assertNoPendingRequest($player);
+
+        $transaction = CashTransaction::create([
+            'user_id' => $player->id,
+            'type' => 'deposit',
+            'origin' => 'paybucks',
+            'provider' => 'paybucks',
+            'channel' => $channel,
+            'service_type' => PaybucksChannel::depositServiceType($channel),
+            'amount' => $amount,
+            'account_number' => $accountNumber,
+            'code' => $this->generateCode(),
+            'status' => 'pending',
+            'expires_at' => now()->addMinutes(self::EXPIRES_IN_MINUTES),
+        ]);
+
+        try {
+            $response = PaybucksClient::make()->deposit(array_filter([
+                'merchantOrderNo' => $transaction->code,
+                'serviceType' => $transaction->service_type,
+                'amount' => $amount,
+                'hashedMemId' => $this->hashedMemberId($player),
+                'merchantUser' => $player->displayName(),
+                'account_number' => $accountNumber,
+                'callbackUrl' => route('api.paybucks.callback.deposit'),
+            ], fn ($value) => $value !== null));
+        } catch (PaybucksException $e) {
+            $transaction->update(['status' => 'failed', 'provider_error_msg' => $e->getMessage()]);
+            Log::warning('paybucks.deposit_start_failed', ['code' => $transaction->code, 'error' => $e->getMessage()]);
+
+            throw new \InvalidArgumentException(__('Could not start the deposit right now. Please try again.'));
+        }
+
+        $transaction->update([
+            'provider_transaction_id' => $response['transactionId'] ?? null,
+            'payment_url' => $response['paymentUrl'] ?? null,
+            'qr_payload' => $response['qrPayload'] ?? null,
+            'qr_image_url' => $response['qrImageUrl'] ?? null,
+        ]);
+
+        AuditLogger::log(
+            action: 'cash.deposit_requested',
+            description: __(':name requested a :amount :channel deposit.', ['name' => $player->displayName(), 'amount' => $amount, 'channel' => PaybucksChannel::label($channel)]),
+            target: $transaction,
+            actor: $player,
+        );
+
+        return $transaction->fresh();
+    }
+
+    /**
+     * Start a GCash/Maya withdrawal via Paybucks, for the player's full
+     * available balance — same "no partial withdrawal" shape as the
+     * teller flow's createWithdrawal(). The reservation happens up front
+     * (same as the teller flow); main_balance itself is only debited once
+     * reconcilePaybucksOrder() confirms Paybucks actually paid it out.
+     */
+    public function createPaybucksWithdrawal(User $player, string $channel, string $accountNumber, ?string $accountName): CashTransaction
+    {
+        if (! in_array($channel, PaybucksChannel::CHANNELS, true)) {
+            throw new \InvalidArgumentException(__('Unsupported payment channel.'));
+        }
+
+        if (! filled($accountNumber)) {
+            throw new \InvalidArgumentException(__(':channel number is required.', ['channel' => PaybucksChannel::label($channel)]));
+        }
+
+        if (PaybucksChannel::withdrawalRequiresAccountName($channel) && ! filled($accountName)) {
+            throw new \InvalidArgumentException(__('Account holder name is required for :channel withdrawals.', ['channel' => PaybucksChannel::label($channel)]));
+        }
+
+        $this->assertNoPendingRequest($player);
+
+        $wallet = $player->wallet;
+        $amount = $wallet->availableBalance();
+
+        if ($amount <= 0) {
+            throw new \InvalidArgumentException(__('No available balance to withdraw.'));
+        }
+
+        $transaction = DB::transaction(function () use ($player, $wallet, $amount, $channel, $accountNumber, $accountName) {
+            $this->walletService->reserveWithdrawal($wallet, $amount);
+
+            return CashTransaction::create([
+                'user_id' => $player->id,
+                'type' => 'withdrawal',
+                'origin' => 'paybucks',
+                'provider' => 'paybucks',
+                'channel' => $channel,
+                'service_type' => PaybucksChannel::withdrawServiceType($channel),
+                'amount' => $amount,
+                'account_number' => $accountNumber,
+                'account_name' => $accountName,
+                'code' => $this->generateCode(),
+                'status' => 'pending',
+                'expires_at' => now()->addMinutes(self::EXPIRES_IN_MINUTES),
+            ]);
+        });
+
+        try {
+            $response = PaybucksClient::make()->withdraw(array_filter([
+                'merchantOrderNo' => $transaction->code,
+                'serviceType' => $transaction->service_type,
+                'amount' => $amount,
+                'merchantUser' => $player->displayName(),
+                'hashedMemId' => $this->hashedMemberId($player),
+                'account_number' => $accountNumber,
+                'account_name' => $accountName,
+                'callbackUrl' => route('api.paybucks.callback.withdrawal'),
+            ], fn ($value) => $value !== null));
+        } catch (PaybucksException $e) {
+            DB::transaction(function () use ($transaction, $wallet, $amount, $e) {
+                $this->walletService->releaseWithdrawalReservation($wallet, $amount);
+                $transaction->update(['status' => 'failed', 'provider_error_msg' => $e->getMessage()]);
+            });
+            Log::warning('paybucks.withdrawal_start_failed', ['code' => $transaction->code, 'error' => $e->getMessage()]);
+
+            throw new \InvalidArgumentException(__('Could not start the withdrawal right now. Please try again.'));
+        }
+
+        $transaction->update([
+            'provider_transaction_id' => $response['transactionId'] ?? null,
+            'fee' => $response['fee'] ?? null,
+        ]);
+
+        AuditLogger::log(
+            action: 'cash.withdrawal_requested',
+            description: __(':name requested a :amount :channel withdrawal.', ['name' => $player->displayName(), 'amount' => $amount, 'channel' => PaybucksChannel::label($channel)]),
+            target: $transaction,
+            actor: $player,
+        );
+
+        return $transaction->fresh();
+    }
+
+    /**
+     * The one place a Paybucks-origin CashTransaction is ever settled.
+     * Deliberately never trusts the inbound callback's own payload for
+     * the actual outcome — Paybucks documents no signature on that
+     * webhook, so anyone who found the URL and a valid merchantOrderNo
+     * could otherwise forge a "SUCCESS" POST. Instead this re-asks
+     * Paybucks itself, with our own API key, via the Order Status API,
+     * and only acts on THAT. Safe to call more than once for the same
+     * transaction (idempotent via the isPending() guard under lock) — the
+     * callback controller calls this on every delivery attempt, and the
+     * player's own status-polling page calls it too, as a fallback in
+     * case a callback is ever lost.
+     */
+    public function reconcilePaybucksOrder(CashTransaction $transaction): CashTransaction
+    {
+        return DB::transaction(function () use ($transaction) {
+            $locked = CashTransaction::lockForUpdate()->findOrFail($transaction->id);
+
+            if (! $locked->isPending()) {
+                return $locked;
+            }
+
+            try {
+                $order = PaybucksClient::make()->orderStatus($locked->code);
+            } catch (PaybucksException $e) {
+                // Can't confirm right now — leave it pending. A retried
+                // callback or the next status poll tries again; never
+                // guess at an outcome we can't verify.
+                Log::warning('paybucks.order_status_failed', ['code' => $locked->code, 'error' => $e->getMessage()]);
+
+                return $locked;
+            }
+
+            $status = $order['status'] ?? null;
+
+            if ($status === 'PENDING' || $status === null) {
+                return $locked;
+            }
+
+            if ($status === 'SUCCESS') {
+                if ($locked->type === 'deposit') {
+                    $this->walletService->credit(
+                        $locked->user->wallet,
+                        (float) $locked->amount,
+                        'deposit',
+                        $locked->id,
+                        __(':channel deposit via Paybucks', ['channel' => PaybucksChannel::label($locked->channel)])
+                    );
+                } else {
+                    $this->walletService->completeWithdrawal(
+                        $locked->user->wallet,
+                        (float) $locked->amount,
+                        $locked->id,
+                        __(':channel withdrawal via Paybucks', ['channel' => PaybucksChannel::label($locked->channel)])
+                    );
+                }
+
+                $locked->update([
+                    'status' => 'completed',
+                    'completed_at' => now(),
+                    'provider_error_code' => $order['providerErrorCode'] ?? null,
+                    'provider_error_msg' => $order['providerErrorMsg'] ?? null,
+                ]);
+            } else {
+                // FAILED or PARTIAL — never partially credit/debit on an
+                // ambiguous provider outcome. A withdrawal's reservation is
+                // released (the money never actually left, since we only
+                // debit main_balance on a confirmed SUCCESS); a deposit
+                // simply never happened.
+                if ($locked->type === 'withdrawal') {
+                    $this->walletService->releaseWithdrawalReservation($locked->user->wallet, (float) $locked->amount);
+                }
+
+                $locked->update([
+                    'status' => 'failed',
+                    'completed_at' => now(),
+                    'provider_error_code' => $order['providerErrorCode'] ?? null,
+                    'provider_error_msg' => $order['providerErrorMsg'] ?? "Paybucks reported status: {$status}",
+                ]);
+            }
+
+            $fresh = $locked->fresh();
+
+            AuditLogger::log(
+                action: 'cash.'.$fresh->status,
+                description: __('Paybucks :channel :type :status for :amount.', [
+                    'channel' => PaybucksChannel::label($fresh->channel),
+                    'type' => $fresh->type,
+                    'status' => $fresh->status,
+                    'amount' => $fresh->amount,
+                ]),
+                target: $fresh,
+                actor: $fresh->user,
+            );
+
+            DB::afterCommit(fn () => Broadcaster::send(new CashTransactionUpdated($fresh)));
+
+            return $fresh;
+        });
+    }
+
+    /**
+     * Stable per-player identifier Paybucks asks for (hashedMemId) —
+     * never the raw id, though it's not meant to be a secret either;
+     * just what their fraud/dedup tooling keys on.
+     */
+    private function hashedMemberId(User $player): string
+    {
+        return hash('sha256', 'user-'.$player->id);
     }
 
     /**

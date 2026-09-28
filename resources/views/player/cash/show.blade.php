@@ -2,6 +2,8 @@
 
 @php
     $typeLabel = $cashTransaction->type === 'deposit' ? __('Deposit') : __('Withdrawal');
+    $channelLabel = $cashTransaction->channel ? \App\Services\Paybucks\PaybucksChannel::label($cashTransaction->channel) : null;
+    $qrTarget = $cashTransaction->qr_payload ?: $cashTransaction->payment_url;
 @endphp
 
 @section('title', __(':type QR', ['type' => $typeLabel]))
@@ -9,34 +11,63 @@
 @section('content')
 <div class="max-w-md mx-auto text-center">
     <p class="text-[10.5px] font-extrabold tracking-[0.16em] text-[#e0793a] mb-1">{{ __('POOL SABONG') }}</p>
-    <h1 class="text-xl font-extrabold mb-2">{{ __(':type request', ['type' => $typeLabel]) }}</h1>
+    <h1 class="text-xl font-extrabold mb-2">{{ __(':type request', ['type' => $typeLabel]) }}{{ $channelLabel ? ' · '.$channelLabel : '' }}</h1>
     <p class="text-3xl font-extrabold text-amber-400 mb-6" style="text-shadow: 0 0 24px rgba(251,191,36,0.25);">{{ $currencySymbol }}{{ number_format($cashTransaction->amount, 2) }}</p>
 
     <div id="pending-block" class="{{ $cashTransaction->status === 'pending' ? '' : 'hidden' }}">
-        <div class="bg-white rounded-xl p-4 inline-block mb-4">
-            {!! \App\Support\QrCodeGenerator::svg(route('teller.transactions.show', $cashTransaction)) !!}
-        </div>
-        <p class="text-sm text-[#c9baaf] mb-1">{{ __('Show this to the cashier to scan.') }}</p>
-        <p class="text-xs text-[#8a7a70] mb-6">{{ __('Code:') }} <span class="font-mono">{{ $cashTransaction->code }}</span> — {{ __('expires :time', ['time' => $cashTransaction->expires_at->diffForHumans()]) }}</p>
+        @if ($cashTransaction->type === 'deposit')
+            @if ($cashTransaction->qr_image_url)
+                <div class="bg-white rounded-xl p-4 inline-block mb-4">
+                    <img src="{{ $cashTransaction->qr_image_url }}" alt="{{ __('Payment QR code') }}" class="w-48 h-48">
+                </div>
+            @elseif ($qrTarget)
+                <div class="bg-white rounded-xl p-4 inline-block mb-4">
+                    {!! \App\Support\QrCodeGenerator::svg($qrTarget) !!}
+                </div>
+            @endif
 
-        <form method="POST" action="{{ route('play.cash.cancel', $cashTransaction) }}">
-            @csrf
-            <button class="text-sm text-red-400 hover:underline">{{ __('Cancel this request') }}</button>
-        </form>
+            @if ($cashTransaction->payment_url)
+                <p class="mb-4">
+                    <a href="{{ $cashTransaction->payment_url }}" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-4 py-2 text-sm shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Open payment page') }}</a>
+                </p>
+            @endif
+
+            <p class="text-sm text-[#c9baaf] mb-1">{{ __('Scan with your :channel app, or tap the button above to pay.', ['channel' => $channelLabel ?? __('GCash/Maya')]) }}</p>
+        @else
+            <div class="rounded-xl px-4 py-6 mb-4 bg-[#0a0e16] border border-[#141a2a]">
+                <p class="text-[#c9baaf] font-semibold">{{ __('Sending your withdrawal to :channel…', ['channel' => $channelLabel ?? __('your account')]) }}</p>
+                <p class="text-sm text-[#8a7a70] mt-1">{{ __('This page updates automatically once it settles.') }}</p>
+            </div>
+        @endif
+
+        <p class="text-xs text-[#8a7a70] mb-6">{{ __('Code:') }} <span class="font-mono">{{ $cashTransaction->code }}</span></p>
+
+        @if ($cashTransaction->type === 'deposit')
+            <form method="POST" action="{{ route($routePrefix.'cancel', $cashTransaction) }}">
+                @csrf
+                <button class="text-sm text-red-400 hover:underline">{{ __('Cancel this request') }}</button>
+            </form>
+        @endif
     </div>
 
     <div id="completed-block" class="{{ $cashTransaction->status === 'completed' ? '' : 'hidden' }}">
         <div class="rounded-xl px-4 py-6 mb-4" style="background:rgba(6,78,59,0.35);border:1px solid rgba(16,185,129,0.4);">
             <p class="text-emerald-300 font-semibold text-lg">✅ {{ __(':type completed', ['type' => $typeLabel]) }}</p>
         </div>
-        <a href="{{ route('play.cash.index') }}" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-6 py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Back to Cash In / Out') }}</a>
+        <a href="{{ route($routePrefix.'index') }}" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-6 py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Back to Cash In / Out') }}</a>
     </div>
 
-    <div id="cancelled-block" class="{{ in_array($cashTransaction->status, ['cancelled', 'expired']) ? '' : 'hidden' }}">
+    <div id="cancelled-block" class="{{ in_array($cashTransaction->status, ['cancelled', 'expired', 'failed']) ? '' : 'hidden' }}">
         <div class="rounded-xl px-4 py-6 mb-4 bg-[#0a0e16] border border-[#141a2a]">
-            <p class="text-[#c9baaf] font-semibold text-lg">{{ __('This request was :status.', ['status' => __($cashTransaction->status === 'expired' ? 'expired' : 'cancelled')]) }}</p>
+            <p class="text-[#c9baaf] font-semibold text-lg">
+                @if ($cashTransaction->status === 'failed')
+                    {{ __('This request failed.') }} {{ $cashTransaction->provider_error_msg }}
+                @else
+                    {{ __('This request was :status.', ['status' => __($cashTransaction->status === 'expired' ? 'expired' : 'cancelled')]) }}
+                @endif
+            </p>
         </div>
-        <a href="{{ route('play.cash.index') }}" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-6 py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Back to Cash In / Out') }}</a>
+        <a href="{{ route($routePrefix.'index') }}" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-6 py-2 shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]">{{ __('Back to Cash In / Out') }}</a>
     </div>
 </div>
 
@@ -44,12 +75,13 @@
 <script>
 (function () {
     const code = @json($cashTransaction->code);
-    const statusUrl = @json(route('play.cash.status', $cashTransaction));
+    const statusUrl = @json(route($routePrefix.'status', $cashTransaction));
 
     function showStatus(status) {
         document.getElementById('pending-block').classList.toggle('hidden', status !== 'pending');
         document.getElementById('completed-block').classList.toggle('hidden', status !== 'completed');
-        document.getElementById('cancelled-block').classList.toggle('hidden', !['cancelled', 'expired'].includes(status));
+        document.getElementById('cancelled-block').classList.toggle('hidden', !['cancelled', 'expired', 'failed'].includes(status));
+        if (status !== 'pending') location.reload();
     }
 
     function poll() {
@@ -62,13 +94,19 @@
     // The broadcast already carries the new status directly, so the common
     // case never needs a fetch at all. poll() only runs as a resync when the
     // socket (re)connects, covering a status change that happened while a
-    // dropped connection would otherwise have missed it.
+    // dropped connection would otherwise have missed it — and on a fixed
+    // interval, since Paybucks' own callback (not our socket) is what
+    // triggers reconciliation, so a lost webhook needs this fallback.
     window.addEventListener('echo:ready', () => {
         window.Echo.channel('cash-transaction.' + code)
             .listen('.CashTransactionUpdated', (e) => showStatus(e.status));
 
         window.onEchoReconnect(poll);
     });
+
+    if (@json($cashTransaction->status) === 'pending') {
+        setInterval(poll, 5000);
+    }
 })();
 </script>
 @endpush

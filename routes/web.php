@@ -158,6 +158,18 @@ Route::middleware(['auth', 'role:declarator|superadmin|webmaster', 'permission:m
 Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
     Route::get('/', [AgentDashboardController::class, 'index'])->name('dashboard');
     Route::post('/transfer', [AgentDashboardController::class, 'transfer'])->name('transfer');
+
+    // Same GCash/Maya deposit & withdrawal flow as play.cash.* — see
+    // Player\CashController's own doc comment on why it's the same
+    // controller class under both prefixes.
+    Route::prefix('cash')->name('cash.')->group(function () {
+        Route::get('/', [CashController::class, 'index'])->name('index');
+        Route::post('/deposit', [CashController::class, 'storeDeposit'])->name('deposit')->middleware('throttle:10,1');
+        Route::post('/withdraw', [CashController::class, 'storeWithdrawal'])->name('withdraw')->middleware('throttle:10,1');
+        Route::get('/{cashTransaction:code}', [CashController::class, 'show'])->name('show');
+        Route::get('/{cashTransaction:code}/status', [CashController::class, 'status'])->name('status');
+        Route::post('/{cashTransaction:code}/cancel', [CashController::class, 'cancel'])->name('cancel');
+    });
 });
 
 // 404s unconditionally — the app no longer supports teller accounts (see
