@@ -74,36 +74,53 @@ class RbacTest extends TestCase
         $this->actingAs($teller)->get(route('superadmin.wallets.index'))->assertForbidden();
     }
 
-    public function test_superadmin_can_view_and_update_the_roles_and_permissions_screen(): void
+    public function test_webmaster_can_view_and_update_the_roles_and_permissions_screen(): void
     {
-        $admin = $this->admin('superadmin');
-        Role::firstOrCreate(['name' => 'webmaster'])->givePermissionTo('manage-wallets', 'manage-agents');
+        $admin = $this->admin('webmaster');
+        Role::firstOrCreate(['name' => 'superadmin'])->givePermissionTo('manage-wallets', 'manage-agents');
 
         $this->actingAs($admin)->get(route('superadmin.roles.index'))->assertOk();
 
-        $webmasterRole = Role::findByName('webmaster');
+        $superadminRole = Role::findByName('superadmin');
 
-        $response = $this->actingAs($admin)->put(route('superadmin.roles.update', $webmasterRole), [
+        $response = $this->actingAs($admin)->put(route('superadmin.roles.update', $superadminRole), [
             'permissions' => ['manage-agents'],
         ]);
 
         $response->assertRedirect();
-        $webmasterRole->refresh();
-        $this->assertTrue($webmasterRole->hasPermissionTo('manage-agents'));
-        $this->assertFalse($webmasterRole->hasPermissionTo('manage-wallets'));
+        $superadminRole->refresh();
+        $this->assertTrue($superadminRole->hasPermissionTo('manage-agents'));
+        $this->assertFalse($superadminRole->hasPermissionTo('manage-wallets'));
     }
 
-    public function test_the_superadmin_role_cannot_be_stripped_of_manage_roles_permission(): void
+    public function test_the_webmaster_role_cannot_be_stripped_of_manage_roles_permission(): void
     {
-        $admin = $this->admin('superadmin');
-        $superadminRole = Role::findByName('superadmin');
+        $admin = $this->admin('webmaster');
+        $webmasterRole = Role::findByName('webmaster');
+
+        $response = $this->actingAs($admin)->put(route('superadmin.roles.update', $webmasterRole), [
+            'permissions' => ['manage-wallets'],
+        ]);
+
+        $response->assertSessionHas('error');
+        $this->assertTrue($webmasterRole->fresh()->hasPermissionTo('manage-roles'));
+    }
+
+    public function test_the_superadmin_role_can_now_be_stripped_of_manage_roles_permission(): void
+    {
+        // webmaster is the app's top-level/root role now — superadmin is
+        // just another role webmaster can freely scope down, manage-roles
+        // included.
+        $admin = $this->admin('webmaster');
+        $superadminRole = Role::firstOrCreate(['name' => 'superadmin'])->givePermissionTo('manage-roles', 'manage-wallets');
 
         $response = $this->actingAs($admin)->put(route('superadmin.roles.update', $superadminRole), [
             'permissions' => ['manage-wallets'],
         ]);
 
-        $response->assertSessionHas('error');
-        $this->assertTrue($superadminRole->fresh()->hasPermissionTo('manage-roles'));
+        $response->assertRedirect();
+        $this->assertFalse($superadminRole->fresh()->hasPermissionTo('manage-roles'));
+        $this->assertTrue($superadminRole->fresh()->hasPermissionTo('manage-wallets'));
     }
 
     public function test_admin_pin_approver_lookup_follows_the_manage_approval_pin_permission(): void

@@ -75,13 +75,18 @@ class RoleController extends Controller
 
         $newPermissions = $data['permissions'] ?? [];
 
-        // The superadmin role is this screen's own gate (manage-roles) —
-        // losing it here would lock every superadmin out of this page
-        // with no code-level way back in short of a migration/tinker
-        // session. webmaster and every other role stay fully editable,
-        // including removable from manage-roles itself.
-        if ($role->name === 'superadmin' && ! in_array('manage-roles', $newPermissions, true)) {
-            return back()->with('error', __("The superadmin role must keep the \"Manage roles & permissions\" permission."));
+        // webmaster is this app's top-level/root role — the one account
+        // guaranteed to keep every admin permission, including this
+        // screen's own gate (manage-roles), so it can always reach this
+        // page to fix any other role's access (superadmin included).
+        // Losing manage-roles here, with no other role holding it, would
+        // lock everyone out of this page with no code-level way back
+        // short of a migration/tinker session or the
+        // webmaster:restore-access command. Every other role — including
+        // superadmin — stays fully editable, including removable from
+        // manage-roles itself.
+        if ($role->name === 'webmaster' && ! in_array('manage-roles', $newPermissions, true)) {
+            return back()->with('error', __("The webmaster role must keep the \"Manage roles & permissions\" permission."));
         }
 
         $before = $role->permissions->pluck('name')->sort()->values()->all();

@@ -8,10 +8,11 @@ use Spatie\Permission\Models\Role;
  * Seeds the permission set the app's `permission:...` route middleware
  * checks, and the initial role -> permission grants that reproduce
  * today's access exactly: superadmin and webmaster get every admin
- * permission (webmaster is meant to be scoped down later from the
- * Roles & Permissions screen — see Superadmin\RoleController — not by
- * editing this migration), and declarator keeps just the one permission
- * its shared event-management routes need.
+ * permission. webmaster is this app's top-level/root role — see
+ * Superadmin\RoleController's own manage-roles safeguard — and
+ * superadmin is meant to be scoped down later from the Roles &
+ * Permissions screen (not by editing this migration). declarator keeps
+ * just the one permission its shared event-management routes need.
  *
  * A migration (not just a seeder) so these rows — and the grants —
  * exist on any environment that only ever runs `migrate`, same
