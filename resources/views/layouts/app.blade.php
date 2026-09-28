@@ -72,12 +72,6 @@
                                 @role('agent')
                                     <a href="{{ route('agent.dashboard') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('My Dashboard') }}</a>
                                 @endrole
-                                @role('teller')
-                                    <a href="{{ route('teller.dashboard') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Teller Dashboard') }}</a>
-                                @endrole
-                                @can('manage-approval-pin')
-                                    <a href="{{ route('superadmin.pin.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Approval PIN') }}</a>
-                                @endcan
                                 @can('manage-settings')
                                     <a href="{{ route('superadmin.settings.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Payout settings') }}</a>
                                 @endcan
@@ -153,7 +147,8 @@
             // Any wallet balance shown anywhere (nav, wallet page, the
             // betting page's top bar) updates live off one private
             // per-user channel — a bet placed, a payout on a win, a
-            // teller cash approval, all land here without a page reload.
+            // Paybucks deposit/withdrawal settling, all land here without
+            // a page reload.
             (function () {
                 function apply(field, value) {
                     const formatted = Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });

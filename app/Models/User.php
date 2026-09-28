@@ -48,15 +48,6 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * True once this (superadmin) user has set their approval PIN — see
-     * App\Services\AdminPinService.
-     */
-    public function hasPin(): bool
-    {
-        return ! is_null($this->pin);
-    }
-
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class);

@@ -27,7 +27,6 @@ use App\Http\Controllers\Superadmin\EventController as SuperadminEventController
 use App\Http\Controllers\Superadmin\GameController;
 use App\Http\Controllers\Superadmin\IncomeReportController;
 use App\Http\Controllers\Superadmin\OddsTierController;
-use App\Http\Controllers\Superadmin\PinController;
 use App\Http\Controllers\Superadmin\RfidTerminalController;
 use App\Http\Controllers\Superadmin\RoleController;
 use App\Http\Controllers\Superadmin\SettingsController;
@@ -300,11 +299,6 @@ Route::middleware(['auth', 'role:superadmin|webmaster'])->prefix('superadmin')->
         Route::get('/wallets/{user}/transactions', [WalletController::class, 'transactions'])->name('wallets.transactions');
         Route::post('/wallets/{user}/credit', [WalletController::class, 'credit'])->name('wallets.credit');
         Route::post('/wallets/{user}/debit', [WalletController::class, 'debit'])->name('wallets.debit');
-    });
-
-    Route::middleware('permission:manage-approval-pin')->group(function () {
-        Route::get('/pin', [PinController::class, 'edit'])->name('pin.edit');
-        Route::put('/pin', [PinController::class, 'update'])->name('pin.update');
     });
 
     Route::middleware('permission:view-audit-log')->group(function () {

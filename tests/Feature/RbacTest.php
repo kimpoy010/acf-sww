@@ -123,20 +123,6 @@ class RbacTest extends TestCase
         $this->assertTrue($superadminRole->fresh()->hasPermissionTo('manage-wallets'));
     }
 
-    public function test_admin_pin_approver_lookup_follows_the_manage_approval_pin_permission(): void
-    {
-        $webmaster = $this->admin('webmaster');
-        $webmaster->update(['pin' => '4321']);
-
-        $service = app(\App\Services\AdminPinService::class);
-        $this->assertNotNull($service->findApprover('4321'));
-
-        Role::findByName('webmaster')->revokePermissionTo('manage-approval-pin');
-        $webmaster->refresh()->load('roles', 'permissions');
-
-        $this->assertNull($service->findApprover('4321'));
-    }
-
     public function test_webmaster_restore_access_command_recovers_from_a_full_permission_wipe(): void
     {
         $this->admin('webmaster');

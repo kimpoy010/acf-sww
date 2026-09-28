@@ -1,18 +1,16 @@
 {{-- Bottom tab bar — the player app is phone-first (see pool-betting.blade.php's
-     own full-bleed layout), and the three destinations here cover everything a
+     own full-bleed layout), and the four destinations here cover everything a
      player needs day to day, so they live within thumb's reach at the bottom
      of the screen instead of behind a top-nav dropdown.
 
-     Cash (self-service deposit/withdrawal requests, approved by a teller
-     scanning the request's QR code) dropped out of here now that the app
-     no longer supports teller accounts at all — see
-     Console\Commands\DeleteTellerAccounts — leaving no one able to
-     approve a new request. play.cash.* routes/pages are untouched
-     (an already-pending request's own status page still works), just no
-     longer linked to from here. --}}
+     Cash (deposit/withdraw via GCash/Maya — see Player\CashController and
+     App\Services\Paybucks) is back here now that it's self-service again;
+     it only dropped out while it needed a teller to approve each request,
+     and teller accounts are retired. --}}
 @php
     $activeTab = match (true) {
         request()->routeIs('play.wallet.*') => 'wallet',
+        request()->routeIs('play.cash.*') => 'cash',
         request()->routeIs('play.profile') => 'profile',
         default => 'home',
     };
@@ -20,12 +18,13 @@
     $tabs = [
         ['key' => 'home', 'route' => route('play.index'), 'icon' => 'home', 'label' => __('Home')],
         ['key' => 'wallet', 'route' => route('play.wallet.index'), 'icon' => 'wallet', 'label' => __('Wallet')],
+        ['key' => 'cash', 'route' => route('play.cash.index'), 'icon' => 'cash', 'label' => __('Cash')],
         ['key' => 'profile', 'route' => route('play.profile'), 'icon' => 'profile', 'label' => __('Profile')],
     ];
 @endphp
 <nav class="fixed bottom-0 inset-x-0 z-40 bg-[#070b14]/95 backdrop-blur border-t border-[#0c121e]"
      style="padding-bottom: env(safe-area-inset-bottom, 0px);">
-    <div class="grid grid-cols-3 max-w-lg mx-auto">
+    <div class="grid grid-cols-4 max-w-lg mx-auto">
         @foreach ($tabs as $tab)
             <a href="{{ $tab['route'] }}"
                class="relative flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition
@@ -45,6 +44,10 @@
                             <rect x="3.5" y="6.5" width="17" height="12" rx="2.5"/>
                             <path d="M7 6.5V5.8a1.8 1.8 0 011.8-1.8h5.6a1.2 1.2 0 011.2 1.2v1.3"/>
                             <circle cx="16.2" cy="12.5" r="1.4" fill="currentColor" stroke="none"/>
+                            @break
+                        @case('cash')
+                            <rect x="2.5" y="7" width="19" height="11" rx="2"/>
+                            <circle cx="12" cy="12.5" r="2.3"/>
                             @break
                         @case('profile')
                             <circle cx="12" cy="8.2" r="3.4"/>

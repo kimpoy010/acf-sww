@@ -167,6 +167,6 @@ class StaffController extends Controller
      */
     private function assertIsStaff(User $user): void
     {
-        abort_if(! $user->hasAnyRole(self::ROLES), 422, 'Target user is not a teller or declarator.');
+        abort_if(! $user->hasAnyRole(self::ROLES), 422, 'Target user is not a declarator.');
     }
 }

@@ -96,7 +96,7 @@
                                     <option value="meron" {{ $reader->role === 'meron' ? 'selected' : '' }}>{{ strtoupper($activeEvent?->label_meron ?? $roleTheme['meron']['label']) }}</option>
                                     <option value="wala" {{ $reader->role === 'wala' ? 'selected' : '' }}>{{ strtoupper($activeEvent?->label_wala ?? $roleTheme['wala']['label']) }}</option>
                                     <option value="topup" {{ $reader->role === 'topup' ? 'selected' : '' }}>{{ __('TOP-UP') }}</option>
-                                    <option value="identify" {{ $reader->role === 'identify' ? 'selected' : '' }}>{{ __('IDENTIFY (teller counter)') }}</option>
+                                    <option value="identify" {{ $reader->role === 'identify' ? 'selected' : '' }}>{{ __('IDENTIFY') }}</option>
                                     <option value="balance" {{ $reader->role === 'balance' ? 'selected' : '' }}>{{ __('BALANCE CHECK (self-service)') }}</option>
                                 </select>
                                 <button class="rounded-lg bg-emerald-700 hover:bg-emerald-600 transition text-xs px-3 py-1.5">{{ __('Save') }}</button>

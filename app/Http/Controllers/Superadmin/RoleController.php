@@ -18,8 +18,12 @@ use Spatie\Permission\Models\Role;
  *
  * Every role in the system is listed (not just superadmin/webmaster) so
  * this stays the one place all of it is visible, even though most other
- * roles (player, agent, teller, declarator) have no reason to hold most
- * of these permissions today.
+ * roles (player, agent, declarator) have no reason to hold most of these
+ * permissions today. 'teller' is deliberately excluded even if its Role
+ * row still exists on a given environment (see
+ * Console\Commands\DeleteTellerAccounts) — every teller.* route 404s
+ * unconditionally regardless of permissions, so editing what it's
+ * granted here would be pure theater.
  */
 class RoleController extends Controller
 {
@@ -44,7 +48,6 @@ class RoleController extends Controller
             'manage-rfid-terminals' => 'RFID terminals',
             'manage-wallets' => 'Wallets',
             'manage-settings' => 'Payout settings',
-            'manage-approval-pin' => 'Approval PIN',
             'view-audit-log' => 'Audit trail',
             'view-reports' => 'Reports',
         ];
@@ -61,7 +64,7 @@ class RoleController extends Controller
     public function index(): View
     {
         $labels = self::permissionLabels();
-        $roles = Role::with('permissions')->orderBy('name')->get();
+        $roles = Role::with('permissions')->where('name', '!=', 'teller')->orderBy('name')->get();
 
         return view('superadmin.roles.index', compact('roles', 'labels'));
     }

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Bet;
 use App\Models\Event;
 use App\Models\Fight;
-use App\Services\AdminPinService;
 use App\Services\BettingService;
 use App\Services\CombinedBettingService;
 use App\Services\TellerShiftService;
@@ -31,7 +30,6 @@ class TicketController extends Controller
         private BettingService $bettingService,
         private CombinedBettingService $combinedBettingService,
         private TellerShiftService $shiftService,
-        private AdminPinService $adminPinService,
     ) {}
 
     public function create(): View
@@ -236,28 +234,25 @@ class TicketController extends Controller
     }
 
     /**
-     * Pull a ticket out of the pool. Requires a superadmin's PIN — the
-     * teller can't approve their own void, they just relay the PIN an
-     * admin types in for them.
+     * Pull a ticket out of the pool. Unreachable in practice — every
+     * teller.* route 404s unconditionally (see DisableTellerRoutes) now
+     * that teller accounts are retired — kept compiling rather than
+     * removed outright since the rest of this controller (ticket
+     * writing/lookup/redemption) still does too. The Approval-PIN admin
+     * sign-off this used to require is gone along with it (its only
+     * consumer), so this now voids under the teller's own authority.
      */
     public function void(Request $request, Bet $bet): JsonResponse
     {
         abort_unless($bet->isCounterBet(), 404);
-
-        $data = $request->validate(['pin' => 'required|string']);
 
         $shift = $this->shiftService->currentShift(auth()->user());
         if (! $shift) {
             return response()->json(['success' => false, 'message' => __('Start your shift before voiding a ticket.')], 422);
         }
 
-        $admin = $this->adminPinService->findApprover($data['pin']);
-        if (! $admin) {
-            return response()->json(['success' => false, 'message' => __('Incorrect admin PIN.')], 422);
-        }
-
         try {
-            $this->bettingService->voidBet($bet, auth()->user(), $admin);
+            $this->bettingService->voidBet($bet, auth()->user(), auth()->user());
         } catch (\InvalidArgumentException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }

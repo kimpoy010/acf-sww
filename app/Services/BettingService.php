@@ -220,9 +220,9 @@ class BettingService
 
     /**
      * Pull an over-the-counter ticket out of the pool — the teller hands
-     * the stake back in cash. Admin sign-off is enforced by the caller
-     * (AdminPinService resolves $approvedBy before this is ever called);
-     * this just does the actual state change and re-broadcasts the pool.
+     * the stake back in cash. $approvedBy is whoever the caller decides
+     * signed off on it (see Teller\TicketController::void()); this just
+     * does the actual state change and re-broadcasts the pool.
      */
     public function voidBet(Bet $bet, User $teller, User $approvedBy): Bet
     {

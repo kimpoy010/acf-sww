@@ -29,19 +29,10 @@ class RolesAndUsersSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'email_verified_at' => now(),
                 'referral_code' => 'ROOTADMIN',
-                // Demo-only approval PIN, used to sign off an in-person
-                // approval prompt (currently unused now that teller
-                // accounts, the only feature that ever asked for one, are
-                // retired) — change it via Approval PIN in a real
-                // deployment.
-                'pin' => '1234',
             ]
         );
         if (! $superadmin->hasRole('superadmin')) {
             $superadmin->assignRole('superadmin');
-        }
-        if (! $superadmin->hasPin()) {
-            $superadmin->update(['pin' => '1234']);
         }
         Wallet::firstOrCreate(['user_id' => $superadmin->id], ['main_balance' => 1_000_000]);
 

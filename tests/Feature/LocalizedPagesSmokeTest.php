@@ -154,7 +154,6 @@ class LocalizedPagesSmokeTest extends TestCase
             route('superadmin.events.create'),
             route('superadmin.events.edit', $this->event),
             route('superadmin.games.edit', Game::first()),
-            route('superadmin.pin.edit'),
             route('superadmin.rfid-terminals.index'),
             route('superadmin.wallets.index'),
         ] as $url) {
