@@ -39,6 +39,7 @@ use App\Http\Controllers\Teller\ShiftController as TellerShiftController;
 use App\Http\Controllers\Teller\StationController as TellerStationController;
 use App\Http\Controllers\Teller\TicketController as TellerTicketController;
 use App\Http\Controllers\Teller\TransactionController as TellerTransactionController;
+use App\Http\Controllers\Webmaster\CmsSettingsController;
 use Illuminate\Support\Facades\Route;
 
 // Auth-aware, not a blanket redirect: an authenticated user hitting "/" must
@@ -247,6 +248,14 @@ Route::middleware(['teller.disabled'])->prefix('teller')->name('teller.')->group
         // other's count.
         Route::post('/{bet:ticket_code}/void', [TellerTicketController::class, 'void'])->name('void')->middleware(['throttle:5,1,void-burst', 'throttle:30,1440,void-daily']);
     });
+});
+
+// Site branding — deliberately gated on the webmaster role directly, not
+// the RBAC permission system every superadmin.* section below goes
+// through (see Webmaster\CmsSettingsController's own doc comment).
+Route::middleware(['auth', 'role:webmaster'])->prefix('webmaster')->name('webmaster.')->group(function () {
+    Route::get('/cms', [CmsSettingsController::class, 'edit'])->name('cms.edit');
+    Route::put('/cms', [CmsSettingsController::class, 'update'])->name('cms.update');
 });
 
 // The outer role:superadmin|webmaster gate says who's an admin-type

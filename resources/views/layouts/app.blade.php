@@ -3,11 +3,30 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', config('app.name'))</title>
+    @php
+        $cms = $cms ?? \App\Support\CmsSettings::current();
+        $pageTitle = trim($__env->yieldContent('title'));
+    @endphp
+    <title>{{ $pageTitle ? $pageTitle.' · '.$cms['site_name'] : $cms['site_name'] }}</title>
+    @if ($cms['logo_url'])
+        <link rel="icon" href="{{ $cms['logo_url'] }}">
+    @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full antialiased @role('player') bg-[#05070b] text-[#f5efe9] @else bg-slate-950 text-slate-100 @endrole">
+@php
+    // The background is a full-page "wallpaper" behind the login page and
+    // every player screen except the live betting pages, whose own dense
+    // visuals (odds, countdown, bet buttons) need the full contrast of the
+    // plain dark background to stay readable — see the CMS edit page's own
+    // copy.
+    $showCmsBackground = $cms['background_url'] && (
+        request()->routeIs('login')
+        || (auth()->check() && auth()->user()->hasRole('player') && ! request()->routeIs('play.pool-fight', 'play.combined-fight'))
+    );
+@endphp
+<body class="h-full antialiased @role('player') bg-[#05070b] text-[#f5efe9] @else bg-slate-950 text-slate-100 @endrole"
+      @if ($showCmsBackground) style="background-image: linear-gradient(rgba(5,7,11,0.82), rgba(5,7,11,0.82)), url('{{ $cms['background_url'] }}'); background-size: cover; background-position: center; background-attachment: fixed;" @endif>
     {{-- A player gets no top nav at all — logo/locale-switcher/logout all
          moved to the Profile tab (see partials.player-bottom-tabs and
          player/profile/show.blade.php) so the bottom tab bar is the only
@@ -16,7 +35,16 @@
     @unless (auth()->check() && auth()->user()->hasRole('player'))
         <nav id="site-nav" class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
             <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
-                <a href="{{ route(auth()->check() ? auth()->user()->homeRouteName() : 'login') }}" class="font-bold text-base sm:text-lg tracking-tight text-red-400 whitespace-nowrap shrink-0">🐓 {{ __('Pool Sabong') }}</a>
+                <a href="{{ route(auth()->check() ? auth()->user()->homeRouteName() : 'login') }}" class="flex items-center gap-2 font-bold text-base sm:text-lg tracking-tight text-red-400 whitespace-nowrap shrink-0">
+                    @if ($cms['logo_url'])
+                        <img src="{{ $cms['logo_url'] }}" alt="{{ $cms['site_name'] }}" class="w-7 h-7 rounded object-cover">
+                    @else
+                        <span>🐓</span>
+                    @endif
+                    @unless ($cms['hide_nav_site_name'])
+                        <span>{{ $cms['site_name'] }}</span>
+                    @endunless
+                </a>
 
                 @guest
                     @include('partials.locale-switcher')
@@ -58,6 +86,9 @@
                                 @can('manage-settings')
                                     <a href="{{ route('superadmin.settings.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Payout settings') }}</a>
                                 @endcan
+                                @role('webmaster')
+                                    <a href="{{ route('webmaster.cms.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Site Branding') }}</a>
+                                @endrole
                                 <a href="{{ route('account.password.edit') }}" class="block px-4 py-2 whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white transition">{{ __('Change password') }}</a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf

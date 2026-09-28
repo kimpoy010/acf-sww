@@ -36,11 +36,6 @@
     <p class="text-sm text-slate-400 mt-4 text-center">
         {{ __('No account?') }} <a href="{{ route('register') }}" class="text-red-400 hover:underline">{{ __('Register') }}</a>
     </p>
-
-    <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-500 space-y-1">
-        <p>{{ __('Demo accounts') }} ({{ __('password') }}: <code>password</code>):</p>
-        <p>superadmin@example.com &middot; declarator@example.com &middot; player@example.com</p>
-    </div>
 </div>
 
 @if (config('services.turnstile.site_key'))

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Game;
+use App\Support\CmsSettings;
 use App\Support\GameTheme;
 use Carbon\Carbon;
 use Closure;
@@ -23,6 +24,11 @@ use Symfony\Component\HttpFoundation\Response;
  * region lookup also decides the currency symbol for every page — player
  * and staff alike — that isn't already tied to a specific event/game and
  * so can't pull it from `$event->game->theme()['currency']` itself.
+ *
+ * Also the one place that shares the webmaster-editable site branding
+ * (name/logo/background — see Webmaster\CmsSettingsController) as `$cms`,
+ * for the same reason: every page needs it (title, favicon, nav), and
+ * this middleware already runs on every web request.
  */
 class SetLocale
 {
@@ -39,6 +45,7 @@ class SetLocale
         Carbon::setLocale($locale);
 
         View::share('currencySymbol', GameTheme::currencySymbol($region));
+        View::share('cms', CmsSettings::current());
 
         return $next($request);
     }
