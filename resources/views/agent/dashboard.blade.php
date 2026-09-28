@@ -50,7 +50,12 @@
 
 <div class="grid lg:grid-cols-2 gap-6">
     <div class="gold-panel p-4">
-        <h2 class="font-semibold mb-3">{{ __('Downline players (:count)', ['count' => $downlinePlayers->total()]) }}</h2>
+        <div class="flex items-center justify-between mb-3 gap-2">
+            <h2 class="font-semibold">{{ __('Downline players (:count)', ['count' => $downlinePlayersCount]) }}</h2>
+            @if ($downlinePlayersCount > 0)
+                <a href="{{ route('agent.downline.players') }}" class="gold-chip-btn shrink-0">{{ __('View All') }}</a>
+            @endif
+        </div>
         <div class="space-y-1 text-sm max-h-64 overflow-y-auto scroll-thin">
             @forelse ($downlinePlayers as $p)
                 <div class="flex justify-between items-center border-b border-[#141a2a] py-1 gap-2">
@@ -61,15 +66,15 @@
                 <p class="text-[#8a7a70]">{{ __('No players recruited yet.') }}</p>
             @endforelse
         </div>
-        @if ($downlinePlayers->hasPages())
-            <div class="mt-2">
-                {{ $downlinePlayers->onEachSide(1)->links() }}
-            </div>
-        @endif
     </div>
 
     <div class="gold-panel p-4">
-        <h2 class="font-semibold mb-3">{{ __('Downline sub-agents (:count)', ['count' => $downlineAgents->count()]) }}</h2>
+        <div class="flex items-center justify-between mb-3 gap-2">
+            <h2 class="font-semibold">{{ __('Downline sub-agents (:count)', ['count' => $downlineAgentsCount]) }}</h2>
+            @if ($downlineAgentsCount > 0)
+                <a href="{{ route('agent.downline.agents') }}" class="gold-chip-btn shrink-0">{{ __('View All') }}</a>
+            @endif
+        </div>
         <div class="space-y-1 text-sm max-h-64 overflow-y-auto scroll-thin">
             @forelse ($downlineAgents as $a)
                 <div class="flex justify-between items-center border-b border-[#141a2a] py-1 gap-2">
