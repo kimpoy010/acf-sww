@@ -355,62 +355,58 @@
         </div>
     </div>
 
-    {{-- Meron / Wala / Draw — grouped into one wrapper so the Draw bar sits
-         flush under the Meron/Wala row (no gap between them). Meron/Wala
-         are separate rounded cards with a static rooster image as their
-         background (same two images regardless of fight — there's no
-         per-fight photo in the schema), keeping the theme's side colors
-         for the border glow, badge and bet button. --}}
-    <div>
-    <!-- Meron / Wala -->
-    <div class="grid grid-cols-2 gap-2.5">
+    {{-- Meron / Draw / Wala — three equal columns, Draw included as a card
+         of its own between Meron and Wala rather than a separate full-width
+         bar underneath. Meron/Wala keep the theme's side colors for the
+         border glow, badge and bet button; Draw uses a fixed teal (it has
+         no game/region theme entry of its own — its color never changes
+         per game the way Meron/Wala's does). --}}
+    <div class="grid grid-cols-3 gap-1.5">
         <div class="relative rounded-2xl overflow-hidden flex flex-col side-neon-card" style="--side-glow-rgb:{{ $meronRgb }};border:1px solid rgba({{ $meronRgb }},0.35);background:radial-gradient(circle at 50% 30%, rgba({{ $meronRgb }},0.22), #160e0a 70%);">
-            <p class="relative text-center pt-2 text-base font-extrabold tracking-wide" style="color:rgb({{ $meronRgb }});text-shadow:0 2px 6px rgba(0,0,0,0.7);">{{ strtoupper($event->label_meron) }}</p>
-            <div class="relative flex-1 px-3 pb-3.5 pt-1 flex flex-col items-center justify-end gap-0.5">
-                <p class="text-yellow-400 text-xl font-extrabold" id="meron-pool">{{ number_format($meronPool * $event->multiplier, 2) }}</p>
-                <p class="font-bold text-sm" style="color:#f2cba8;">{{ __('Payout') }} <span id="meron-payout-pct">{{ number_format($meronPayoutPct, 2) }}</span>%</p>
-                <p class="text-xs mb-1">
+            <p class="relative text-center pt-2 text-xs font-extrabold tracking-wide truncate px-1" style="color:rgb({{ $meronRgb }});text-shadow:0 2px 6px rgba(0,0,0,0.7);">{{ strtoupper($event->label_meron) }}</p>
+            <div class="relative flex-1 px-1.5 pb-3 pt-1 flex flex-col items-center justify-end gap-0.5">
+                <p class="text-yellow-400 text-sm font-extrabold" id="meron-pool">{{ number_format($meronPool * $event->multiplier, 2) }}</p>
+                <p class="font-bold text-[10px] text-center" style="color:#f2cba8;">{{ __('Payout') }} <span id="meron-payout-pct">{{ number_format($meronPayoutPct, 2) }}</span>%</p>
+                <p class="text-[10px] mb-1 text-center leading-tight">
                     <span class="text-white font-semibold" id="my-meron-bet">{{ number_format($myMeronBet, 0) }}</span>
                     <span class="text-[#c99a7a]">=</span>
                     <span class="text-emerald-400 font-semibold" id="my-meron-payout">{{ number_format($myMeronBet * $payouts['meron'], 0) }}</span>
                 </p>
-                <button type="button" data-side="meron" class="place-bet-btn w-full rounded-lg {{ $theme['meron']['btn'] }} disabled:opacity-40 disabled:cursor-not-allowed transition font-bold text-sm py-2" style="box-shadow:0 4px 12px -4px rgba({{ $meronRgb }},0.6);" disabled>
+                <button type="button" data-side="meron" class="place-bet-btn w-full rounded-lg {{ $theme['meron']['btn'] }} disabled:opacity-40 disabled:cursor-not-allowed transition font-bold text-[10px] leading-tight py-2 px-0.5" style="box-shadow:0 4px 12px -4px rgba({{ $meronRgb }},0.6);" disabled>
                     {{ __('BET :side', ['side' => strtoupper($event->label_meron)]) }}
                 </button>
             </div>
         </div>
+
+        @if ($fight->draw_enabled)
+            <div class="relative rounded-2xl overflow-hidden flex flex-col side-neon-card" style="--side-glow-rgb:20,184,166;border:1px solid rgba(20,184,166,0.4);background:radial-gradient(circle at 50% 30%, rgba(20,184,166,0.20), #160e0a 70%);">
+                <p class="relative text-center pt-2 text-xs font-extrabold tracking-wide truncate px-1" style="color:#5eead4;text-shadow:0 2px 6px rgba(0,0,0,0.7);">{{ strtoupper($event->label_draw) }}</p>
+                <div class="relative flex-1 px-1.5 pb-3 pt-1 flex flex-col items-center justify-end gap-0.5">
+                    <p class="text-yellow-400 text-sm font-extrabold" id="draw-pool">{{ number_format($drawPool * $event->multiplier, 2) }}</p>
+                    <p class="font-bold text-[10px] text-center" style="color:#f2cba8;">{{ __(':side WINS x:multiplier', ['side' => strtoupper($event->label_draw), 'multiplier' => number_format($drawMultiplier, 0)]) }}</p>
+                    <p class="text-[#8a7a70] text-[10px] mb-1 text-center leading-tight" id="draw-remaining-text">{{ __(':remaining left of :max pool', ['remaining' => number_format($drawRemaining, 0), 'max' => number_format($maxDrawBet, 0)]) }}</p>
+                    <button type="button" data-side="draw" class="place-bet-btn w-full rounded-lg bg-teal-700 hover:bg-teal-600 disabled:opacity-40 disabled:cursor-not-allowed transition font-bold text-[10px] leading-tight py-2 px-0.5" disabled>
+                        {{ __('BET :side', ['side' => strtoupper($event->label_draw)]) }}
+                    </button>
+                </div>
+            </div>
+        @endif
+
         <div class="relative rounded-2xl overflow-hidden flex flex-col side-neon-card" style="--side-glow-rgb:{{ $walaRgb }};border:1px solid rgba({{ $walaRgb }},0.35);background:radial-gradient(circle at 50% 30%, rgba({{ $walaRgb }},0.22), #160e0a 70%);">
-            <p class="relative text-center pt-2 text-base font-extrabold tracking-wide" style="color:rgb({{ $walaRgb }});text-shadow:0 2px 6px rgba(0,0,0,0.7);">{{ strtoupper($event->label_wala) }}</p>
-            <div class="relative flex-1 px-3 pb-3.5 pt-1 flex flex-col items-center justify-end gap-0.5">
-                <p class="text-yellow-400 text-xl font-extrabold" id="wala-pool">{{ number_format($walaPool * $event->multiplier, 2) }}</p>
-                <p class="font-bold text-sm" style="color:#f2cba8;">{{ __('Payout') }} <span id="wala-payout-pct">{{ number_format($walaPayoutPct, 2) }}</span>%</p>
-                <p class="text-xs mb-1">
+            <p class="relative text-center pt-2 text-xs font-extrabold tracking-wide truncate px-1" style="color:rgb({{ $walaRgb }});text-shadow:0 2px 6px rgba(0,0,0,0.7);">{{ strtoupper($event->label_wala) }}</p>
+            <div class="relative flex-1 px-1.5 pb-3 pt-1 flex flex-col items-center justify-end gap-0.5">
+                <p class="text-yellow-400 text-sm font-extrabold" id="wala-pool">{{ number_format($walaPool * $event->multiplier, 2) }}</p>
+                <p class="font-bold text-[10px] text-center" style="color:#f2cba8;">{{ __('Payout') }} <span id="wala-payout-pct">{{ number_format($walaPayoutPct, 2) }}</span>%</p>
+                <p class="text-[10px] mb-1 text-center leading-tight">
                     <span class="text-white font-semibold" id="my-wala-bet">{{ number_format($myWalaBet, 0) }}</span>
                     <span class="text-[#c99a7a]">=</span>
                     <span class="text-emerald-400 font-semibold" id="my-wala-payout">{{ number_format($myWalaBet * $payouts['wala'], 0) }}</span>
                 </p>
-                <button type="button" data-side="wala" class="place-bet-btn w-full rounded-lg {{ $theme['wala']['btn'] }} disabled:opacity-40 disabled:cursor-not-allowed transition font-bold text-sm py-2" style="box-shadow:0 4px 12px -4px rgba({{ $walaRgb }},0.5);" disabled>
+                <button type="button" data-side="wala" class="place-bet-btn w-full rounded-lg {{ $theme['wala']['btn'] }} disabled:opacity-40 disabled:cursor-not-allowed transition font-bold text-[10px] leading-tight py-2 px-0.5" style="box-shadow:0 4px 12px -4px rgba({{ $walaRgb }},0.5);" disabled>
                     {{ __('BET :side', ['side' => strtoupper($event->label_wala)]) }}
                 </button>
             </div>
         </div>
-    </div>
-
-    <!-- Draw -->
-    @if ($fight->draw_enabled)
-        <div class="rounded-2xl mt-2.5 px-4 py-3" style="background:#160e0a;border:1px solid rgba(15,118,110,0.4);">
-            <div class="flex items-center justify-between mb-3">
-                <div>
-                    <p class="font-extrabold text-sm" style="color:#5eead4;">{{ __(':side WINS x:multiplier', ['side' => strtoupper($event->label_draw), 'multiplier' => number_format($drawMultiplier, 0)]) }}</p>
-                    <p class="text-[#8a7a70] text-xs" id="draw-remaining-text">{{ __(':remaining left of :max pool', ['remaining' => number_format($drawRemaining, 0), 'max' => number_format($maxDrawBet, 0)]) }}</p>
-                </div>
-                <p class="text-yellow-400 text-2xl font-extrabold" id="draw-pool">{{ number_format($drawPool * $event->multiplier, 2) }}</p>
-            </div>
-            <button type="button" data-side="draw" class="place-bet-btn w-full rounded-lg bg-teal-700 hover:bg-teal-600 disabled:opacity-40 disabled:cursor-not-allowed transition font-bold text-sm py-2" disabled>
-                {{ __('BET :side', ['side' => strtoupper($event->label_draw)]) }}
-            </button>
-        </div>
-    @endif
     </div>
 
     <!-- Status panel — only worth a caller-out banner while betting isn't
