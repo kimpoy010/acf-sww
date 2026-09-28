@@ -53,8 +53,9 @@
         <h2 class="font-semibold mb-3">{{ __('Downline players (:count)', ['count' => $downlinePlayers->total()]) }}</h2>
         <div class="space-y-1 text-sm max-h-64 overflow-y-auto scroll-thin">
             @forelse ($downlinePlayers as $p)
-                <div class="flex justify-between border-b border-[#141a2a] py-1">
-                    <span>{{ $p->displayName() }}</span>
+                <div class="flex justify-between items-center border-b border-[#141a2a] py-1 gap-2">
+                    <a href="{{ route('agent.downline.transactions', $p) }}" class="hover:underline" style="color:#c9a04a">{{ $p->displayName() }}</a>
+                    <span class="text-emerald-400 font-semibold whitespace-nowrap">{{ $currencySymbol }}{{ number_format($p->wallet->main_balance ?? 0, 2) }}</span>
                 </div>
             @empty
                 <p class="text-[#8a7a70]">{{ __('No players recruited yet.') }}</p>
@@ -71,9 +72,15 @@
         <h2 class="font-semibold mb-3">{{ __('Downline sub-agents (:count)', ['count' => $downlineAgents->count()]) }}</h2>
         <div class="space-y-1 text-sm max-h-64 overflow-y-auto scroll-thin">
             @forelse ($downlineAgents as $a)
-                <div class="flex justify-between border-b border-[#141a2a] py-1">
-                    <span>{{ $a->displayName() }}</span>
-                    <span class="text-[#8a7a70]">{{ __(':count downline', ['count' => $a->downline_count]) }}</span>
+                <div class="flex justify-between items-center border-b border-[#141a2a] py-1 gap-2">
+                    <div class="min-w-0">
+                        <a href="{{ route('agent.downline.transactions', $a) }}" class="hover:underline block truncate" style="color:#c9a04a">{{ $a->displayName() }}</a>
+                        <span class="text-[#8a7a70] text-xs">{{ __(':count downline', ['count' => $a->downline_count]) }}</span>
+                    </div>
+                    <div class="text-right whitespace-nowrap">
+                        <p class="text-emerald-400 font-semibold">{{ $currencySymbol }}{{ number_format($a->wallet->main_balance ?? 0, 2) }}</p>
+                        <p class="text-amber-400 text-xs">{{ __('Comm:') }} {{ $currencySymbol }}{{ number_format($a->wallet->commission_balance ?? 0, 2) }}</p>
+                    </div>
                 </div>
             @empty
                 <p class="text-[#8a7a70]">{{ __('No sub-agents yet.') }}</p>

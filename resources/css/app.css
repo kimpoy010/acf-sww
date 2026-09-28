@@ -194,4 +194,5 @@
    player-wallet-transactions All/Bets/Deposits/Withdrawals tabs) — a
    shared class so a plain classList.toggle('is-active', …) works instead
    of the JS having to juggle several individual utility classes. */
-.wallet-tx-tab.is-active{background:linear-gradient(180deg,#c9a04a,#a8791f);color:#241600}
+.wallet-tx-tab.is-active,
+.downline-tx-tab.is-active{background:linear-gradient(180deg,#c9a04a,#a8791f);color:#241600}

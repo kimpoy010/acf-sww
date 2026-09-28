@@ -14,8 +14,8 @@ class DashboardController extends Controller
     {
         $agent = auth()->user();
 
-        $downlineAgents = $agent->downline()->role('agent')->withCount('downline')->get();
-        $downlinePlayers = $agent->downline()->role('player')->orderBy('name')->paginate(15, ['*'], 'players_page');
+        $downlineAgents = $agent->downline()->role('agent')->with('wallet')->withCount('downline')->get();
+        $downlinePlayers = $agent->downline()->role('player')->with('wallet')->orderBy('name')->paginate(15, ['*'], 'players_page');
 
         $logs = CommissionLog::where('agent_id', $agent->id)
             ->with('player:id,name,username')
