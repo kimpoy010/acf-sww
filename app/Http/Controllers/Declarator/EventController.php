@@ -29,8 +29,12 @@ class EventController extends Controller
     {
         $event->load('game', 'cockpitPreset.cockpits');
 
+        $videoEnabled = $event->game?->video_enabled ?? true;
+
         return view('declarator.events.show', [
             'event' => $event,
+            'videoEnabled' => $videoEnabled,
+            'mainStreamUrl' => $videoEnabled ? $this->mainStreamUrl($event) : null,
             ...$this->fightsPanelData($event),
         ]);
     }
@@ -51,7 +55,51 @@ class EventController extends Controller
             ...$this->fightsPanelData($event),
         ])->render();
 
-        return response()->json(['html' => $html]);
+        $videoEnabled = $event->game?->video_enabled ?? true;
+
+        return response()->json([
+            'html' => $html,
+            // A cockpit reassignment or a brand new fight starting can
+            // change which stream is "current" without the page ever
+            // reloading — the client updates the video's src from this,
+            // the same as the panel HTML itself.
+            'main_stream_url' => $videoEnabled ? $this->mainStreamUrl($event) : null,
+        ]);
+    }
+
+    /**
+     * Same fallback chain as Player\PoolBetController's own
+     * mainStreamUrl(), just scoped to the event's current active fight
+     * instead of one specific fight: that fight's own cockpit takes
+     * priority, then the event's cockpit-preset primary, then (so the
+     * video never goes blank between fights) whichever cockpit this
+     * event most recently finished using.
+     */
+    private function mainStreamUrl(Event $event): ?string
+    {
+        $activeFight = $event->fights()
+            ->whereIn('status', Fight::IN_PLAY_STATUSES)
+            ->orderBy('fight_number')
+            ->with('cockpit')
+            ->first();
+
+        if ($activeFight?->cockpit?->stream_url) {
+            return $activeFight->cockpit->stream_url;
+        }
+
+        if ($primary = $event->primaryStreamUrl()) {
+            return $primary;
+        }
+
+        return $event->fights()
+            ->whereIn('status', ['declared', 'cancelled'])
+            ->whereNotNull('cockpit_id')
+            ->with('cockpit')
+            ->orderByDesc('fight_number')
+            ->get()
+            ->first(fn (Fight $candidate) => filled($candidate->cockpit?->stream_url))
+            ?->cockpit
+            ?->stream_url;
     }
 
     /**

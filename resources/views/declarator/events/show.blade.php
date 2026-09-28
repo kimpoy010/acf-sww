@@ -37,6 +37,23 @@
     </div>
 </div>
 
+@if ($videoEnabled)
+    {{-- Same fallback chain as the player-facing page (this fight's own
+         cockpit, then the event's preset primary, then whichever cockpit
+         this event last used) — see EventController::mainStreamUrl(). Lets
+         the declarator watch the same feed the players are, right from
+         the panel they're running the event on, without a second tab.
+         Hidden (not omitted) when there's no stream yet, same reasoning
+         as the player page: a fight can go from no-cockpit to
+         cockpit-assigned without a reload, and refreshPanel() below
+         reveals/populates this once one becomes available. --}}
+    <div id="live-stream" class="aspect-video rounded-xl overflow-hidden border border-slate-800 bg-black mb-6" @if (! $mainStreamUrl) hidden @endif>
+        <iframe id="live-stream-iframe" src="{{ $mainStreamUrl }}" class="w-full h-full" frameborder="0"
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen
+            referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+@endif
+
 <div id="fights-panel">
     @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
 </div>
@@ -50,6 +67,23 @@
     const eventId = {{ $event->id }};
     const panelUrl = @json(route('declarator.events.fights-panel', $event));
     const panel = document.getElementById('fights-panel');
+
+    // Tracks the src already applied so a refresh with no actual change
+    // (the common case — most fight actions don't touch the stream) never
+    // reloads an already-playing video.
+    let currentMainStreamUrl = @json($mainStreamUrl ?? null);
+
+    function applyMainStream(url) {
+        if (url === currentMainStreamUrl) return;
+        currentMainStreamUrl = url;
+
+        const box = document.getElementById('live-stream');
+        const iframe = document.getElementById('live-stream-iframe');
+        if (!box || !iframe) return;
+
+        iframe.src = url || '';
+        box.hidden = ! url;
+    }
 
     function ajaxSubmit(form) {
         const formData = new FormData(form);
@@ -167,6 +201,7 @@
             .then(data => {
                 panel.innerHTML = data.html;
                 initFightCards();
+                if ('main_stream_url' in data) applyMainStream(data.main_stream_url);
             })
             .catch(() => {});
     }
