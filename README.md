@@ -13,9 +13,9 @@ declare winner), and a superadmin manages events and game settings and can
 manually credit/debit player wallets.
 
 This is a **minimal runnable slice**: it keeps the pool-sabong betting
-engine, wallet ledger, agent/commission hierarchy, and realtime updates
-faithful to the reference platform's business rules, but drops the
-webmaster back-office tooling, chat support, geoblocking, and every other
+engine, wallet ledger, agent/commission hierarchy, RBAC-driven admin
+back office, and realtime updates faithful to the reference platform's
+business rules, but drops chat support, geoblocking, and every other
 game the reference platform offered.
 
 ## Stack
@@ -23,8 +23,9 @@ game the reference platform offered.
 - Laravel 13, SQLite
 - Blade + Tailwind CSS v4, vanilla JS (no frontend framework)
 - Laravel Reverb (WebSocket) + Laravel Echo for live pool/fight updates
-- spatie/laravel-permission for roles (`player`, `declarator`, `superadmin`, `agent`, `teller`)
-- endroid/qr-code (SVG, no GD/Imagick needed) for cash-in/cash-out QR codes
+- spatie/laravel-permission for roles (`player`, `declarator`, `superadmin`, `webmaster`, `agent`) plus a DB-editable RBAC permission layer on top (see "Roles & Permissions" below)
+- endroid/qr-code (SVG, no GD/Imagick needed) — a Paybucks-provided deposit QR falls back to this if Paybucks itself doesn't return a scannable image
+- Paybucks Merchant API for GCash/Maya deposits and withdrawals (see "Cash in / cash out" below)
 
 ## Setup
 
@@ -64,8 +65,8 @@ FLUSH PRIVILEGES;
 
 Then run `php artisan migrate --seed` as usual — no `database/database.sqlite`
 file needed. This has been verified end-to-end against real MariaDB
-(migrations, seeders, betting/settlement, agent commission, and the teller
-QR cash-in/cash-out flow all behave identically to SQLite). The test suite
+(migrations, seeders, betting/settlement, agent commission, and the
+GCash/Maya cash-in/cash-out flow all behave identically to SQLite). The test suite
 (`phpunit.xml`) still runs against an in-memory SQLite database regardless
 of what your app's `.env` points at — that's just for test speed and is
 unrelated to your production database choice.
@@ -83,7 +84,7 @@ npm run dev                # asset watcher (optional in production)
 ### Accessing it from another device on your network
 
 If you're opening the app from a phone or another computer rather than the
-same machine (e.g. testing the teller QR flow with a real camera), `.env`'s
+same machine (e.g. testing the GCash/Maya deposit QR flow with a real camera), `.env`'s
 `REVERB_HOST` needs to be your machine's LAN IP instead of the default
 `localhost`, since that's what the *other* device's browser will try to
 connect to:
@@ -115,15 +116,28 @@ connect.
 
 ## Demo accounts
 
-Seeded by `php artisan db:seed` (password: `password` for all):
+Seeded by `php artisan db:seed` (password: `password` for all, except
+webmaster — see below):
 
 | Role       | Email                    |
 |------------|--------------------------|
 | superadmin | superadmin@example.com   |
+| webmaster  | webmaster@example.com    |
 | declarator | declarator@example.com   |
 | player     | player@example.com       |
 | agent      | agent@example.com        |
-| teller     | teller@example.com       |
+
+Webmaster is this app's top-level/root account (see "Roles & Permissions"
+below) — its password is randomly generated instead of the fixed
+`password` the other demo accounts use, and printed to the console once,
+the first time the seeder actually creates it. There's no way to recover
+it afterward short of `php artisan webmaster:restore-access` (which
+restores access/permissions, not the original password) or resetting it
+directly.
+
+The app no longer supports teller accounts at all — deposits/withdrawals
+are self-service via GCash/Maya (see "Cash in / cash out" below), not a
+cashier role.
 
 The demo player is recruited under the demo agent out of the box, so a
 fight settled with that player betting will visibly credit the agent's
@@ -156,36 +170,65 @@ referral link at all (or an unrecognized one) creates an ordinary,
 unaffiliated player — registration is not gated behind a referral
 requirement in this build.
 
-## Teller cash-in / cash-out
+## Cash in / cash out (GCash / Maya via Paybucks)
 
-Deposits and withdrawals go through a **teller** (cashier), separately from
-bet payouts — a winning bet's payout is credited to the player's wallet
-automatically the moment the fight is settled; it's only *getting that
-money out* (or putting new money in) that requires a teller.
+Deposits and withdrawals are entirely self-service through the Paybucks
+Merchant API — no cashier/teller role is involved at all. Players and
+agents share the exact same flow (`/play/cash` and `/agent/cash`
+respectively), depositing/withdrawing against their own `main_balance`.
 
 **Deposit ("cash in")**
-1. Player enters an amount at `/play/cash` and generates a QR code. Nothing
-   is credited yet.
-2. The teller scans it (any phone camera opens the QR's URL straight into
-   the approval screen at `/teller/scan/{code}`) or types the code shown
-   under the QR into the teller dashboard manually.
-3. The player hands over cash/e-wallet payment; the teller presses
-   **Approve**, which credits the wallet.
+1. Player picks GCash or Maya and an amount at `/play/cash`. Nothing is
+   credited yet.
+2. The request is submitted to Paybucks, which returns a QR/payment link
+   the player pays with their own GCash/Maya app.
+3. Paybucks' callback (or a periodic status poll, as a fallback) tells the
+   app the payment settled — but the callback is **never trusted
+   directly**: every notification triggers a fresh server-to-server
+   re-verification via Paybucks' own Order Status API
+   (`CashTransactionService::reconcilePaybucksOrder()`), and only that
+   confirmed result actually credits the wallet.
 
 **Withdrawal ("cash out")**
-1. Player generates a withdrawal QR — the amount is always their full
-   *available* balance, snapshotted at that moment.
+1. Player picks a channel — the amount is always their full *available*
+   balance, snapshotted at that moment. The payout destination isn't
+   typed in per request: it's locked to whichever GCash number / Maya
+   number+name the player registered ahead of time on the Payment
+   Methods page, so a withdrawal can't be redirected to an unconfirmed
+   account.
 2. That amount is immediately **reserved** (held out of what they can bet
    or request another withdrawal for) so it can't be double-spent while the
    request is pending, but their `main_balance` isn't touched yet.
-3. The teller scans it and presses **Approve** — only now is the wallet
-   actually debited, matching the spec's "cashier presses approve and the
-   amount is deducted." The teller then hands over the payment.
+3. The withdrawal is submitted to Paybucks; the same reconciliation step
+   above is what actually debits `main_balance` once Paybucks confirms the
+   payout succeeded — never the callback alone, and never speculatively.
 
-Other rules: a player can only have one pending cash request at a time; QR
-codes expire after 15 minutes if unscanned; either the player or the teller
-can cancel/reject a pending request, which — for a withdrawal — releases
-the reservation without ever touching `main_balance`.
+Other rules: a player/agent can only have one pending cash request at a
+time; a deposit expires after 15 minutes if never paid (a submitted
+withdrawal is never auto-expired, since the payout may still be in flight
+at Paybucks — only reconciliation can resolve it); either party can
+cancel a still-pending deposit, which releases any reservation without
+ever touching `main_balance`.
+
+## Roles & Permissions
+
+`webmaster` is this app's one top-level/root role — the only role
+guaranteed to keep the `manage-roles` permission (see
+`Superadmin\RoleController`'s own safeguard), so it can always reach
+`/superadmin/roles` to fix any other role's access, `superadmin`
+included. Every other role's admin-section grants (agents, staff, games,
+events, wallets, reports, ...) are edited from that same screen and take
+effect immediately, with no deploy — the outer `role:superadmin|webmaster`
+route gate says who's an admin-type account at all, and the `permission:...`
+middleware on each inner route group is the actual RBAC layer.
+
+If a webmaster account's own permissions are ever accidentally wiped from
+that screen, `php artisan webmaster:restore-access` restores full access
+without needing database access.
+
+`webmaster` alone also reaches `/webmaster/cms` — site branding (name,
+logo, background image), which then appears on the login page, the
+browser tab title, the favicon, and the top navigation across the app.
 
 ## How a fight works
 
@@ -212,9 +255,11 @@ Covers the payout math (`PoolPayoutCalculator`), the settlement rules in
 idempotent settlement), the draw-pool betting cap, the cosmetic
 display-multiplier scaling on the player page, the differential-rate
 commission chain (`CommissionService`) including its integration with
-settlement, and the teller cash-in/cash-out flow (`CashTransactionService`
-— deposit only credits on approval, withdrawal reserves-then-debits,
-expiry, cancellation, the one-pending-request rule).
+settlement, and the GCash/Maya cash-in/cash-out flow
+(`CashTransactionService`/`PaybucksSmokeTest` — a deposit only credits
+after re-verifying with Paybucks' Order Status API, a withdrawal
+reserves-then-debits the same way, expiry, cancellation, the
+one-pending-request rule, and the saved-payment-method withdrawal lock).
 
 ## Production deployment
 
