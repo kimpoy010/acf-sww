@@ -19,8 +19,7 @@
        Sized for a real button (~40px tall), not the zoomed mockup artboard;
        .inline switches it from a full-width block to shrink-to-content for
        secondary/inline placements (Back links, etc). */
-    .gold-btn-frame{position:relative;display:block;width:100%;overflow:hidden;padding:1.5px;border-radius:8px;background:linear-gradient(155deg,#fdf0c8 0%,#e8c15f 22%,#a8791f 48%,#f0cf7e 68%,#7a591c 100%);box-shadow:0 4px 10px -6px rgba(0,0,0,.6);text-decoration:none;cursor:pointer;border:none;font:inherit;opacity:.55;transition:opacity .15s}
-    .gold-btn-frame.is-active{opacity:1}
+    .gold-btn-frame{position:relative;display:block;width:100%;overflow:hidden;padding:1.5px;border-radius:8px;background:linear-gradient(155deg,#fdf0c8 0%,#e8c15f 22%,#a8791f 48%,#f0cf7e 68%,#7a591c 100%);box-shadow:0 4px 10px -6px rgba(0,0,0,.6);text-decoration:none;cursor:pointer;border:none;font:inherit}
     .gold-btn-frame.inline{width:auto;display:inline-block}
     .gold-btn-frame:disabled,.gold-btn-frame[disabled]{opacity:.3;cursor:not-allowed}
     .gold-btn-corner{position:absolute;width:3px;height:3px;background:#fff3d6;box-shadow:0 0 2px 0 rgba(255,243,214,.8)}
