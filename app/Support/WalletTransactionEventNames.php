@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Bet;
+use App\Models\WalletTransaction;
 use Illuminate\Support\Collection;
 
 /**
@@ -14,10 +15,10 @@ use Illuminate\Support\Collection;
  */
 class WalletTransactionEventNames
 {
-    public const BET_LINKED_REFERENCE_TYPES = ['bet', 'payout', 'refund', 'reversal'];
+    public const BET_LINKED_REFERENCE_TYPES = ['bet', 'payout', 'refund', 'reversal', 'vip_rebate'];
 
     /**
-     * @param  Collection<int, \App\Models\WalletTransaction>  $transactions
+     * @param  Collection<int, WalletTransaction>  $transactions
      * @return Collection<int, string> event name keyed by bet id
      */
     public static function forTransactions(Collection $transactions): Collection
@@ -44,7 +45,7 @@ class WalletTransactionEventNames
      * stored description itself is untouched and still used everywhere
      * else (the transaction detail modal, CSV exports, etc.).
      *
-     * @param  Collection<int, \App\Models\WalletTransaction>  $transactions
+     * @param  Collection<int, WalletTransaction>  $transactions
      * @return Collection<int, array{label: string, colorClass: string}> keyed by bet id
      */
     public static function betSummaries(Collection $transactions): Collection
@@ -70,7 +71,7 @@ class WalletTransactionEventNames
     }
 
     /**
-     * @param  Collection<int, \App\Models\WalletTransaction>  $transactions
+     * @param  Collection<int, WalletTransaction>  $transactions
      * @return Collection<int, int>
      */
     private static function betIdsFor(Collection $transactions): Collection

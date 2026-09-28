@@ -52,6 +52,12 @@
             <p class="text-sm text-[#9c8f7b] mt-1">{{ __("Set each ring's video feed URL.") }}</p>
         </a>
     @endcan
+    @can('manage-vip-tiers')
+        <a href="{{ route('superadmin.vip-tiers.index') }}" class="gold-panel p-4 hover:brightness-110 transition">
+            <p class="font-semibold">👑 {{ __('VIP Tiers') }}</p>
+            <p class="text-sm text-[#9c8f7b] mt-1">{{ __('Manage valid-bet thresholds and rebate percentages.') }}</p>
+        </a>
+    @endcan
     @can('manage-cockpit-presets')
         <a href="{{ route('superadmin.cockpit-presets.index') }}" class="gold-panel p-4 hover:brightness-110 transition">
             <p class="font-semibold">🎛️ {{ __('Cockpit Presets') }}</p>

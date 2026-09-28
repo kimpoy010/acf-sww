@@ -13,6 +13,7 @@ class Wallet extends Model
         'main_balance',
         'commission_balance',
         'pending_withdrawal',
+        'lifetime_valid_bets',
         'is_locked',
     ];
 
@@ -22,6 +23,7 @@ class Wallet extends Model
             'main_balance' => 'decimal:2',
             'commission_balance' => 'decimal:2',
             'pending_withdrawal' => 'decimal:2',
+            'lifetime_valid_bets' => 'decimal:2',
             'is_locked' => 'boolean',
         ];
     }

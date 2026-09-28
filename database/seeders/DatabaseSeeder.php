@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             GameSeeder::class,
             OddsTierSeeder::class,
             AgentLevelSeeder::class,
+            VipTierSeeder::class,
             AgentDemoSeeder::class,
             SettingSeeder::class,
         ]);

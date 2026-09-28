@@ -45,6 +45,7 @@ class RoleController extends Controller
             'manage-cockpits' => 'Cockpits',
             'manage-cockpit-presets' => 'Cockpit presets',
             'manage-odds-tiers' => 'Odds tiers',
+            'manage-vip-tiers' => 'VIP tiers',
             'manage-rfid-terminals' => 'RFID terminals',
             'manage-wallets' => 'Wallets',
             'manage-settings' => 'Payout settings',
@@ -89,7 +90,7 @@ class RoleController extends Controller
         // superadmin — stays fully editable, including removable from
         // manage-roles itself.
         if ($role->name === 'webmaster' && ! in_array('manage-roles', $newPermissions, true)) {
-            return back()->with('error', __("The webmaster role must keep the \"Manage roles & permissions\" permission."));
+            return back()->with('error', __('The webmaster role must keep the "Manage roles & permissions" permission.'));
         }
 
         $before = $role->permissions->pluck('name')->sort()->values()->all();
