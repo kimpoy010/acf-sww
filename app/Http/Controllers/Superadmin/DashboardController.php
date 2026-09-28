@@ -13,8 +13,7 @@ class DashboardController extends Controller
     {
         $events = Event::orderByDesc('id')->limit(10)->get();
         $game = Game::where('game_name', 'pool-sabong')->first();
-        $combinedGame = Game::where('game_name', 'combined-sabong')->first();
 
-        return view('superadmin.dashboard', compact('events', 'game', 'combinedGame'));
+        return view('superadmin.dashboard', compact('events', 'game'));
     }
 }

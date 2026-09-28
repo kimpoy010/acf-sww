@@ -18,7 +18,12 @@ class EventController extends Controller
 {
     public function create(): View
     {
-        $games = Game::orderBy('display_name')->get();
+        // Combined Sabong is hidden from the app's UI for now — still a
+        // real, working Game row (an event already using it keeps working
+        // fine), just not offered when starting a new event.
+        $games = Game::where(fn ($q) => $q->where('game_type', '!=', 'combined')->orWhereNull('game_type'))
+            ->orderBy('display_name')
+            ->get();
         $cockpitPresets = CockpitPreset::orderBy('name')->get();
         $oddsTiers = OddsTier::where('is_active', true)->orderBy('display_order')->orderBy('label')->get();
 
