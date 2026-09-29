@@ -96,8 +96,8 @@ class TurnstileTest extends TestCase
             'name' => 'New Player',
             'username' => 'newplayer',
             'email' => 'newplayer@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'BrandNewPassw0rd',
+            'password_confirmation' => 'BrandNewPassw0rd',
             'cf-turnstile-response' => 'a-valid-looking-token',
         ]);
 
@@ -113,8 +113,8 @@ class TurnstileTest extends TestCase
             'name' => 'New Player',
             'username' => 'newplayer',
             'email' => 'newplayer@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'BrandNewPassw0rd',
+            'password_confirmation' => 'BrandNewPassw0rd',
             'cf-turnstile-response' => 'forged-token',
         ]);
 

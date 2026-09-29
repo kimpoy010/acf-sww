@@ -29,7 +29,10 @@
     </div>
     <div>
         <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('New password (leave blank to keep current)') }}</label>
-        <input type="password" name="password" class="w-full gold-input px-3 py-2">
+        <div class="relative">
+            <input type="password" id="staff-edit-password" name="password" class="w-full gold-input px-3 py-2 pr-10">
+            @include('partials.password-toggle-button', ['for' => 'staff-edit-password'])
+        </div>
     </div>
 
     <div class="flex items-center gap-3">

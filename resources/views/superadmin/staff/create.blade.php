@@ -29,7 +29,10 @@
     </div>
     <div>
         <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('Password') }}</label>
-        <input type="password" name="password" required class="w-full gold-input px-3 py-2">
+        <div class="relative">
+            <input type="password" id="staff-create-password" name="password" required class="w-full gold-input px-3 py-2 pr-10">
+            @include('partials.password-toggle-button', ['for' => 'staff-create-password'])
+        </div>
     </div>
 
     <button class="gold-btn">{{ __('Create account') }}</button>

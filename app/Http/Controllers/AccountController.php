@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\StrongPassword;
 use App\Support\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class AccountController extends Controller
     public function updatePassword(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'confirmed', new StrongPassword($request->user()->username)],
         ]);
 
         $request->user()->update(['password' => Hash::make($data['password'])]);

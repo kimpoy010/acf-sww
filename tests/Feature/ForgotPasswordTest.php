@@ -89,13 +89,13 @@ class ForgotPasswordTest extends TestCase
         $response = $this->post(route('password.update'), [
             'token' => $token,
             'email' => $user->email,
-            'password' => 'brand-new-password',
-            'password_confirmation' => 'brand-new-password',
+            'password' => 'BrandNewPassw0rd',
+            'password_confirmation' => 'BrandNewPassw0rd',
         ]);
 
         $response->assertRedirect(route('login'));
         $response->assertSessionHas('success');
-        $this->assertTrue(Hash::check('brand-new-password', $user->fresh()->password));
+        $this->assertTrue(Hash::check('BrandNewPassw0rd', $user->fresh()->password));
     }
 
     public function test_an_invalid_token_is_rejected(): void
@@ -105,8 +105,8 @@ class ForgotPasswordTest extends TestCase
         $response = $this->post(route('password.update'), [
             'token' => 'not-a-real-token',
             'email' => $user->email,
-            'password' => 'brand-new-password',
-            'password_confirmation' => 'brand-new-password',
+            'password' => 'BrandNewPassw0rd',
+            'password_confirmation' => 'BrandNewPassw0rd',
         ]);
 
         $response->assertSessionHasErrors('email');
@@ -130,7 +130,7 @@ class ForgotPasswordTest extends TestCase
         $response = $this->post(route('password.update'), [
             'token' => $token,
             'email' => $user->email,
-            'password' => 'brand-new-password',
+            'password' => 'BrandNewPassw0rd',
             'password_confirmation' => 'does-not-match',
         ]);
 
@@ -155,8 +155,8 @@ class ForgotPasswordTest extends TestCase
         $this->post(route('password.update'), [
             'token' => $token,
             'email' => $user->email,
-            'password' => 'brand-new-password',
-            'password_confirmation' => 'brand-new-password',
+            'password' => 'BrandNewPassw0rd',
+            'password_confirmation' => 'BrandNewPassw0rd',
         ]);
 
         $log = AuditLog::where('action', 'account.password_reset')->latest('id')->first();
