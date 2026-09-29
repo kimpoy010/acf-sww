@@ -123,9 +123,17 @@ class CombinedBetController extends Controller
             'odds_tier_id' => 'nullable|integer|exists:odds_tiers,id',
         ]);
 
+        $currency = $fight->event->game?->theme()['currency'] ?? GameTheme::currencySymbol(null);
+
+        $minBet = $fight->event->min_bet;
+        if ($minBet && (float) $data['amount'] < (float) $minBet) {
+            $msg = __('Bet is below the minimum of :limit.', ['limit' => $currency.number_format((float) $minBet, 0)]);
+
+            return $this->fail($request, $fight, $msg);
+        }
+
         $betLimit = $fight->event->bet_limit;
         if ($betLimit && (float) $data['amount'] > (float) $betLimit) {
-            $currency = $fight->event->game?->theme()['currency'] ?? GameTheme::currencySymbol(null);
             $msg = __('Bet exceeds the maximum limit of :limit.', ['limit' => $currency.number_format((float) $betLimit, 0)]);
 
             return $this->fail($request, $fight, $msg);

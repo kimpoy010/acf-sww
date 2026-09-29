@@ -21,6 +21,7 @@ class Event extends Model
         'draw_enabled',
         'multiplier',
         'bet_limit',
+        'min_bet',
         'label_meron',
         'label_wala',
         'label_draw',
@@ -33,6 +34,7 @@ class Event extends Model
             'draw_enabled' => 'boolean',
             'multiplier' => 'decimal:2',
             'bet_limit' => 'decimal:2',
+            'min_bet' => 'decimal:2',
         ];
     }
 

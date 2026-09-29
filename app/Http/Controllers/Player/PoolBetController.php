@@ -305,9 +305,20 @@ class PoolBetController extends Controller
             'amount' => 'required|numeric|min:1',
         ]);
 
+        $currency = $fight->event->game?->theme()['currency'] ?? GameTheme::currencySymbol(null);
+
+        $minBet = $fight->event->min_bet;
+        if ($minBet && (float) $data['amount'] < (float) $minBet) {
+            $msg = __('Bet is below the minimum of :limit.', ['limit' => $currency.number_format((float) $minBet, 0)]);
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+
+            return redirect()->route('play.pool-fight', $fight)->with('error', $msg);
+        }
+
         $betLimit = $fight->event->bet_limit;
         if ($betLimit && (float) $data['amount'] > (float) $betLimit) {
-            $currency = $fight->event->game?->theme()['currency'] ?? GameTheme::currencySymbol(null);
             $msg = __('Bet exceeds the maximum limit of :limit.', ['limit' => $currency.number_format((float) $betLimit, 0)]);
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => $msg], 422);

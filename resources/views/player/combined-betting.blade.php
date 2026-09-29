@@ -145,6 +145,7 @@
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
     const chipImageBase = @json(asset('images/player/chips'));
     const currency = @json($currency);
+    const minBet = @json($event->min_bet ? (float) $event->min_bet : null);
     const statusCopy = @json(collect($statusCopyMap)->map(fn ($c) => [$c['label'], $c['desc']]));
     const swalDark = { background: '#0a0e16', color: '#f5efe9' };
 
@@ -192,7 +193,8 @@
             title,
             html:
                 `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">${chipsHtml}</div>` +
-                `<input id="swal-amount" type="number" min="1" placeholder="{{ __('Amount') }}" style="width:100%;box-sizing:border-box;background:#05070b;border:1px solid #141a2a;border-radius:9px;padding:9px 12px;color:#f5efe9;font-size:14px;">`,
+                `<input id="swal-amount" type="number" min="1" placeholder="{{ __('Amount') }}" style="width:100%;box-sizing:border-box;background:#05070b;border:1px solid #141a2a;border-radius:9px;padding:9px 12px;color:#f5efe9;font-size:14px;">` +
+                (minBet ? `<p style="font-size:11px;color:#8a7a70;margin:6px 0 0;">{{ __('Minimum bet:') }} ${currency}${fmt(minBet)}</p>` : ''),
             showCancelButton: true,
             confirmButtonText: '{{ __('Confirm bet') }}',
             cancelButtonText: '{{ __('Cancel') }}',

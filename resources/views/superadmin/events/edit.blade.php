@@ -56,6 +56,10 @@
         <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('Bet limit ($, optional)') }}</label>
         <input type="text" inputmode="decimal" name="bet_limit" value="{{ old('bet_limit', $event->bet_limit) }}" class="amount-input w-full gold-input px-3 py-2">
     </div>
+    <div>
+        <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('Minimum bet ($, optional)') }}</label>
+        <input type="text" inputmode="decimal" name="min_bet" value="{{ old('min_bet', $event->min_bet) }}" class="amount-input w-full gold-input px-3 py-2">
+    </div>
     <div class="flex items-center gap-2">
         <input type="checkbox" name="draw_enabled" id="draw_enabled" value="1" {{ old('draw_enabled', $event->draw_enabled) ? 'checked' : '' }} class="rounded">
         <label for="draw_enabled" class="text-sm text-[#9c8f7b]">{{ __('Draw betting enabled') }}</label>

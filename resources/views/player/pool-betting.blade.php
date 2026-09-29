@@ -368,7 +368,9 @@
                 &times;
             </button>
         </div>
-        <p class="text-[10px] text-[#8a7a70] mt-1.5">{{ __('Minimum bet: :amount', ['amount' => $theme['currency'].number_format(5000, 0)]) }}</p>
+        @if ($event->min_bet)
+            <p class="text-[10px] text-[#8a7a70] mt-1.5">{{ __('Minimum bet: :amount', ['amount' => $theme['currency'].number_format((float) $event->min_bet, 0)]) }}</p>
+        @endif
     </div>
 
     {{-- Meron / Draw / Wala — three equal columns, Draw included as a card
@@ -600,6 +602,7 @@
     const maxDrawBet = {{ (float) $maxDrawBet }};
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
     const chipImageBase = @json(asset('images/player/chips'));
+    const minBet = @json($event->min_bet ? (float) $event->min_bet : null);
     const i18n = @json($i18n);
     const statusCopy = i18n.statusCopy;
     const liveEventIds = @json($liveEvents->pluck('id'));
@@ -1113,7 +1116,8 @@
             html:
                 `<p style="font-size:13px;color:#8a7a70;margin:0 0 12px;">${i18n.chooseAmountText.replace(':side', meta.label.toUpperCase())}</p>` +
                 `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">${chipsHtml}</div>` +
-                `<input id="swal-amount-input" class="amount-input" type="text" inputmode="numeric" data-decimals="0" placeholder="${i18n.amountPlaceholder}" style="width:100%;box-sizing:border-box;background:#05070b;border:1px solid #141a2a;border-radius:9px;padding:9px 12px;color:#f5efe9;font-size:14px;">`,
+                `<input id="swal-amount-input" class="amount-input" type="text" inputmode="numeric" data-decimals="0" placeholder="${i18n.amountPlaceholder}" style="width:100%;box-sizing:border-box;background:#05070b;border:1px solid #141a2a;border-radius:9px;padding:9px 12px;color:#f5efe9;font-size:14px;">` +
+                (minBet ? `<p style="font-size:11px;color:#8a7a70;margin:6px 0 0;">{{ __('Minimum bet:') }} {{ $theme['currency'] }}${fmt(minBet)}</p>` : ''),
             showCancelButton: true,
             confirmButtonText: i18n.confirmBet,
             cancelButtonText: i18n.cancel,

@@ -42,6 +42,7 @@ class EventController extends Controller
             'draw_enabled' => 'sometimes|boolean',
             'multiplier' => 'nullable|numeric|min:0.01',
             'bet_limit' => 'nullable|numeric|min:0',
+            'min_bet' => 'nullable|numeric|min:0',
             'odds_tier_ids' => 'sometimes|array',
             'odds_tier_ids.*' => 'integer|exists:odds_tiers,id',
         ]);
@@ -61,6 +62,7 @@ class EventController extends Controller
             'draw_enabled' => $request->boolean('draw_enabled'),
             'multiplier' => $data['multiplier'] ?? 1,
             'bet_limit' => $data['bet_limit'] ?? null,
+            'min_bet' => $data['min_bet'] ?? null,
             'status' => 'upcoming',
             'label_meron' => $theme['meron']['label'],
             'label_wala' => $theme['wala']['label'],
@@ -101,6 +103,7 @@ class EventController extends Controller
             'draw_enabled' => 'sometimes|boolean',
             'multiplier' => 'nullable|numeric|min:0.01',
             'bet_limit' => 'nullable|numeric|min:0',
+            'min_bet' => 'nullable|numeric|min:0',
             'odds_tier_ids' => 'sometimes|array',
             'odds_tier_ids.*' => 'integer|exists:odds_tiers,id',
         ]);
@@ -117,7 +120,7 @@ class EventController extends Controller
 
         $drawEnabled = $request->boolean('draw_enabled');
         $drawEnabledChanged = $drawEnabled !== $event->draw_enabled;
-        $before = $event->only(['name', 'arena', 'date', 'draw_enabled', 'multiplier', 'bet_limit']);
+        $before = $event->only(['name', 'arena', 'date', 'draw_enabled', 'multiplier', 'bet_limit', 'min_bet']);
 
         $event->update([
             'name' => $data['name'],
@@ -128,6 +131,7 @@ class EventController extends Controller
             'draw_enabled' => $drawEnabled,
             'multiplier' => $data['multiplier'] ?? 1,
             'bet_limit' => $data['bet_limit'] ?? null,
+            'min_bet' => $data['min_bet'] ?? null,
         ]);
 
         // A fight's own draw_enabled is copied from the event only once, at
