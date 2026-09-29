@@ -38,25 +38,42 @@
 </div>
 
 @if ($videoEnabled)
-    {{-- Same fallback chain as the player-facing page (this fight's own
-         cockpit, then the event's preset primary, then whichever cockpit
-         this event last used) — see EventController::mainStreamUrl(). Lets
-         the declarator watch the same feed the players are, right from
-         the panel they're running the event on, without a second tab.
-         Hidden (not omitted) when there's no stream yet, same reasoning
-         as the player page: a fight can go from no-cockpit to
-         cockpit-assigned without a reload, and refreshPanel() below
-         reveals/populates this once one becomes available. --}}
-    <div id="live-stream" class="aspect-video rounded-xl overflow-hidden gold-panel bg-black mb-6" @if (! $mainStreamUrl) hidden @endif>
-        <iframe id="live-stream-iframe" src="{{ $mainStreamUrl }}" class="w-full h-full" frameborder="0"
-            allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen
-            referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    {{-- Side-by-side with the controls (not stacked above them) on wide
+         screens, and sticky as the controls column scrolls — a declarator
+         running fast-paced betting needs the video and the open/close/
+         declare buttons visible together at all times, never a scroll
+         away. Narrower than full-width also keeps its aspect-video height
+         from eating the whole viewport before the controls even start.
+         Falls back to stacked (video above panel) below the xl breakpoint,
+         where there's no room to spare for a side column. --}}
+    <div class="xl:grid xl:grid-cols-5 xl:gap-6 xl:items-start">
+        <div class="mb-6 xl:mb-0 xl:col-span-2 xl:sticky xl:top-20">
+            {{-- Same fallback chain as the player-facing page (this fight's own
+                 cockpit, then the event's preset primary, then whichever cockpit
+                 this event last used) — see EventController::mainStreamUrl(). Lets
+                 the declarator watch the same feed the players are, right from
+                 the panel they're running the event on, without a second tab.
+                 Hidden (not omitted) when there's no stream yet, same reasoning
+                 as the player page: a fight can go from no-cockpit to
+                 cockpit-assigned without a reload, and refreshPanel() below
+                 reveals/populates this once one becomes available. --}}
+            <div id="live-stream" class="aspect-video rounded-xl overflow-hidden gold-panel bg-black" @if (! $mainStreamUrl) hidden @endif>
+                <iframe id="live-stream-iframe" src="{{ $mainStreamUrl }}" class="w-full h-full" frameborder="0"
+                    allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen
+                    referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+        </div>
+        <div class="xl:col-span-3">
+            <div id="fights-panel">
+                @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
+            </div>
+        </div>
+    </div>
+@else
+    <div id="fights-panel">
+        @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
     </div>
 @endif
-
-<div id="fights-panel">
-    @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
-</div>
 
 @push('scripts')
 <script>
