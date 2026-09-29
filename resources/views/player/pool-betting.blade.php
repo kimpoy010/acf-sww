@@ -361,7 +361,7 @@
 
     <!-- Bet slip -->
     <div id="bet-panel" class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-4">
-        <div class="flex flex-nowrap gap-1 mb-3 overflow-x-auto scroll-thin">
+        <div class="flex flex-nowrap justify-between gap-1 mb-3 overflow-x-auto scroll-thin">
             @foreach ([[5000, '5k'], [7000, '7k'], [8000, '8k'], [10000, '10k'], [20000, '20k'], [50000, '50k'], [100000, '100k']] as [$amount, $label])
                 @php $chipPath = public_path("images/player/chips/chip-{$amount}.png"); @endphp
                 <button type="button" class="chip-btn shrink-0 rounded-full transition" data-amount="{{ $amount }}">
