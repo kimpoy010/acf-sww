@@ -183,7 +183,7 @@
         if (!isBettable) return;
         const chips = [10, 20, 50, 100, 500, 1000];
         const chipsHtml = chips.map(a =>
-            `<button type="button" class="amt-chip" data-amount="${a}" style="aspect-ratio:1/1;padding:0;background:none;border:none;cursor:pointer;">` +
+            `<button type="button" class="amt-chip" data-amount="${a}" style="aspect-ratio:1/1;max-width:56px;justify-self:center;padding:0;background:none;border:none;cursor:pointer;">` +
                 `<img src="${chipImageBase}/chip-${a}.png" alt="${a}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;" draggable="false">` +
             `</button>`
         ).join('');
