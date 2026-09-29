@@ -305,7 +305,7 @@
                 @endphp
                 <a href="{{ $isCurrent ? route('play.pool-fight', $fight) : route('play.events.enter', $liveEvent) }}"
                    class="event-tab min-w-0 flex items-center gap-1.5 px-1.5 py-1.5 border-b-4 transition first:rounded-l-lg last:rounded-r-lg
-                       {{ $isCurrent ? 'bg-[#1a1508] border-[#c9a04a]' : 'bg-[#0a0e16] hover:bg-[#141a2a] border-transparent' }}"
+                       {{ $isCurrent ? 'bg-[#1a1508] border-[#c9a04a]' : 'bg-[#0b0b0c] hover:bg-[#141a2a] border-transparent' }}"
                    data-event-id="{{ $liveEvent->id }}">
                     <span class="w-7 h-7 rounded-md overflow-hidden shrink-0 bg-[#141a2a] flex items-center justify-center text-sm">
                         @if ($liveEvent->displayBannerUrl())
@@ -342,14 +342,14 @@
             <a href="{{ route('play.pool-fight', $activeFight) }}"
                data-fight-tab="{{ $activeFight->id }}"
                class="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold uppercase transition
-                   {{ $activeFight->id === $fight->id ? 'bg-[#1a1508] text-white ring-2 ring-inset ring-[#c9a04a]' : 'bg-[#0a0e16] text-[#c9baaf] hover:bg-[#141a2a]' }}">
+                   {{ $activeFight->id === $fight->id ? 'bg-[#1a1508] text-white ring-2 ring-inset ring-[#c9a04a]' : 'bg-[#0b0b0c] text-[#c9baaf] hover:bg-[#141a2a]' }}">
                 {{ __('Fight #:number', ['number' => $activeFight->fight_number]) }}
             </a>
         @endforeach
     </div>
 
     <!-- Top bar -->
-    <div class="flex items-center justify-between bg-[#0a0e16] rounded-t-xl px-4 py-3 border border-[#141a2a]">
+    <div class="flex items-center justify-between rounded-t-xl px-4 py-3" style="background:linear-gradient(180deg,#0e0e10,#0b0b0c);border:1px solid rgba(168,121,31,.5)">
         <div class="flex items-center gap-2">
             <span class="text-emerald-400 font-bold text-sm">{{ __('Fight #') }} <span id="fight-number">{{ $fight->fight_number }}</span></span>
             <span id="fight-status-badge" class="text-[11px] px-2.5 py-0.5 rounded-full font-bold uppercase {{ $statusBadgeClass($fight->status) }}">
@@ -360,7 +360,7 @@
     </div>
 
     <!-- Bet slip -->
-    <div id="bet-panel" class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-4">
+    <div id="bet-panel" class="gold-panel rounded-xl p-4">
         <div class="flex flex-nowrap justify-between gap-1 mb-3 overflow-x-auto scroll-thin">
             @foreach ([[5000, '5k'], [7000, '7k'], [8000, '8k'], [10000, '10k'], [20000, '20k'], [50000, '50k'], [100000, '100k']] as [$amount, $label])
                 @php $chipPath = public_path("images/player/chips/chip-{$amount}.png"); @endphp
@@ -447,7 +447,7 @@
     </div>
 
     <!-- Reglahan -->
-    <div class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-3">
+    <div class="gold-panel rounded-xl p-3">
         <p class="font-bold text-sm mb-3" style="color:#c9a04a;">{{ __('REGLAHAN') }}</p>
 
         <div class="flex flex-wrap justify-center gap-x-3 gap-y-1.5 mb-3">
@@ -493,7 +493,7 @@
     </div>
 
     <!-- My bets this fight -->
-    <div class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-4">
+    <div class="gold-panel rounded-xl p-4">
         <h2 class="font-semibold text-sm mb-3 text-[#c9baaf]">{{ __('My bets — this fight') }}</h2>
         <div id="my-bets" class="space-y-2 text-sm">
             @forelse ($myBets as $bet)
@@ -513,7 +513,7 @@
          tabs, filter and pagination links (delegated below) all go through
          play.bet-history via AJAX instead of a full page reload, same
          pattern as the superadmin wallets page's live search. -->
-    <div class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-4">
+    <div class="gold-panel rounded-xl p-4">
         <div class="flex items-center justify-between gap-3 mb-3">
             <h2 class="font-semibold text-sm text-[#c9baaf]">{{ __('Betting history') }}</h2>
             <select id="bet-history-filter" class="rounded-lg bg-[#05070b] border border-[#141a2a] px-2 py-1 text-xs">
@@ -1300,7 +1300,7 @@
 
             const cls = af.id === fightId
                 ? 'bg-[#1a1508] text-white ring-2 ring-inset ring-[#c9a04a]'
-                : 'bg-[#0a0e16] text-[#c9baaf] hover:bg-[#141a2a]';
+                : 'bg-[#0b0b0c] text-[#c9baaf] hover:bg-[#141a2a]';
             tab.href = fightUrl(af.id);
             tab.className = 'shrink-0 rounded-full px-3 py-1.5 text-xs font-bold uppercase transition ' + cls;
             tab.textContent = i18n.fightNumberLabel.replace(':number', af.fight_number);

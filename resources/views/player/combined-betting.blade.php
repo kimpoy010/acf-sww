@@ -33,7 +33,7 @@
 <div class="w-full sm:max-w-lg sm:mx-auto space-y-3">
 
     <!-- Top bar -->
-    <div class="flex items-center justify-between bg-[#0a0e16] rounded-t-xl px-4 py-3 border border-[#141a2a]">
+    <div class="flex items-center justify-between rounded-t-xl px-4 py-3" style="background:linear-gradient(180deg,#0e0e10,#0b0b0c);border:1px solid rgba(168,121,31,.5)">
         <div class="flex items-center gap-2">
             <span class="text-emerald-400 font-bold text-sm">{{ __('Fight #') }} <span id="fight-number">{{ $fight->fight_number }}</span></span>
             <span id="fight-status-badge" class="text-[11px] px-2.5 py-0.5 rounded-full font-bold uppercase {{ $statusBadgeClass($fight->status) }}">
@@ -44,7 +44,7 @@
     </div>
 
     <!-- Totalizer / Odds toggle -->
-    <div class="flex items-center justify-center gap-3 bg-[#0a0e16] border border-[#141a2a] rounded-xl px-4 py-3">
+    <div class="flex items-center justify-center gap-3 gold-panel rounded-xl px-4 py-3">
         <button type="button" id="mode-label-pool" class="text-sm font-extrabold uppercase tracking-wide text-white">{{ __('Totalizer') }}</button>
         <button type="button" id="mode-toggle" class="relative w-14 h-7 rounded-full bg-[#141a2a] transition-colors" aria-pressed="false">
             <span id="mode-toggle-thumb" class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform"></span>
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Odds panel -->
-    <div id="panel-odds" class="hidden bg-[#0a0e16] border border-[#141a2a] rounded-xl overflow-hidden">
+    <div id="panel-odds" class="hidden gold-panel rounded-xl overflow-hidden">
         <div class="grid grid-cols-3 text-center text-[10px] font-bold uppercase">
             <span class="bg-red-900/40 text-red-300 py-2">{{ $event->sideLabel('meron') }}</span>
             <span class="bg-black/30 text-[#8a7a70] py-2">{{ __('Odds') }}</span>
@@ -122,7 +122,7 @@
          book (nobody's taken the other side yet, in full) can be
          cancelled; a matched bet is locked in. -->
     @if ($myUnmatchedBets->isNotEmpty())
-        <div id="my-unmatched-bets" class="rounded-xl bg-[#0a0e16] border border-[#141a2a] divide-y divide-[#141a2a]">
+        <div id="my-unmatched-bets" class="rounded-xl gold-panel divide-y divide-[#141a2a]">
             <div class="px-4 py-2 text-[11px] font-bold uppercase text-[#8a7a70]">{{ __('My unmatched odds bets') }}</div>
             @foreach ($myUnmatchedBets as $bet)
                 <div class="flex items-center justify-between px-4 py-2.5 text-sm" data-unmatched-bet-row="{{ $bet->id }}">

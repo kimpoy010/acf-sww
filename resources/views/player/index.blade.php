@@ -36,7 +36,7 @@
     @else
         <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
             @foreach ($liveEvents as $event)
-                <div class="group relative block overflow-hidden rounded-xl bg-[#0a0e16] transition live-tile-neon">
+                <div class="group relative block overflow-hidden rounded-xl bg-[#0b0b0c] transition live-tile-neon">
                     <div class="relative aspect-video bg-black">
                         @if ($event->displayBannerUrl())
                             <img src="{{ $event->displayBannerUrl() }}" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105">
@@ -70,7 +70,7 @@
         </h2>
         <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
             @foreach ($ongoingFights as $item)
-                <a href="{{ route('play.pool-fight', $item['fight']) }}" class="group relative block overflow-hidden rounded-xl bg-[#0a0e16] transition live-tile-neon">
+                <a href="{{ route('play.pool-fight', $item['fight']) }}" class="group relative block overflow-hidden rounded-xl bg-[#0b0b0c] transition live-tile-neon">
                     <div class="relative aspect-video bg-black">
                         @if ($item['event']->displayBannerUrl())
                             <img src="{{ $item['event']->displayBannerUrl() }}" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105">
