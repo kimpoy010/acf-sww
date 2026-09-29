@@ -376,7 +376,7 @@
          border glow, badge and bet button; Draw uses a fixed teal (it has
          no game/region theme entry of its own — its color never changes
          per game the way Meron/Wala's does). --}}
-    <div class="grid grid-cols-3 gap-1.5">
+    <div class="grid gap-1.5" style="grid-template-columns: 1fr 0.72fr 1fr;">
         <div class="relative rounded-2xl overflow-hidden flex flex-col side-neon-card" style="--side-glow-rgb:{{ $meronRgb }};border:1px solid rgba({{ $meronRgb }},0.35);background:radial-gradient(circle at 50% 30%, rgba({{ $meronRgb }},0.22), #0a0e16 70%);">
             <p class="relative text-center pt-2 text-xs font-extrabold tracking-wide truncate px-1" style="color:rgb({{ $meronRgb }});text-shadow:0 2px 6px rgba(0,0,0,0.7);">{{ strtoupper($event->label_meron) }}</p>
             <div class="relative flex-1 px-1.5 pb-3 pt-1 flex flex-col items-center justify-end gap-0.5">
