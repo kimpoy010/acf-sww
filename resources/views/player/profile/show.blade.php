@@ -45,6 +45,10 @@
                 {{ $vipTier?->name ?? __('Not yet VIP') }}
             </span>
         </div>
+        <div class="flex items-baseline justify-between mb-3">
+            <span class="text-[10px] uppercase tracking-wide text-[#9c8f7b]">{{ __('Rebates earned') }}</span>
+            <span class="text-lg font-extrabold" style="color:#c9a04a">{{ $currencySymbol }}{{ number_format($totalRebateEarned, 2) }}</span>
+        </div>
         <p class="text-xs text-[#9c8f7b] mb-3">
             {{ __('Lifetime valid bets: :amount', ['amount' => $currencySymbol.number_format($lifetimeValidBets, 2)]) }}
             @if ($vipTier)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Player;
 
 use App\Http\Controllers\Controller;
+use App\Models\VipRebateLog;
 use App\Models\VipTier;
 use Illuminate\Contracts\View\View;
 
@@ -23,12 +24,19 @@ class ProfileController extends Controller
         $nextVipTier = $vipTier ? $vipTier->next() : VipTier::orderBy('min_valid_bets')->first();
         $allVipTiers = VipTier::orderBy('min_valid_bets')->get();
 
+        // Total VIP rebate ever credited to this player, across every tier
+        // they've passed through — shown alongside the current tier/progress
+        // so a player can see the rebate feature has actually paid out, not
+        // just that it exists.
+        $totalRebateEarned = (float) VipRebateLog::where('player_id', $player->id)->sum('amount');
+
         return view('player.profile.show', [
             'player' => $player,
             'lifetimeValidBets' => $lifetimeValidBets,
             'vipTier' => $vipTier,
             'nextVipTier' => $nextVipTier,
             'allVipTiers' => $allVipTiers,
+            'totalRebateEarned' => $totalRebateEarned,
         ]);
     }
 }
