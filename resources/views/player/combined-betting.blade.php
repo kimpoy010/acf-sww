@@ -21,6 +21,12 @@
     $currency = $theme['currency'];
     $isBettable = in_array($fight->status, \App\Models\Fight::BETTABLE_STATUSES, true);
     $drawRemaining = max(0, $maxDrawBet - $drawPool);
+
+    // See pool-betting.blade.php's own copy of this for why it's computed
+    // here rather than inline in @json() (Blade's @json directive splits
+    // on top-level commas, which breaks on an array literal/closure).
+    $chipVersions = collect([10, 20, 50, 100, 500, 1000])
+        ->mapWithKeys(fn ($amount) => [$amount => @filemtime(public_path("images/player/chips/chip-{$amount}.png"))]);
 @endphp
 
 @section('content')
@@ -144,6 +150,7 @@
     const betUrl = @json(route('play.combined-bet', $fight));
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
     const chipImageBase = @json(asset('images/player/chips'));
+    const chipVersions = @json($chipVersions);
     const currency = @json($currency);
     const minBet = @json($event->min_bet ? (float) $event->min_bet : null);
     const statusCopy = @json(collect($statusCopyMap)->map(fn ($c) => [$c['label'], $c['desc']]));
@@ -185,7 +192,7 @@
         const chips = [10, 20, 50, 100, 500, 1000];
         const chipsHtml = chips.map(a =>
             `<button type="button" class="amt-chip" data-amount="${a}" style="aspect-ratio:1/1;max-width:68px;justify-self:center;padding:0;background:none;border:none;cursor:pointer;">` +
-                `<img src="${chipImageBase}/chip-${a}.png" alt="${a}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;" draggable="false">` +
+                `<img src="${chipImageBase}/chip-${a}.png?v=${chipVersions[a] || ''}" alt="${a}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;" draggable="false">` +
             `</button>`
         ).join('');
 
