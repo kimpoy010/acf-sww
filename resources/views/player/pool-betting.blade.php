@@ -368,6 +368,7 @@
                 &times;
             </button>
         </div>
+        <p class="text-[10px] text-[#8a7a70] mt-1.5">{{ __('Minimum bet: :amount', ['amount' => $theme['currency'].number_format(5000, 0)]) }}</p>
     </div>
 
     {{-- Meron / Draw / Wala — three equal columns, Draw included as a card
