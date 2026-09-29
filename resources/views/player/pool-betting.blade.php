@@ -45,7 +45,7 @@
     // here (not inline in @json()) since Blade's @json directive splits
     // its argument on every top-level comma, which breaks on an array
     // literal or closure passed directly.
-    $chipVersions = collect([5000, 6000, 7000, 8000, 10000, 20000, 50000, 90000, 100000])
+    $chipVersions = collect([5000, 7000, 8000, 10000, 20000, 50000, 100000])
         ->mapWithKeys(fn ($amount) => [$amount => @filemtime(public_path("images/player/chips/chip-{$amount}.png"))]);
 
     // The Meron/Wala cards' border glow and button shadow are plain
@@ -362,7 +362,7 @@
     <!-- Bet slip -->
     <div id="bet-panel" class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-4">
         <div class="flex flex-nowrap gap-1 mb-3 overflow-x-auto scroll-thin">
-            @foreach ([[5000, '5k'], [6000, '6k'], [7000, '7k'], [8000, '8k'], [10000, '10k'], [20000, '20k'], [50000, '50k'], [90000, '90k'], [100000, '100k']] as [$amount, $label])
+            @foreach ([[5000, '5k'], [7000, '7k'], [8000, '8k'], [10000, '10k'], [20000, '20k'], [50000, '50k'], [100000, '100k']] as [$amount, $label])
                 @php $chipPath = public_path("images/player/chips/chip-{$amount}.png"); @endphp
                 <button type="button" class="chip-btn shrink-0 rounded-full transition" data-amount="{{ $amount }}">
                     <img src="{{ asset('images/player/chips/chip-'.$amount.'.png') }}?v={{ @filemtime($chipPath) }}" alt="{{ $label }}" class="w-full h-full object-contain pointer-events-none select-none" draggable="false">
@@ -1113,7 +1113,7 @@
 
     function promptAmountAndPlaceBet(side) {
         const meta = sideMeta[side];
-        const presets = [5000, 6000, 7000, 8000, 10000, 20000, 50000, 90000, 100000];
+        const presets = [5000, 7000, 8000, 10000, 20000, 50000, 100000];
         const chipsHtml = presets.map((p) =>
             `<button type="button" class="swal-amount-chip" data-amount="${p}" style="aspect-ratio:1/1;max-width:60px;justify-self:center;padding:0;background:none;border:none;cursor:pointer;">` +
                 `<img src="${chipImageBase}/chip-${p}.png?v=${chipVersions[p] || ''}" alt="${p}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;" draggable="false">` +
