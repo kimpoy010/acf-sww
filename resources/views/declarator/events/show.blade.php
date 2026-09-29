@@ -57,21 +57,27 @@
                  as the player page: a fight can go from no-cockpit to
                  cockpit-assigned without a reload, and refreshPanel() below
                  reveals/populates this once one becomes available. --}}
-            <div id="live-stream" class="aspect-video rounded-xl overflow-hidden gold-panel bg-black" @if (! $mainStreamUrl) hidden @endif>
+            <div id="live-stream" class="aspect-video rounded-xl overflow-hidden gold-panel bg-black mb-6" @if (! $mainStreamUrl) hidden @endif>
                 <iframe id="live-stream-iframe" src="{{ $mainStreamUrl }}" class="w-full h-full" frameborder="0"
                     allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen
                     referrerpolicy="strict-origin-when-cross-origin"></iframe>
             </div>
+            <div id="reglahan-panel">
+                @include('declarator.events._reglahan', ['reglahan' => $reglahan, 'stats' => $stats, 'event' => $event, 'theme' => $theme])
+            </div>
         </div>
         <div>
             <div id="fights-panel">
-                @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'reglahan' => $reglahan, 'stats' => $stats, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
+                @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
             </div>
         </div>
     </div>
 @else
+    <div id="reglahan-panel" class="mb-6">
+        @include('declarator.events._reglahan', ['reglahan' => $reglahan, 'stats' => $stats, 'event' => $event, 'theme' => $theme])
+    </div>
     <div id="fights-panel">
-        @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'reglahan' => $reglahan, 'stats' => $stats, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
+        @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
     </div>
 @endif
 
@@ -219,6 +225,11 @@
                 panel.innerHTML = data.html;
                 initFightCards();
                 if ('main_stream_url' in data) applyMainStream(data.main_stream_url);
+                // Rendered as its own container (see show.blade.php's layout,
+                // under the video rather than inside the fights panel), so it
+                // needs its own swap here instead of riding along in data.html.
+                const reglahanPanel = document.getElementById('reglahan-panel');
+                if (reglahanPanel && 'reglahan_html' in data) reglahanPanel.innerHTML = data.reglahan_html;
             })
             .catch(() => {});
     }

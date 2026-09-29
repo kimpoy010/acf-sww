@@ -50,16 +50,31 @@ class EventController extends Controller
     {
         $event->load('game', 'cockpitPreset.cockpits');
 
+        $theme = $event->game?->theme() ?? \App\Support\GameTheme::for(null);
+        $panelData = $this->fightsPanelData($event);
+
         $html = view('declarator.events._fights_panel', [
             'event' => $event,
-            'theme' => $event->game?->theme() ?? \App\Support\GameTheme::for(null),
-            ...$this->fightsPanelData($event),
+            'theme' => $theme,
+            ...$panelData,
+        ])->render();
+
+        // Rendered separately from the fights panel above — it lives under
+        // the video on the page (see show.blade.php), not inside the
+        // fight-controls column, so it needs its own container to refresh
+        // into rather than riding along inside $html.
+        $reglahanHtml = view('declarator.events._reglahan', [
+            'event' => $event,
+            'theme' => $theme,
+            'reglahan' => $panelData['reglahan'],
+            'stats' => $panelData['stats'],
         ])->render();
 
         $videoEnabled = $event->game?->video_enabled ?? true;
 
         return response()->json([
             'html' => $html,
+            'reglahan_html' => $reglahanHtml,
             // A cockpit reassignment or a brand new fight starting can
             // change which stream is "current" without the page ever
             // reloading — the client updates the video's src from this,
