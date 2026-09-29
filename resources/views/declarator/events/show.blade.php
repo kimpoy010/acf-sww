@@ -46,8 +46,8 @@
          from eating the whole viewport before the controls even start.
          Falls back to stacked (video above panel) below the xl breakpoint,
          where there's no room to spare for a side column. --}}
-    <div class="xl:grid xl:grid-cols-5 xl:gap-6 xl:items-start">
-        <div class="mb-6 xl:mb-0 xl:col-span-2 xl:sticky xl:top-20">
+    <div class="xl:grid xl:grid-cols-2 xl:gap-6 xl:items-start">
+        <div class="mb-6 xl:mb-0 xl:sticky xl:top-20">
             {{-- Same fallback chain as the player-facing page (this fight's own
                  cockpit, then the event's preset primary, then whichever cockpit
                  this event last used) — see EventController::mainStreamUrl(). Lets
@@ -63,15 +63,15 @@
                     referrerpolicy="strict-origin-when-cross-origin"></iframe>
             </div>
         </div>
-        <div class="xl:col-span-3">
+        <div>
             <div id="fights-panel">
-                @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
+                @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'reglahan' => $reglahan, 'stats' => $stats, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
             </div>
         </div>
     </div>
 @else
     <div id="fights-panel">
-        @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
+        @include('declarator.events._fights_panel', ['fights' => $fights, 'fightHistory' => $fightHistory, 'reglahan' => $reglahan, 'stats' => $stats, 'event' => $event, 'theme' => $theme, 'cockpits' => $cockpits])
     </div>
 @endif
 

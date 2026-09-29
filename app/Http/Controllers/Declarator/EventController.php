@@ -9,6 +9,7 @@ use App\Models\Event;
 use App\Models\Fight;
 use App\Models\OddsTier;
 use App\Services\FightService;
+use App\Support\BigRoadLayout;
 use App\Support\PoolPayoutCalculator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -167,6 +168,33 @@ class EventController extends Controller
             ->limit(20)
             ->get();
 
+        // Same Reglahan (Big Road) board the players see on the betting
+        // page, so the declarator can read the same win/loss trend at a
+        // glance instead of switching tabs — needs oldest-first order,
+        // unlike $fightHistory above (newest-first, for the sidebar list).
+        $reglahanFights = $event->fights()
+            ->whereIn('status', ['declared', 'cancelled'])
+            ->orderBy('fight_number')
+            ->limit(48)
+            ->get();
+        $reglahan = BigRoadLayout::build($reglahanFights);
+
+        $statsRaw = $event->fights()
+            ->selectRaw("
+                SUM(winner = 'meron')     as meron_wins,
+                SUM(winner = 'wala')      as wala_wins,
+                SUM(winner = 'draw')      as draw_wins,
+                SUM(status = 'cancelled') as cancelled
+            ")
+            ->first();
+
+        $stats = [
+            'meron' => (int) ($statsRaw->meron_wins ?? 0),
+            'wala' => (int) ($statsRaw->wala_wins ?? 0),
+            'draw' => (int) ($statsRaw->draw_wins ?? 0),
+            'cancelled' => (int) ($statsRaw->cancelled ?? 0),
+        ];
+
         // A cockpit can't stream two fights of THIS event at once, but a
         // different event running concurrently is free to use the same
         // cockpit independently (see FightService::assertCockpitAvailable,
@@ -190,6 +218,8 @@ class EventController extends Controller
         return [
             'fights' => $fights,
             'fightHistory' => $fightHistory,
+            'reglahan' => $reglahan,
+            'stats' => $stats,
             'cockpits' => $cockpits,
             'busyCockpits' => $busyCockpits,
             'oddsTierLabels' => $event->game?->isCombined() ? OddsTier::pluck('label', 'id') : collect(),
