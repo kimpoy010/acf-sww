@@ -12,7 +12,7 @@
 <p class="gold-eyebrow">{{ $cms['site_name'] }}</p>
 <h1 class="gold-serif gold-h1">{{ __('Profile') }}</h1>
 
-<div class="max-w-sm mx-auto">
+<div class="sm:max-w-sm sm:mx-auto">
     <div class="gold-card mb-6" style="padding:16px 20px">
         <div class="flex items-center gap-3">
             <span class="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold uppercase shrink-0"
