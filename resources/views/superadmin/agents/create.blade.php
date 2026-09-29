@@ -22,7 +22,10 @@
     </div>
     <div>
         <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('Password') }}</label>
-        <input type="password" name="password" required class="w-full gold-input px-3 py-2">
+        <div class="relative">
+            <input type="password" id="agent-create-password" name="password" required class="w-full gold-input px-3 py-2 pr-10">
+            @include('partials.password-toggle-button', ['for' => 'agent-create-password'])
+        </div>
     </div>
     <div>
         <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('Level') }}</label>

@@ -28,13 +28,20 @@
         </div>
         <div>
             <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('New password') }}</label>
-            <input type="password" name="password" required
-                   class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#c9a04a]">
+            <div class="relative">
+                <input type="password" id="reset-password" name="password" required
+                       class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#c9a04a]">
+                @include('partials.password-toggle-button', ['for' => 'reset-password'])
+            </div>
+            @include('partials.password-strength-meter', ['passwordField' => 'reset-password'])
         </div>
         <div>
             <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('Confirm password') }}</label>
-            <input type="password" name="password_confirmation" required
-                   class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#c9a04a]">
+            <div class="relative">
+                <input type="password" id="reset-password-confirmation" name="password_confirmation" required
+                       class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#c9a04a]">
+                @include('partials.password-toggle-button', ['for' => 'reset-password-confirmation'])
+            </div>
         </div>
         <button type="submit" class="gold-btn-frame gold-btn-primary">
             <span class="gold-btn-corner tl"></span><span class="gold-btn-corner tr"></span><span class="gold-btn-corner bl"></span><span class="gold-btn-corner br"></span>

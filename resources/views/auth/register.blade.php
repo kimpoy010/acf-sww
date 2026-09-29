@@ -46,7 +46,7 @@
         </div>
         <div>
             <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('Username') }}</label>
-            <input type="text" name="username" value="{{ old('username') }}" required
+            <input type="text" id="register-username" name="username" value="{{ old('username') }}" required
                    class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#c9a04a]">
         </div>
         <div>
@@ -56,13 +56,20 @@
         </div>
         <div>
             <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('Password') }}</label>
-            <input type="password" name="password" required
-                   class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#c9a04a]">
+            <div class="relative">
+                <input type="password" id="register-password" name="password" required
+                       class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#c9a04a]">
+                @include('partials.password-toggle-button', ['for' => 'register-password'])
+            </div>
+            @include('partials.password-strength-meter', ['passwordField' => 'register-password', 'usernameField' => 'register-username'])
         </div>
         <div>
             <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('Confirm password') }}</label>
-            <input type="password" name="password_confirmation" required
-                   class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#c9a04a]">
+            <div class="relative">
+                <input type="password" id="register-password-confirmation" name="password_confirmation" required
+                       class="w-full rounded-lg bg-[#05070b] border border-[#141a2a] px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#c9a04a]">
+                @include('partials.password-toggle-button', ['for' => 'register-password-confirmation'])
+            </div>
         </div>
         @if (config('services.turnstile.site_key'))
             <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>

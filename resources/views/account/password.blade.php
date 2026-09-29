@@ -3,11 +3,16 @@
 @section('title', __('Change password'))
 
 @section('content')
-<div class="max-w-sm mx-auto">
-    <h1 class="text-xl font-bold mb-6">{{ __('Change password') }}</h1>
+<div class="gold-ornament"><span class="line"></span><span class="diamond"></span><span class="line r"></span></div>
+<p class="gold-eyebrow">{{ $cms['site_name'] }}</p>
+<h1 class="gold-serif gold-h1">{{ __('Change Password') }}</h1>
 
+<div class="max-w-sm mx-auto">
+    @if (session('success'))
+        <div class="rounded-xl p-3 mb-4 text-sm" style="background:rgba(6,78,59,0.25);border:1px solid rgba(16,185,129,0.4);">{{ session('success') }}</div>
+    @endif
     @if ($errors->any())
-        <div class="mb-4 rounded-lg border border-red-700 bg-red-900/40 px-4 py-3 text-red-200 text-sm">
+        <div class="rounded-xl p-3 mb-4 text-sm" style="background:rgba(120,20,20,0.25);border:1px solid rgba(220,38,38,0.5);">
             <ul class="list-disc list-inside">
                 @foreach ($errors->all() as $error)
                     <li>{{ __($error) }}</li>
@@ -16,20 +21,27 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('account.password.update') }}" class="space-y-4 bg-slate-900 border border-slate-800 rounded-xl p-4">
+    <form method="POST" action="{{ route('account.password.update') }}" class="gold-panel p-4 space-y-4">
         @csrf
         @method('PUT')
         <div>
-            <label class="block text-sm text-slate-400 mb-1">{{ __('New password') }}</label>
-            <input type="password" name="password" required autocomplete="new-password"
-                   class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+            <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('New password') }}</label>
+            <div class="relative">
+                <input type="password" id="account-password" name="password" required autocomplete="new-password"
+                       class="w-full gold-input px-3 py-2 pr-10">
+                @include('partials.password-toggle-button', ['for' => 'account-password'])
+            </div>
+            @include('partials.password-strength-meter', ['passwordField' => 'account-password', 'usernameValue' => auth()->user()->username])
         </div>
         <div>
-            <label class="block text-sm text-slate-400 mb-1">{{ __('Confirm new password') }}</label>
-            <input type="password" name="password_confirmation" required autocomplete="new-password"
-                   class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+            <label class="block text-sm text-[#9c8f7b] mb-1">{{ __('Confirm new password') }}</label>
+            <div class="relative">
+                <input type="password" id="account-password-confirmation" name="password_confirmation" required autocomplete="new-password"
+                       class="w-full gold-input px-3 py-2 pr-10">
+                @include('partials.password-toggle-button', ['for' => 'account-password-confirmation'])
+            </div>
         </div>
-        <button type="submit" class="w-full rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold py-2">{{ __('Update password') }}</button>
+        <button type="submit" class="gold-btn w-full">{{ __('Update password') }}</button>
     </form>
 </div>
 @endsection

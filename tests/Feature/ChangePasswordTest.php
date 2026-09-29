@@ -36,14 +36,14 @@ class ChangePasswordTest extends TestCase
         $user = $this->userWithRole('player');
 
         $response = $this->actingAs($user)->put(route('account.password.update'), [
-            'password' => 'brand-new-password',
-            'password_confirmation' => 'brand-new-password',
+            'password' => 'BrandNewPassw0rd',
+            'password_confirmation' => 'BrandNewPassw0rd',
         ]);
 
         $response->assertRedirect(route('account.password.edit'));
         $response->assertSessionHas('success');
 
-        $this->assertTrue(Hash::check('brand-new-password', $user->fresh()->password));
+        $this->assertTrue(Hash::check('BrandNewPassw0rd', $user->fresh()->password));
         $this->assertFalse(Hash::check('original-password', $user->fresh()->password));
     }
 
@@ -52,8 +52,36 @@ class ChangePasswordTest extends TestCase
         $user = $this->userWithRole('player');
 
         $response = $this->actingAs($user)->put(route('account.password.update'), [
-            'password' => 'brand-new-password',
+            'password' => 'BrandNewPassw0rd',
             'password_confirmation' => 'does-not-match',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+        $this->assertTrue(Hash::check('original-password', $user->fresh()->password));
+    }
+
+    public function test_the_new_password_must_meet_the_strength_requirements(): void
+    {
+        $user = $this->userWithRole('player');
+
+        $response = $this->actingAs($user)->put(route('account.password.update'), [
+            'password' => 'alllowercase1',
+            'password_confirmation' => 'alllowercase1',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+        $this->assertTrue(Hash::check('original-password', $user->fresh()->password));
+    }
+
+    public function test_the_new_password_must_not_contain_the_username(): void
+    {
+        $user = User::factory()->create(['username' => 'juandelacruz', 'password' => Hash::make('original-password')]);
+        $user->assignRole('player');
+        Wallet::create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user)->put(route('account.password.update'), [
+            'password' => 'Juandelacruz1',
+            'password_confirmation' => 'Juandelacruz1',
         ]);
 
         $response->assertSessionHasErrors('password');
