@@ -31,7 +31,7 @@
         'open' => 'text-emerald-400',
         'last_call' => 'text-yellow-400',
         'closed' => 'text-red-400',
-        default => 'text-slate-400',
+        default => 'text-[#8a7a70]',
     };
 
     $drawRemaining = max(0, $maxDrawBet - $drawPool);
@@ -106,7 +106,7 @@
              already sitting here), so this has to stay in the DOM either way
              for the live-update script below to reveal and populate once one
              becomes available, same pattern as #pip-stack. --}}
-        <div id="live-stream" class="sticky top-14 z-30 aspect-video rounded-xl overflow-hidden border border-slate-800 bg-black" @if (! $mainStreamUrl) hidden @endif>
+        <div id="live-stream" class="sticky top-14 z-30 aspect-video rounded-xl overflow-hidden gold-panel bg-black" @if (! $mainStreamUrl) hidden @endif>
             <iframe id="live-stream-iframe" src="{{ $mainStreamUrl }}" class="w-full h-full" frameborder="0"
                 allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen
                 referrerpolicy="strict-origin-when-cross-origin"></iframe>
@@ -125,7 +125,7 @@
              are independent of it. Hidden by default — populated and shown by
              applyPip() below the moment there's something to show, and kept in
              the DOM either way so the live-update script always has it. --}}
-        <div id="pip-stack" class="group fixed z-[45] top-20 right-2 w-32 sm:w-40 rounded-lg overflow-hidden border border-slate-700 shadow-xl cursor-move touch-none select-none" hidden>
+        <div id="pip-stack" class="group fixed z-[45] top-20 right-2 w-32 sm:w-40 rounded-lg overflow-hidden border border-[#3a2d14] shadow-xl cursor-move touch-none select-none" hidden>
             {{-- Hidden until the panel is hovered (desktop) or tapped (see the
                  pip-header-peek toggle in setupPip() below, needed since touch
                  has no hover state) — overlaid on top of the tiles via
@@ -296,21 +296,21 @@
                 @endphp
                 <a href="{{ $isCurrent ? route('play.pool-fight', $fight) : route('play.events.enter', $liveEvent) }}"
                    class="event-tab min-w-0 flex items-center gap-1.5 px-1.5 py-1.5 border-b-4 transition first:rounded-l-lg last:rounded-r-lg
-                       {{ $isCurrent ? 'bg-slate-700 border-white' : 'bg-slate-800 hover:bg-slate-700 border-transparent' }}"
+                       {{ $isCurrent ? 'bg-[#1a1508] border-[#c9a04a]' : 'bg-[#0a0e16] hover:bg-[#141a2a] border-transparent' }}"
                    data-event-id="{{ $liveEvent->id }}">
-                    <span class="w-7 h-7 rounded-md overflow-hidden shrink-0 bg-slate-700 flex items-center justify-center text-sm">
+                    <span class="w-7 h-7 rounded-md overflow-hidden shrink-0 bg-[#141a2a] flex items-center justify-center text-sm">
                         @if ($liveEvent->displayBannerUrl())
                             <img src="{{ $liveEvent->displayBannerUrl() }}" alt="" class="w-full h-full object-cover">
                         @endif
                     </span>
                     <span class="min-w-0 flex flex-col leading-tight">
-                        <span class="truncate text-[10px] font-bold {{ $isCurrent ? 'text-white' : 'text-slate-300' }}">{{ $liveEvent->name }}</span>
+                        <span class="truncate text-[10px] font-bold {{ $isCurrent ? 'text-white' : 'text-[#c9baaf]' }}">{{ $liveEvent->name }}</span>
                         {{-- The event's own latest fight number + status,
                              as words instead of a dot indicator — kept live
                              by setTabStatus() below, which replaces this
                              whole line's text on a FightStatusUpdated
                              broadcast for this event. --}}
-                        <span class="event-tab-meta truncate text-[9px] font-semibold text-slate-500" @if (! $eventFight) hidden @endif>
+                        <span class="event-tab-meta truncate text-[9px] font-semibold text-[#8a7a70]" @if (! $eventFight) hidden @endif>
                             @if ($eventFight)
                                 <span class="event-tab-number">{{ __('Fight #:number', ['number' => $eventFight->fight_number]) }} -</span>
                                 <span class="event-tab-status {{ $eventTabStatusClass($eventFight->status) }}">{{ $statusCopyMap[$eventFight->status]['label'] ?? strtoupper($eventFight->status) }}</span>
@@ -333,7 +333,7 @@
             <a href="{{ route('play.pool-fight', $activeFight) }}"
                data-fight-tab="{{ $activeFight->id }}"
                class="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold uppercase transition
-                   {{ $activeFight->id === $fight->id ? 'bg-slate-800 text-white ring-2 ring-inset ring-white/80' : 'bg-slate-800 text-slate-300 hover:bg-slate-700' }}">
+                   {{ $activeFight->id === $fight->id ? 'bg-[#1a1508] text-white ring-2 ring-inset ring-[#c9a04a]' : 'bg-[#0a0e16] text-[#c9baaf] hover:bg-[#141a2a]' }}">
                 {{ __('Fight #:number', ['number' => $activeFight->fight_number]) }}
             </a>
         @endforeach
@@ -361,7 +361,7 @@
         </div>
         <div class="relative">
             <input type="text" inputmode="numeric" id="bet-amount" data-decimals="0" placeholder="{{ __('Amount') }}"
-                   class="amount-input w-full rounded-lg bg-[#05070b] border border-[#141a2a] pl-3 pr-9 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                   class="amount-input gold-input w-full rounded-lg pl-3 pr-9 py-2">
             <button type="button" id="clear-bet-amount" class="absolute inset-y-0 right-0 px-3 text-[#8a7a70] hover:text-[#c9baaf] transition" aria-label="{{ __('Clear amount') }}">
                 &times;
             </button>
@@ -428,14 +428,14 @@
          or closed (no longer open, awaiting declaration). A plain 'open'
          fight has nothing to announce here, and declared/cancelled get
          their own result overlay instead. -->
-    <div id="status-panel" class="bg-slate-800 rounded-xl px-4 py-6 text-center"@if (! in_array($fight->status, ['pending', 'last_call', 'closed'])) hidden @endif>
+    <div id="status-panel" class="gold-panel rounded-xl px-4 py-6 text-center"@if (! in_array($fight->status, ['pending', 'last_call', 'closed'])) hidden @endif>
         <p class="text-yellow-400 font-extrabold text-lg" id="fight-status-word">{{ $statusCopy['label'] }}</p>
-        <p class="text-slate-400 text-sm mt-1" id="fight-status-desc">{{ $statusCopy['desc'] }}</p>
+        <p class="text-[#8a7a70] text-sm mt-1" id="fight-status-desc">{{ $statusCopy['desc'] }}</p>
     </div>
 
     <!-- Reglahan -->
     <div class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-3">
-        <p class="font-bold text-sm mb-3" style="color:#e0793a;">{{ __('REGLAHAN') }}</p>
+        <p class="font-bold text-sm mb-3" style="color:#c9a04a;">{{ __('REGLAHAN') }}</p>
 
         <div class="flex flex-wrap justify-center gap-x-3 gap-y-1.5 mb-3">
             <span class="flex items-center gap-1.5 text-[11px] text-[#c9baaf]">
@@ -510,9 +510,9 @@
                 @endforeach
             </select>
         </div>
-        <div class="flex gap-1.5 bg-[#05070b] border border-[#141a2a] rounded-[11px] p-1 mb-3">
-            <button type="button" id="bet-history-tab-open" class="bet-history-tab flex-1 rounded-lg py-2 text-xs font-bold text-center transition bg-red-600 text-white shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]" data-status="open">{{ __('Open bets') }}</button>
-            <button type="button" id="bet-history-tab-settled" class="bet-history-tab flex-1 rounded-lg py-2 text-xs font-bold text-center transition text-[#8a7a70]" data-status="settled">{{ __('Settled bets') }}</button>
+        <div class="gold-tabs mb-3">
+            <button type="button" id="bet-history-tab-open" class="bet-history-tab gold-tab is-active" data-status="open">{{ __('Open bets') }}</button>
+            <button type="button" id="bet-history-tab-settled" class="bet-history-tab gold-tab" data-status="settled">{{ __('Settled bets') }}</button>
         </div>
         <div id="bet-history-results">
             @include('player.partials.bet-history-rows')
@@ -532,11 +532,7 @@
 
         function setActiveTab() {
             tabs.forEach((tab) => {
-                const active = tab.dataset.status === status;
-                tab.classList.toggle('bg-red-600', active);
-                tab.classList.toggle('text-white', active);
-                tab.classList.toggle('shadow-[0_4px_14px_-4px_rgba(220,38,38,0.6)]', active);
-                tab.classList.toggle('text-[#8a7a70]', !active);
+                tab.classList.toggle('is-active', tab.dataset.status === status);
             });
         }
 
@@ -579,10 +575,10 @@
 
 <!-- Fight result overlay -->
 <div id="result-overlay" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl p-8 text-center max-w-sm">
-        <p class="text-sm text-slate-400 mb-2">{{ __('Fight #:number result', ['number' => $fight->fight_number]) }}</p>
+    <div class="gold-panel rounded-2xl p-8 text-center max-w-sm">
+        <p class="text-sm text-[#8a7a70] mb-2">{{ __('Fight #:number result', ['number' => $fight->fight_number]) }}</p>
         <p id="result-winner" class="text-3xl font-bold mb-6"></p>
-        <a href="{{ route('play.events.enter', $event) }}" class="inline-block rounded-lg bg-red-600 hover:bg-red-500 transition font-semibold px-6 py-2">{{ __('Next fight →') }}</a>
+        <a href="{{ route('play.events.enter', $event) }}" class="inline-block gold-btn">{{ __('Next fight →') }}</a>
     </div>
 </div>
 
@@ -609,7 +605,7 @@
         if (status === 'open') return 'text-emerald-400';
         if (status === 'last_call') return 'text-yellow-400';
         if (status === 'closed') return 'text-red-400';
-        return 'text-slate-400';
+        return 'text-[#8a7a70]';
     }
 
     // Updates an event-switcher tab's "Fight #:number - STATUS" line (see
@@ -1226,7 +1222,7 @@
         list.querySelector('p')?.remove();
 
         const row = document.createElement('div');
-        row.className = 'flex justify-between border-b border-slate-800 pb-1';
+        row.className = 'flex justify-between border-b border-[#141a2a] pb-1';
         row.innerHTML = `<span class="capitalize"></span><span></span>`;
         row.firstElementChild.textContent = side;
         row.lastElementChild.textContent = @json($theme['currency']) + amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1287,8 +1283,8 @@
             }
 
             const cls = af.id === fightId
-                ? 'bg-slate-800 text-white ring-2 ring-inset ring-white/80'
-                : 'bg-slate-800 text-slate-300 hover:bg-slate-700';
+                ? 'bg-[#1a1508] text-white ring-2 ring-inset ring-[#c9a04a]'
+                : 'bg-[#0a0e16] text-[#c9baaf] hover:bg-[#141a2a]';
             tab.href = fightUrl(af.id);
             tab.className = 'shrink-0 rounded-full px-3 py-1.5 text-xs font-bold uppercase transition ' + cls;
             tab.textContent = i18n.fightNumberLabel.replace(':number', af.fight_number);
@@ -1446,13 +1442,12 @@
                         title: i18n.newFightTitle,
                         html: i18n.newFightHtml.replace(':number', e.fight_number),
                         icon: 'info',
-                        background: '#0f172a',
-                        color: '#e2e8f0',
+                        ...swalDark,
                         showCancelButton: true,
                         confirmButtonText: i18n.proceedToNextFight,
                         cancelButtonText: i18n.cancel,
-                        confirmButtonColor: '#dc2626',
-                        cancelButtonColor: '#334155',
+                        confirmButtonColor: '#c9a04a',
+                        cancelButtonColor: '#1b243a',
                         reverseButtons: true,
                     }).then((result) => {
                         if (result.isConfirmed) {

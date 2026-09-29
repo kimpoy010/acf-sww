@@ -69,7 +69,7 @@ class PoolBetSlipUxTest extends TestCase
         $response = $this->actingAs($player)->get(route('play.pool-fight', $fight));
 
         $response->assertOk();
-        $response->assertDontSee('id="status-panel" class="bg-slate-800 rounded-xl px-4 py-6 text-center" hidden', false);
+        $response->assertDontSee('id="status-panel" class="gold-panel rounded-xl px-4 py-6 text-center" hidden', false);
     }
 
     public function test_the_status_panel_shows_for_a_closed_fight(): void
@@ -80,7 +80,7 @@ class PoolBetSlipUxTest extends TestCase
         $response = $this->actingAs($player)->get(route('play.pool-fight', $fight));
 
         $response->assertOk();
-        $response->assertDontSee('id="status-panel" class="bg-slate-800 rounded-xl px-4 py-6 text-center" hidden', false);
+        $response->assertDontSee('id="status-panel" class="gold-panel rounded-xl px-4 py-6 text-center" hidden', false);
     }
 
     public function test_the_status_panel_is_hidden_for_an_open_fight(): void
@@ -91,6 +91,6 @@ class PoolBetSlipUxTest extends TestCase
         $response = $this->actingAs($player)->get(route('play.pool-fight', $fight));
 
         $response->assertOk();
-        $response->assertSee('id="status-panel" class="bg-slate-800 rounded-xl px-4 py-6 text-center" hidden', false);
+        $response->assertSee('id="status-panel" class="gold-panel rounded-xl px-4 py-6 text-center" hidden', false);
     }
 }

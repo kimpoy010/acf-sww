@@ -40,10 +40,10 @@
     <!-- Totalizer / Odds toggle -->
     <div class="flex items-center justify-center gap-3 bg-[#0a0e16] border border-[#141a2a] rounded-xl px-4 py-3">
         <button type="button" id="mode-label-pool" class="text-sm font-extrabold uppercase tracking-wide text-white">{{ __('Totalizer') }}</button>
-        <button type="button" id="mode-toggle" class="relative w-14 h-7 rounded-full bg-slate-700 transition-colors" aria-pressed="false">
+        <button type="button" id="mode-toggle" class="relative w-14 h-7 rounded-full bg-[#141a2a] transition-colors" aria-pressed="false">
             <span id="mode-toggle-thumb" class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform"></span>
         </button>
-        <button type="button" id="mode-label-odds" class="text-sm font-extrabold uppercase tracking-wide text-slate-400">{{ __('Odds') }}</button>
+        <button type="button" id="mode-label-odds" class="text-sm font-extrabold uppercase tracking-wide text-[#8a7a70]">{{ __('Odds') }}</button>
     </div>
 
     <!-- Totalizer panel -->
@@ -73,7 +73,7 @@
     <div id="panel-odds" class="hidden bg-[#0a0e16] border border-[#141a2a] rounded-xl overflow-hidden">
         <div class="grid grid-cols-3 text-center text-[10px] font-bold uppercase">
             <span class="bg-red-900/40 text-red-300 py-2">{{ $event->sideLabel('meron') }}</span>
-            <span class="bg-black/30 text-slate-400 py-2">{{ __('Odds') }}</span>
+            <span class="bg-black/30 text-[#8a7a70] py-2">{{ __('Odds') }}</span>
             <span class="bg-blue-900/40 text-blue-300 py-2">{{ $event->sideLabel('wala') }}</span>
         </div>
         <div id="odds-tier-rows" class="divide-y divide-slate-800">
@@ -96,7 +96,7 @@
                     </button>
                 </div>
             @empty
-                <div class="px-4 py-6 text-center text-slate-500 text-sm">{{ __('No odds tiers configured for this event yet.') }}</div>
+                <div class="px-4 py-6 text-center text-[#8a7a70] text-sm">{{ __('No odds tiers configured for this event yet.') }}</div>
             @endforelse
         </div>
     </div>
@@ -116,13 +116,13 @@
          book (nobody's taken the other side yet, in full) can be
          cancelled; a matched bet is locked in. -->
     @if ($myUnmatchedBets->isNotEmpty())
-        <div id="my-unmatched-bets" class="rounded-xl bg-slate-900 border border-slate-800 divide-y divide-slate-800">
-            <div class="px-4 py-2 text-[11px] font-bold uppercase text-slate-500">{{ __('My unmatched odds bets') }}</div>
+        <div id="my-unmatched-bets" class="rounded-xl bg-[#0a0e16] border border-[#141a2a] divide-y divide-[#141a2a]">
+            <div class="px-4 py-2 text-[11px] font-bold uppercase text-[#8a7a70]">{{ __('My unmatched odds bets') }}</div>
             @foreach ($myUnmatchedBets as $bet)
                 <div class="flex items-center justify-between px-4 py-2.5 text-sm" data-unmatched-bet-row="{{ $bet->id }}">
                     <span class="capitalize">
                         {{ $bet->side }} @ {{ rtrim(rtrim((string) $bet->oddsTier->meron_ratio, '0'), '.') }}-{{ rtrim(rtrim((string) $bet->oddsTier->wala_ratio, '0'), '.') }}
-                        <span class="text-slate-500">({{ $currency }}{{ number_format($bet->unmatched_amount, 2) }} unmatched)</span>
+                        <span class="text-[#8a7a70]">({{ $currency }}{{ number_format($bet->unmatched_amount, 2) }} unmatched)</span>
                     </span>
                     <button type="button" class="cancel-unmatched-bet text-xs text-red-400 hover:underline" data-bet-id="{{ $bet->id }}">{{ __('Cancel') }}</button>
                 </div>
@@ -131,9 +131,9 @@
     @endif
 
     <!-- Status panel -->
-    <div class="rounded-xl bg-slate-900 border border-slate-800 px-4 py-4 text-center" id="fight-status-panel">
+    <div class="gold-panel rounded-xl px-4 py-4 text-center" id="fight-status-panel">
         <div class="font-bold uppercase text-sm {{ $fight->status === 'open' ? 'text-emerald-400' : 'text-amber-400' }}" id="fight-status-label">{{ $statusCopy['label'] }}</div>
-        <div class="text-slate-400 text-xs mt-1" id="fight-status-desc">{{ $statusCopy['desc'] }}</div>
+        <div class="text-[#8a7a70] text-xs mt-1" id="fight-status-desc">{{ $statusCopy['desc'] }}</div>
     </div>
 </div>
 
@@ -164,9 +164,9 @@
         thumb.style.transform = mode === 'odds' ? 'translateX(26px)' : 'translateX(0)';
         toggle.setAttribute('aria-pressed', mode === 'odds' ? 'true' : 'false');
         labelPool.classList.toggle('text-white', mode === 'pool');
-        labelPool.classList.toggle('text-slate-400', mode !== 'pool');
+        labelPool.classList.toggle('text-[#8a7a70]', mode !== 'pool');
         labelOdds.classList.toggle('text-white', mode === 'odds');
-        labelOdds.classList.toggle('text-slate-400', mode !== 'odds');
+        labelOdds.classList.toggle('text-[#8a7a70]', mode !== 'odds');
     }
 
     toggle.addEventListener('click', () => {

@@ -14,7 +14,7 @@
     $walaRgb = $hexToRgb($theme['wala']['hex']);
 @endphp
 <div class="gold-panel p-3">
-    <p class="font-bold text-sm mb-3" style="color:#e0793a;">{{ __('REGLAHAN') }}</p>
+    <p class="font-bold text-sm mb-3" style="color:#c9a04a;">{{ __('REGLAHAN') }}</p>
 
     <div class="flex flex-wrap justify-center gap-x-3 gap-y-1.5 mb-3">
         <span class="flex items-center gap-1.5 text-[11px] text-[#c9baaf]">
