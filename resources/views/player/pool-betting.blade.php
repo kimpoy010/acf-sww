@@ -1115,7 +1115,7 @@
         const meta = sideMeta[side];
         const presets = [5000, 7000, 8000, 10000, 20000, 50000, 100000];
         const chipsHtml = presets.map((p) =>
-            `<button type="button" class="swal-amount-chip" data-amount="${p}" style="aspect-ratio:1/1;max-width:60px;justify-self:center;padding:0;background:none;border:none;cursor:pointer;">` +
+            `<button type="button" class="swal-amount-chip" data-amount="${p}" style="aspect-ratio:1/1;width:42px;flex-shrink:0;padding:0;background:none;border:none;cursor:pointer;">` +
                 `<img src="${chipImageBase}/chip-${p}.png?v=${chipVersions[p] || ''}" alt="${p}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;" draggable="false">` +
             `</button>`
         ).join('');
@@ -1124,7 +1124,7 @@
             title: i18n.enterAmount,
             html:
                 `<p style="font-size:13px;color:#8a7a70;margin:0 0 12px;">${i18n.chooseAmountText.replace(':side', meta.label.toUpperCase())}</p>` +
-                `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px;">${chipsHtml}</div>` +
+                `<div style="display:flex;flex-wrap:nowrap;justify-content:space-between;gap:4px;margin-bottom:10px;overflow-x:auto;">${chipsHtml}</div>` +
                 `<input id="swal-amount-input" class="amount-input" type="text" inputmode="numeric" data-decimals="0" placeholder="${i18n.amountPlaceholder}" style="width:100%;box-sizing:border-box;background:#05070b;border:1px solid #141a2a;border-radius:9px;padding:9px 12px;color:#f5efe9;font-size:14px;">` +
                 (minBet ? `<p style="font-size:11px;color:#8a7a70;margin:6px 0 0;">{{ __('Minimum bet:') }} {{ $theme['currency'] }}${fmt(minBet)}</p>` : ''),
             showCancelButton: true,
