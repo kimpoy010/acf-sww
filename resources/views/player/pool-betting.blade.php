@@ -184,7 +184,7 @@
         .chip-btn {
             aspect-ratio: 1 / 1;
             width: 100%;
-            max-width: 38px;
+            max-width: 50px;
             justify-self: center;
             padding: 0;
             background: none;
@@ -1102,7 +1102,7 @@
         const meta = sideMeta[side];
         const presets = [10, 20, 50, 100, 1000, 5000, 10000];
         const chipsHtml = presets.map((p) =>
-            `<button type="button" class="swal-amount-chip" data-amount="${p}" style="aspect-ratio:1/1;max-width:56px;justify-self:center;padding:0;background:none;border:none;cursor:pointer;">` +
+            `<button type="button" class="swal-amount-chip" data-amount="${p}" style="aspect-ratio:1/1;max-width:68px;justify-self:center;padding:0;background:none;border:none;cursor:pointer;">` +
                 `<img src="${chipImageBase}/chip-${p}.png" alt="${p}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;" draggable="false">` +
             `</button>`
         ).join('');
