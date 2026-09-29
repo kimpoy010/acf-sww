@@ -173,13 +173,24 @@
         /* Highlights whichever preset amount chip was last clicked, so a
            player can see which one filled the amount field (chip-btn has no
            other selected/pressed state of its own). Cleared on manual typing
-           in #bet-amount — see the input listener below. */
+           in #bet-amount — see the input listener below. The chip's own
+           image already reads clearly on its own, so selection is a glow
+           ring + lift rather than recoloring it. */
         .chip-btn-active {
-            background-color: #dc2626 !important;
-            border-color: #dc2626 !important;
-            color: #fff !important;
-            box-shadow: 0 4px 14px -4px rgba(220, 38, 38, 0.65);
+            box-shadow: 0 0 0 2px #c9a04a, 0 4px 14px -4px rgba(168, 121, 31, 0.7);
+            transform: translateY(-2px);
         }
+
+        .chip-btn {
+            aspect-ratio: 1 / 1;
+            width: 100%;
+            padding: 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .chip-btn:hover { filter: brightness(1.12); }
+        .chip-btn:active { transform: translateY(1px) scale(0.96); }
 
         /* A fight-switcher tab whose fight just got declared/cancelled
            stays in the bar for a brief rapid-flash window (see renderTabs/
@@ -343,7 +354,9 @@
     <div id="bet-panel" class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-4">
         <div class="grid grid-cols-7 gap-1 mb-3">
             @foreach ([[10, '10'], [20, '20'], [50, '50'], [100, '100'], [1000, '1k'], [5000, '5k'], [10000, '10k']] as [$amount, $label])
-                <button type="button" class="chip-btn rounded-full bg-[#0a0e16] border border-[#1b243a] hover:border-red-500/60 text-[#c9baaf] text-xs sm:text-sm font-extrabold py-2 text-center transition" data-amount="{{ $amount }}">{{ $label }}</button>
+                <button type="button" class="chip-btn rounded-full transition" data-amount="{{ $amount }}">
+                    <img src="{{ asset('images/player/chips/chip-'.$amount.'.png') }}" alt="{{ $label }}" class="w-full h-full object-contain pointer-events-none select-none" draggable="false">
+                </button>
             @endforeach
         </div>
         <div class="relative">
@@ -587,6 +600,7 @@
     const multiplier = {{ (float) $event->multiplier }};
     const maxDrawBet = {{ (float) $maxDrawBet }};
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
+    const chipImageBase = @json(asset('images/player/chips'));
     const i18n = @json($i18n);
     const statusCopy = i18n.statusCopy;
     const liveEventIds = @json($liveEvents->pluck('id'));
@@ -1089,9 +1103,10 @@
     function promptAmountAndPlaceBet(side) {
         const meta = sideMeta[side];
         const presets = [10, 20, 50, 100, 1000, 5000, 10000];
-        const chipLabel = (p) => p >= 1000 ? (p / 1000) + 'k' : String(p);
         const chipsHtml = presets.map((p) =>
-            `<button type="button" class="swal-amount-chip" data-amount="${p}" style="border-radius:999px;padding:8px 0;font-size:12px;font-weight:800;background:#05070b;color:#c9baaf;border:1px solid #1b243a;cursor:pointer;">${chipLabel(p)}</button>`
+            `<button type="button" class="swal-amount-chip" data-amount="${p}" style="aspect-ratio:1/1;padding:0;background:none;border:none;cursor:pointer;">` +
+                `<img src="${chipImageBase}/chip-${p}.png" alt="${p}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;" draggable="false">` +
+            `</button>`
         ).join('');
 
         Swal.fire({
@@ -1113,13 +1128,11 @@
                         input.value = chip.dataset.amount;
                         window.applyAccountingFormat(input);
                         document.querySelectorAll('.swal-amount-chip').forEach((c) => {
-                            c.style.background = '#05070b';
-                            c.style.borderColor = '#1b243a';
-                            c.style.color = '#c9baaf';
+                            c.style.boxShadow = 'none';
+                            c.style.borderRadius = '0';
                         });
-                        chip.style.background = meta.color;
-                        chip.style.borderColor = meta.color;
-                        chip.style.color = '#fff';
+                        chip.style.boxShadow = `0 0 0 2px ${meta.color}, 0 4px 12px -4px ${meta.color}`;
+                        chip.style.borderRadius = '999px';
                     });
                 });
             },

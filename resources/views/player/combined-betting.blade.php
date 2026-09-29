@@ -143,6 +143,7 @@
     const statusUrl = @json(route('play.combined-fight.status', $fight));
     const betUrl = @json(route('play.combined-bet', $fight));
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
+    const chipImageBase = @json(asset('images/player/chips'));
     const currency = @json($currency);
     const statusCopy = @json(collect($statusCopyMap)->map(fn ($c) => [$c['label'], $c['desc']]));
     const swalDark = { background: '#0a0e16', color: '#f5efe9' };
@@ -181,7 +182,11 @@
     function promptAmount(title, color, onConfirm) {
         if (!isBettable) return;
         const chips = [10, 20, 50, 100, 500, 1000];
-        const chipsHtml = chips.map(a => `<button type="button" class="amt-chip" data-amount="${a}" style="padding:6px 0;border-radius:8px;border:1px solid #1b243a;background:#05070b;color:#c9baaf;font-size:12px;">${a}</button>`).join('');
+        const chipsHtml = chips.map(a =>
+            `<button type="button" class="amt-chip" data-amount="${a}" style="aspect-ratio:1/1;padding:0;background:none;border:none;cursor:pointer;">` +
+                `<img src="${chipImageBase}/chip-${a}.png" alt="${a}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;" draggable="false">` +
+            `</button>`
+        ).join('');
 
         Swal.fire({
             title,
@@ -196,7 +201,15 @@
             didOpen: () => {
                 const input = document.getElementById('swal-amount');
                 document.querySelectorAll('.amt-chip').forEach(chip => {
-                    chip.addEventListener('click', () => { input.value = chip.dataset.amount; });
+                    chip.addEventListener('click', () => {
+                        input.value = chip.dataset.amount;
+                        document.querySelectorAll('.amt-chip').forEach(c => {
+                            c.style.boxShadow = 'none';
+                            c.style.borderRadius = '0';
+                        });
+                        chip.style.boxShadow = `0 0 0 2px ${color}, 0 4px 12px -4px ${color}`;
+                        chip.style.borderRadius = '999px';
+                    });
                 });
             },
             preConfirm: () => {
