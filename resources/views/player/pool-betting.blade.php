@@ -354,8 +354,8 @@
 
     <!-- Bet slip -->
     <div id="bet-panel" class="bg-[#0a0e16] border border-[#141a2a] rounded-xl p-4">
-        <div class="grid grid-cols-7 gap-1 mb-3">
-            @foreach ([[10, '10'], [20, '20'], [50, '50'], [100, '100'], [1000, '1k'], [5000, '5k'], [10000, '10k']] as [$amount, $label])
+        <div class="grid grid-cols-5 gap-1 mb-3">
+            @foreach ([[5000, '5k'], [6000, '6k'], [7000, '7k'], [8000, '8k'], [10000, '10k'], [20000, '20k'], [50000, '50k'], [90000, '90k'], [100000, '100k']] as [$amount, $label])
                 <button type="button" class="chip-btn rounded-full transition" data-amount="{{ $amount }}">
                     <img src="{{ asset('images/player/chips/chip-'.$amount.'.png') }}" alt="{{ $label }}" class="w-full h-full object-contain pointer-events-none select-none" draggable="false">
                 </button>
@@ -1104,9 +1104,9 @@
 
     function promptAmountAndPlaceBet(side) {
         const meta = sideMeta[side];
-        const presets = [10, 20, 50, 100, 1000, 5000, 10000];
+        const presets = [5000, 6000, 7000, 8000, 10000, 20000, 50000, 90000, 100000];
         const chipsHtml = presets.map((p) =>
-            `<button type="button" class="swal-amount-chip" data-amount="${p}" style="aspect-ratio:1/1;max-width:68px;justify-self:center;padding:0;background:none;border:none;cursor:pointer;">` +
+            `<button type="button" class="swal-amount-chip" data-amount="${p}" style="aspect-ratio:1/1;max-width:60px;justify-self:center;padding:0;background:none;border:none;cursor:pointer;">` +
                 `<img src="${chipImageBase}/chip-${p}.png" alt="${p}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;" draggable="false">` +
             `</button>`
         ).join('');
@@ -1115,7 +1115,7 @@
             title: i18n.enterAmount,
             html:
                 `<p style="font-size:13px;color:#8a7a70;margin:0 0 12px;">${i18n.chooseAmountText.replace(':side', meta.label.toUpperCase())}</p>` +
-                `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">${chipsHtml}</div>` +
+                `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px;">${chipsHtml}</div>` +
                 `<input id="swal-amount-input" class="amount-input" type="text" inputmode="numeric" data-decimals="0" placeholder="${i18n.amountPlaceholder}" style="width:100%;box-sizing:border-box;background:#05070b;border:1px solid #141a2a;border-radius:9px;padding:9px 12px;color:#f5efe9;font-size:14px;">` +
                 (minBet ? `<p style="font-size:11px;color:#8a7a70;margin:6px 0 0;">{{ __('Minimum bet:') }} {{ $theme['currency'] }}${fmt(minBet)}</p>` : ''),
             showCancelButton: true,
